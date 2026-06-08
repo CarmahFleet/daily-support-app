@@ -8,109 +8,117 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: Arial, sans-serif;
-      background: #f0f4ff;
+      background: linear-gradient(160deg, #f0f4ff 0%, #fdf0ff 100%);
+      min-height: 100vh;
       color: #333;
-      padding: 20px 16px 40px;
+      padding: 24px 16px 48px;
     }
-    h1 {
+    .app-header {
       text-align: center;
-      font-size: 24px;
-      color: #3C3489;
-      margin-bottom: 4px;
-    }
-    .subtitle {
-      text-align: center;
-      color: #534AB7;
-      font-size: 15px;
       margin-bottom: 20px;
+    }
+    .app-header h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: #3C3489;
+    }
+    .app-header p {
+      font-size: 15px;
+      color: #7c6fcd;
+      margin-top: 4px;
     }
     .card {
       background: white;
-      border-radius: 20px;
-      padding: 16px;
+      border-radius: 22px;
+      padding: 18px;
       margin-bottom: 14px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      box-shadow: 0 4px 16px rgba(83,74,183,0.08);
     }
     .card-title {
-      font-size: 12px;
-      font-weight: bold;
-      color: #888;
+      font-size: 11px;
+      font-weight: 800;
+      color: #bbb;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 10px;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
     }
     .status-badge {
       display: inline-block;
-      padding: 8px 16px;
+      padding: 10px 20px;
       border-radius: 20px;
-      font-size: 18px;
-      font-weight: bold;
-      margin-bottom: 8px;
+      font-size: 17px;
+      font-weight: 800;
+      margin-bottom: 6px;
     }
-    .badge-okay { background: #EAF3DE; color: #27500A; }
-    .badge-support { background: #FAEEDA; color: #633806; }
-    .badge-help { background: #FAECE7; color: #712B13; }
+    .badge-okay { background: linear-gradient(90deg, #d4f5d4, #b8edb8); color: #1a6b1a; }
+    .badge-support { background: linear-gradient(90deg, #fff0cc, #ffe8a0); color: #7a5200; }
+    .badge-help { background: linear-gradient(90deg, #ffd6d6, #ffb8b8); color: #8a1a1a; }
     .checkin-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 8px;
     }
     .checkin-box {
-      background: #f8f9fa;
-      border-radius: 12px;
-      padding: 12px 8px;
+      border-radius: 14px;
+      padding: 14px 8px;
       text-align: center;
     }
+    .checkin-box:nth-child(1) { background: #fdf0ff; }
+    .checkin-box:nth-child(2) { background: #eef3ff; }
+    .checkin-box:nth-child(3) { background: #f0faf0; }
     .checkin-box .label {
-      font-size: 11px;
-      color: #888;
+      font-size: 10px;
+      font-weight: 800;
+      color: #bbb;
       text-transform: uppercase;
-      letter-spacing: 0.4px;
+      letter-spacing: 0.5px;
       margin-bottom: 6px;
     }
     .checkin-box .value {
       font-size: 15px;
-      font-weight: bold;
+      font-weight: 800;
       color: #3C3489;
     }
     .alert-item {
-      padding: 12px;
-      background: #f8f9fa;
-      border-radius: 12px;
+      padding: 13px 14px;
+      border-radius: 14px;
       margin-bottom: 8px;
+      font-weight: 700;
+      font-size: 15px;
     }
     .alert-item:last-child { margin-bottom: 0; }
-    .alert-type {
-      font-weight: bold;
-      font-size: 15px;
-      margin-bottom: 2px;
-    }
+    .alert-okay { background: #f0faf0; color: #1a6b1a; }
+    .alert-support { background: #fffbf0; color: #7a5200; }
+    .alert-help { background: #fff5f5; color: #8a1a1a; }
     .alert-date {
-      font-size: 12px;
+      font-size: 11px;
+      font-weight: 400;
       color: #999;
-      margin-top: 4px;
+      margin-top: 3px;
     }
     .time-tag {
       font-size: 12px;
-      color: #999;
-      margin-top: 6px;
+      color: #bbb;
+      margin-top: 8px;
     }
     .footer {
       text-align: center;
-      color: #aaa;
+      color: #bbb;
       font-size: 12px;
-      margin-top: 20px;
+      margin-top: 24px;
     }
   </style>
 </head>
 <body>
 
-  <h1>Hello Dad 👋</h1>
-  <div class="subtitle">Here's how Jesse is doing</div>
+  <div class="app-header">
+    <h1>Hi Dad 👋</h1>
+    <p>Here's how Jesse is doing</p>
+  </div>
 
   <div class="card">
     <div class="card-title">Latest Support Request</div>
-    <div id="status">Loading...</div>
+    <div id="status"><span style="color:#ccc">No alerts yet</span></div>
     <div id="latestTime" class="time-tag"></div>
   </div>
 
@@ -130,15 +138,15 @@
         <div class="value" id="needToday">—</div>
       </div>
     </div>
-    <div id="checkinTime" class="time-tag" style="margin-top:10px"></div>
+    <div id="checkinTime" class="time-tag"></div>
   </div>
 
   <div class="card">
     <div class="card-title">Recent Alerts</div>
-    <div id="alerts">Loading...</div>
+    <div id="alerts"><span style="color:#ccc">No alerts yet</span></div>
   </div>
 
-  <div class="footer">Dad Dashboard v2 · Auto-refreshes every 30 seconds</div>
+  <div class="footer">Dad Dashboard 💜 · Refreshes every 30 seconds</div>
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzlTd0HcORu-R78042GmDC5buO-69X9XRB6NjPh-Qmtj_5fnA-fSKBAkXCnuufS5LU5/exec";
@@ -157,6 +165,13 @@
       return "";
     }
 
+    function getAlertItemClass(type) {
+      if (type === "OKAY") return "alert-okay";
+      if (type === "SUPPORT") return "alert-support";
+      if (type === "HELP") return "alert-help";
+      return "";
+    }
+
     async function loadDashboard() {
       try {
         const response = await fetch(API_URL);
@@ -171,18 +186,16 @@
           document.getElementById("latestTime").innerHTML = "Received: " + latest[2];
 
           let html = "";
-          for (let i = alerts.length - 1; i >= 1; i--) {
+          const start = Math.max(1, alerts.length - 5);
+          for (let i = alerts.length - 1; i >= start; i--) {
             html += `
-              <div class="alert-item">
-                <div class="alert-type">${getAlertLabel(alerts[i][3])}</div>
+              <div class="alert-item ${getAlertItemClass(alerts[i][3])}">
+                ${getAlertLabel(alerts[i][3])}
                 <div class="alert-date">${alerts[i][2]}</div>
               </div>
             `;
           }
           document.getElementById("alerts").innerHTML = html;
-        } else {
-          document.getElementById("status").innerHTML = "<span style='color:#999'>No alerts yet</span>";
-          document.getElementById("alerts").innerHTML = "<span style='color:#999'>No alerts yet</span>";
         }
 
         if (checkIns.length > 1) {
@@ -194,7 +207,7 @@
         }
 
       } catch(error) {
-        document.getElementById("status").innerHTML = "Unable to load dashboard";
+        document.getElementById("status").innerHTML = "Unable to load";
       }
     }
 
