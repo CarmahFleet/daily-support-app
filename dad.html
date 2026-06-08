@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dad Dashboard</title>
+
+<style>
+
+body{
+    font-family: Arial, sans-serif;
+    background:#f4f6f8;
+    margin:0;
+    padding:20px;
+}
+
+.container{
+    max-width:700px;
+    margin:auto;
+}
+
+.card{
+    background:white;
+    border-radius:16px;
+    padding:20px;
+    margin-bottom:16px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.08);
+}
+
+h1{
+    text-align:center;
+}
+
+.status{
+    font-size:22px;
+    font-weight:bold;
+}
+
+.message{
+    font-size:18px;
+    margin-top:10px;
+}
+
+.small{
+    color:#666;
+    font-size:14px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Hello Dad 👋</h1>
+
+    <div class="card">
+
+        <h2>Latest Support Request</h2>
+
+        <div id="status" class="status">
+            Loading...
+        </div>
+
+        <div id="message" class="message">
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <h2>Recent Alerts</h2>
+
+        <div id="alerts">
+            Loading...
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+const API_URL =
+"https://script.google.com/macros/s/AKfycbzlTd0HcORu-R78042GmDC5buO-69X9XRB6NjPh-Qmtj_5fnA-fSKBAkXCnuufS5LU5/exec";
+
+async function loadDashboard(){
+
+    try{
+
+        const response = await fetch(API_URL);
+
+        const data = await response.json();
+
+        const alerts = data.supportAlerts;
+
+        if(alerts.length <= 1){
+
+            document.getElementById("status").innerHTML =
+                "No alerts yet";
+
+            return;
+        }
+
+        const latest = alerts[alerts.length - 1];
+
+        document.getElementById("status").innerHTML =
+            latest[3];
+
+        document.getElementById("message").innerHTML =
+            latest[4];
+
+        let html = "";
+
+        for(let i = alerts.length - 1; i >= 1; i--){
+
+            html += `
+                <p>
+                    <strong>${alerts[i][3]}</strong><br>
+                    ${alerts[i][4]}
+                </p>
+            `;
+        }
+
+        document.getElementById("alerts").innerHTML =
+            html;
+
+    }catch(error){
+
+        console.error(error);
+
+        document.getElementById("status").innerHTML =
+            "Unable to load dashboard";
+    }
+}
+
+loadDashboard();
+
+</script>
+
+</body>
+</html>
