@@ -5,198 +5,54 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Daily Support App</title>
   <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: Arial, sans-serif;
-      margin: 0;
-      background: #f4f6f8;
+      background: #f0f4ff;
       color: #333;
-    }
-    .container {
-      max-width: 500px;
-      margin: auto;
-      padding: 20px;
-    }
-    .card {
-      background: white;
-      border-radius: 16px;
-      padding: 20px;
-      margin-bottom: 16px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      padding: 20px 16px 40px;
     }
     h1 {
       text-align: center;
+      font-size: 24px;
+      color: #3C3489;
+      margin-bottom: 4px;
     }
     .subtitle {
       text-align: center;
-      color: #666;
-      margin-bottom: 25px;
+      color: #534AB7;
+      font-size: 15px;
+      margin-bottom: 20px;
     }
-    .button {
-      width: 100%;
-      border: none;
-      border-radius: 12px;
-      padding: 14px;
-      margin: 8px 0;
-      font-size: 16px;
-      cursor: pointer;
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     }
-    .green { background: #d4edda; }
-    .yellow { background: #fff3cd; }
-    .red { background: #f8d7da; }
-    .input-group {
-      margin-bottom: 15px;
-    }
-    label {
-      font-weight: bold;
-    }
-    select {
-      width: 100%;
-      padding: 10px;
-      margin-top: 6px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-    }
-    .task-item {
-      display: block;
-      padding: 12px;
-      margin-bottom: 10px;
-      border-radius: 10px;
-      background: #f8f9fa;
-    }
-    .footer {
-      text-align: center;
-      color: #888;
+    .card-title {
       font-size: 12px;
-      margin-top: 25px;
+      font-weight: bold;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
     }
-  </style>
-</head>
-<body>
-  <div class="container">
-
-    <h1>Hello Jesse 🌈</h1>
-    <div class="subtitle">How are you feeling today?</div>
-
-    <div class="card">
-      <div class="input-group">
-        <label>Mood</label>
-        <select id="mood">
-          <option value="Good">😊 Good</option>
-          <option value="Okay">😐 Okay</option>
-          <option value="Struggling">😔 Struggling</option>
-        </select>
-      </div>
-      <div class="input-group">
-        <label>Energy</label>
-        <select id="energy">
-          <option value="High">⚡ High</option>
-          <option value="Medium">🔋 Medium</option>
-          <option value="Low">🪫 Low</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="card">
-      <h3>Support</h3>
-      <button class="button green" onclick="sendAlert('OKAY')">🟢 I'm okay</button>
-      <button class="button yellow" onclick="sendAlert('SUPPORT')">🟡 I could use some support</button>
-      <button class="button red" onclick="sendAlert('HELP')">🔴 Dad, I need help today</button>
-    </div>
-
-    <div class="card">
-      <h3>Today's Tasks</h3>
-      <div id="tasks">Loading tasks...</div>
-    </div>
-
-    <div class="footer">Daily Support App v3</div>
-
-  </div>
-
-  <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbzlTd0HcORu-R78042GmDC5buO-69X9XRB6NjPh-Qmtj_5fnA-fSKBAkXCnuufS5LU5/exec";
-
-    async function sendAlert(alertType) {
-      const mood = document.getElementById("mood").value;
-      const energy = document.getElementById("energy").value;
-
-      let needToday = "";
-      switch(alertType) {
-        case "OKAY": needToday = "I'm okay today"; break;
-        case "SUPPORT": needToday = "I could use some support"; break;
-        case "HELP": needToday = "Dad, I need help today"; break;
-      }
-
-      try {
-        await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain" },
-          body: JSON.stringify({
-            action: "checkIn",
-            userId: 2,
-            mood: mood,
-            energy: energy,
-            needToday: needToday
-          })
-        });
-      } catch(e) {}
-
-      try {
-        await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain" },
-          body: JSON.stringify({
-            userId: 2,
-            alertType: alertType,
-            message: needToday
-          })
-        });
-      } catch(e) {}
-
-      alert("Thanks Jesse ❤️");
+    .btn-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
     }
-
-    async function completeTask(taskId) {
-      try {
-        await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain" },
-          body: JSON.stringify({ action: "completeTask", taskId: taskId })
-        });
-      } catch(e) {}
-      setTimeout(loadTasks, 1500);
+    .select-btn {
+      border: 2px solid #e0e0e0;
+      border-radius: 14px;
+      padding: 10px 6px;
+      text-align: center;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: bold;
+      background: #f8f9fa;
+      color: #555;
+      transition: all 0.15s;
     }
-
-    async function loadTasks() {
-      try {
-        const response = await fetch(API_URL);
-        const data = await response.json();
-        const tasks = data.tasks;
-        let html = "";
-        for (let i = 1; i < tasks.length; i++) {
-          const row = tasks[i];
-          const taskId = row[0];
-          const userId = row[1];
-          const taskTitle = row[4];
-          const status = row[6];
-          if (userId == 2 && status !== "Completed") {
-            html += `
-              <label class="task-item">
-                <input type="checkbox" onchange="completeTask(${taskId})">
-                ${taskTitle}
-              </label>
-            `;
-          }
-        }
-        if (html === "") {
-          html = "<p>🎉 All tasks completed!</p>";
-        }
-        document.getElementById("tasks").innerHTML = html;
-      } catch(error) {
-        document.getElementById("tasks").innerHTML = "Unable to load tasks";
-      }
-    }
-
-    loadTasks();
-  </script>
-</body>
-</html>
