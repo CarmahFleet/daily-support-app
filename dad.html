@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
@@ -13,38 +14,90 @@ body{
     background:#f4f6f8;
     margin:0;
     padding:20px;
+    color:#333;
 }
 
 .container{
-    max-width:700px;
+    max-width:800px;
     margin:auto;
 }
 
 .card{
     background:white;
     border-radius:16px;
-    padding:20px;
-    margin-bottom:16px;
+    padding:24px;
+    margin-bottom:20px;
     box-shadow:0 2px 8px rgba(0,0,0,0.08);
 }
 
 h1{
     text-align:center;
+    margin-bottom:30px;
+}
+
+h2{
+    margin-top:0;
 }
 
 .status{
-    font-size:22px;
+    font-size:28px;
     font-weight:bold;
+    margin-bottom:10px;
 }
 
 .message{
-    font-size:18px;
-    margin-top:10px;
+    font-size:20px;
+    margin-bottom:10px;
 }
 
-.small{
+.time{
     color:#666;
     font-size:14px;
+}
+
+.checkin-row{
+    display:flex;
+    gap:20px;
+    flex-wrap:wrap;
+}
+
+.checkin-box{
+    flex:1;
+    min-width:220px;
+    padding:20px;
+    border-radius:12px;
+    background:#f8f9fa;
+}
+
+.alert-item{
+    padding:12px 0;
+    border-bottom:1px solid #eee;
+}
+
+.alert-item:last-child{
+    border-bottom:none;
+}
+
+.alert-type{
+    font-weight:bold;
+    font-size:18px;
+}
+
+.alert-message{
+    margin-top:4px;
+}
+
+.alert-date{
+    color:#777;
+    font-size:13px;
+    margin-top:4px;
+}
+
+.footer{
+    text-align:center;
+    color:#888;
+    font-size:12px;
+    margin-top:20px;
 }
 
 </style>
@@ -55,30 +108,64 @@ h1{
 
 <div class="container">
 
-    <h1>Hello Dad 👋</h1>
+```
+<h1>Hello Dad 👋</h1>
 
-    <div class="card">
+<div class="card">
 
-        <h2>Latest Support Request</h2>
+    <h2>Latest Support Request</h2>
 
-        <div id="status" class="status">
-            Loading...
+    <div id="status" class="status">
+        Loading...
+    </div>
+
+    <div id="message" class="message">
+    </div>
+
+    <div id="latestTime" class="time">
+    </div>
+
+</div>
+
+<div class="card">
+
+    <h2>Latest Check-In</h2>
+
+    <div class="checkin-row">
+
+        <div class="checkin-box">
+            <strong>Mood</strong>
+            <div id="mood">Loading...</div>
         </div>
 
-        <div id="message" class="message">
+        <div class="checkin-box">
+            <strong>Energy</strong>
+            <div id="energy">Loading...</div>
+        </div>
+
+        <div class="checkin-box">
+            <strong>Need Today</strong>
+            <div id="needToday">Loading...</div>
         </div>
 
     </div>
 
-    <div class="card">
+</div>
 
-        <h2>Recent Alerts</h2>
+<div class="card">
 
-        <div id="alerts">
-            Loading...
-        </div>
+    <h2>Recent Alerts</h2>
 
+    <div id="alerts">
+        Loading...
     </div>
+
+</div>
+
+<div class="footer">
+    Dad Dashboard v1
+</div>
+```
 
 </div>
 
@@ -86,6 +173,23 @@ h1{
 
 const API_URL =
 "https://script.google.com/macros/s/AKfycbzlTd0HcORu-R78042GmDC5buO-69X9XRB6NjPh-Qmtj_5fnA-fSKBAkXCnuufS5LU5/exec";
+
+function getAlertLabel(type){
+
+    if(type === "OKAY"){
+        return "🟢 OKAY";
+    }
+
+    if(type === "SUPPORT"){
+        return "🟡 SUPPORT";
+    }
+
+    if(type === "HELP"){
+        return "🔴 HELP";
+    }
+
+    return type;
+}
 
 async function loadDashboard(){
 
@@ -95,38 +199,60 @@ async function loadDashboard(){
 
         const data = await response.json();
 
-        const alerts = data.supportAlerts;
+        const alerts = data.supportAlerts || [];
+        const checkIns = data.checkIns || [];
 
-        if(alerts.length <= 1){
+        if(alerts.length > 1){
+
+            const latest = alerts[alerts.length - 1];
 
             document.getElementById("status").innerHTML =
-                "No alerts yet";
+                getAlertLabel(latest[3]);
 
-            return;
+            document.getElementById("message").innerHTML =
+                latest[4];
+
+            document.getElementById("latestTime").innerHTML =
+                "Received: " + latest[2];
+
+            let html = "";
+
+            for(let i = alerts.length - 1; i >= 1; i--){
+
+                html += `
+                    <div class="alert-item">
+                        <div class="alert-type">
+                            ${getAlertLabel(alerts[i][3])}
+                        </div>
+
+                        <div class="alert-message">
+                            ${alerts[i][4]}
+                        </div>
+
+                        <div class="alert-date">
+                            ${alerts[i][2]}
+                        </div>
+                    </div>
+                `;
+            }
+
+            document.getElementById("alerts").innerHTML = html;
         }
 
-        const latest = alerts[alerts.length - 1];
+        if(checkIns.length > 2){
 
-        document.getElementById("status").innerHTML =
-            latest[3];
+            const latestCheckIn =
+                checkIns[checkIns.length - 1];
 
-        document.getElementById("message").innerHTML =
-            latest[4];
+            document.getElementById("mood").innerHTML =
+                latestCheckIn[3];
 
-        let html = "";
+            document.getElementById("energy").innerHTML =
+                latestCheckIn[4];
 
-        for(let i = alerts.length - 1; i >= 1; i--){
-
-            html += `
-                <p>
-                    <strong>${alerts[i][3]}</strong><br>
-                    ${alerts[i][4]}
-                </p>
-            `;
+            document.getElementById("needToday").innerHTML =
+                latestCheckIn[5];
         }
-
-        document.getElementById("alerts").innerHTML =
-            html;
 
     }catch(error){
 
@@ -138,6 +264,8 @@ async function loadDashboard(){
 }
 
 loadDashboard();
+
+setInterval(loadDashboard,30000);
 
 </script>
 
