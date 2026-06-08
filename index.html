@@ -56,3 +56,232 @@
       color: #555;
       transition: all 0.15s;
     }
+    .select-btn .emoji {
+      font-size: 24px;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .select-btn.active-good {
+      background: #EAF3DE;
+      border-color: #639922;
+      color: #27500A;
+    }
+    .select-btn.active-okay {
+      background: #FAEEDA;
+      border-color: #BA7517;
+      color: #633806;
+    }
+    .select-btn.active-struggle {
+      background: #FAECE7;
+      border-color: #993C1D;
+      color: #712B13;
+    }
+    .select-btn.active-high {
+      background: #E6F1FB;
+      border-color: #378ADD;
+      color: #0C447C;
+    }
+    .select-btn.active-medium {
+      background: #FAEEDA;
+      border-color: #BA7517;
+      color: #633806;
+    }
+    .select-btn.active-low {
+      background: #FAECE7;
+      border-color: #993C1D;
+      color: #712B13;
+    }
+    .support-btn {
+      width: 100%;
+      border: none;
+      border-radius: 14px;
+      padding: 15px 14px;
+      margin-bottom: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      text-align: left;
+    }
+    .support-btn:last-child { margin-bottom: 0; }
+    .support-ok { background: #EAF3DE; color: #27500A; }
+    .support-support { background: #FAEEDA; color: #633806; }
+    .support-help { background: #FAECE7; color: #712B13; }
+    .task-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      margin-bottom: 8px;
+      font-size: 15px;
+      color: #333;
+    }
+    .task-item:last-child { margin-bottom: 0; }
+    .task-item input[type="checkbox"] {
+      width: 22px;
+      height: 22px;
+      cursor: pointer;
+      accent-color: #534AB7;
+    }
+    .footer {
+      text-align: center;
+      color: #aaa;
+      font-size: 12px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Hello Jesse 🌈</h1>
+  <div class="subtitle">How are you feeling?</div>
+
+  <div class="card">
+    <div class="card-title">Mood</div>
+    <div class="btn-grid">
+      <div class="select-btn" id="mood-good" onclick="selectMood('Good', 'active-good')">
+        <span class="emoji">😊</span>Good
+      </div>
+      <div class="select-btn" id="mood-okay" onclick="selectMood('Okay', 'active-okay')">
+        <span class="emoji">😐</span>Okay
+      </div>
+      <div class="select-btn" id="mood-struggle" onclick="selectMood('Struggling', 'active-struggle')">
+        <span class="emoji">😔</span>Struggling
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Energy</div>
+    <div class="btn-grid">
+      <div class="select-btn" id="energy-high" onclick="selectEnergy('High', 'active-high')">
+        <span class="emoji">⚡</span>High
+      </div>
+      <div class="select-btn" id="energy-medium" onclick="selectEnergy('Medium', 'active-medium')">
+        <span class="emoji">🔋</span>Medium
+      </div>
+      <div class="select-btn" id="energy-low" onclick="selectEnergy('Low', 'active-low')">
+        <span class="emoji">🪫</span>Low
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Support</div>
+    <button class="support-btn support-ok" onclick="sendAlert('OKAY')">🟢 I'm okay</button>
+    <button class="support-btn support-support" onclick="sendAlert('SUPPORT')">🟡 I could use some support</button>
+    <button class="support-btn support-help" onclick="sendAlert('HELP')">🔴 Dad, I need help today</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Today's Tasks</div>
+    <div id="tasks">Loading tasks...</div>
+  </div>
+
+  <div class="footer">Daily Support App v4</div>
+
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbzlTd0HcORu-R78042GmDC5buO-69X9XRB6NjPh-Qmtj_5fnA-fSKBAkXCnuufS5LU5/exec";
+
+    let selectedMood = "";
+    let selectedEnergy = "";
+
+    function selectMood(value, activeClass) {
+      selectedMood = value;
+      document.querySelectorAll('#mood-good, #mood-okay, #mood-struggle').forEach(btn => {
+        btn.className = 'select-btn';
+      });
+      document.getElementById('mood-' + value.toLowerCase().replace('struggling','struggle')).classList.add(activeClass);
+    }
+
+    function selectEnergy(value, activeClass) {
+      selectedEnergy = value;
+      document.querySelectorAll('#energy-high, #energy-medium, #energy-low').forEach(btn => {
+        btn.className = 'select-btn';
+      });
+      document.getElementById('energy-' + value.toLowerCase()).classList.add(activeClass);
+    }
+
+    async function sendAlert(alertType) {
+      let needToday = "";
+      switch(alertType) {
+        case "OKAY": needToday = "I'm okay"; break;
+        case "SUPPORT": needToday = "I could use some support"; break;
+        case "HELP": needToday = "Dad, I need help today"; break;
+      }
+
+      try {
+        await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify({
+            action: "checkIn",
+            userId: 2,
+            mood: selectedMood || "Not set",
+            energy: selectedEnergy || "Not set",
+            needToday: needToday
+          })
+        });
+      } catch(e) {}
+
+      try {
+        await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify({
+            userId: 2,
+            alertType: alertType,
+            message: needToday
+          })
+        });
+      } catch(e) {}
+
+      alert("Thanks Jesse ❤️");
+    }
+
+    async function completeTask(taskId) {
+      try {
+        await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify({ action: "completeTask", taskId: taskId })
+        });
+      } catch(e) {}
+      setTimeout(loadTasks, 1500);
+    }
+
+    async function loadTasks() {
+      try {
+        const response = await fetch(API_URL);
+        const data = await response.json();
+        const tasks = data.tasks;
+        let html = "";
+        for (let i = 1; i < tasks.length; i++) {
+          const row = tasks[i];
+          const taskId = row[0];
+          const userId = row[1];
+          const taskTitle = row[4];
+          const status = row[6];
+          if (userId == 2 && status !== "Completed") {
+            html += `
+              <div class="task-item">
+                <input type="checkbox" onchange="completeTask(${taskId})">
+                ${taskTitle}
+              </div>
+            `;
+          }
+        }
+        if (html === "") {
+          html = "<p style='text-align:center; color:#639922; font-weight:bold; padding:10px'>🎉 All tasks completed!</p>";
+        }
+        document.getElementById("tasks").innerHTML = html;
+      } catch(error) {
+        document.getElementById("tasks").innerHTML = "Unable to load tasks";
+      }
+    }
+
+    loadTasks();
+  </script>
+</body>
+</html>
