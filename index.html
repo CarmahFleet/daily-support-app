@@ -168,6 +168,7 @@ select{
 </div>
 
 <script>
+<script>
 
 const API_URL = "https://script.google.com/macros/s/AKfycbzlTd0HcORu-R78042GmDC5buO-69X9XRB6NjPh-Qmtj_5fnA-fSKBAkXCnuufS5LU5/exec";
 
@@ -175,24 +176,27 @@ async function sendAlert(alertType){
 
     let message = "";
 
-    if(alertType === "OKAY"){
-        message = "I'm okay today";
-    }
+    switch(alertType){
+        case "OKAY":
+            message = "I'm okay today";
+            break;
 
-    if(alertType === "SUPPORT"){
-        message = "I could use some support today";
-    }
+        case "SUPPORT":
+            message = "I could use some support today";
+            break;
 
-    if(alertType === "HELP"){
-        message = "Dad, I need help today";
+        case "HELP":
+            message = "Dad, I need help today";
+            break;
     }
 
     try{
 
         await fetch(API_URL,{
             method:"POST",
+            mode:"no-cors",
             headers:{
-                "Content-Type":"application/json"
+                "Content-Type":"text/plain"
             },
             body:JSON.stringify({
                 userId:2,
@@ -205,10 +209,13 @@ async function sendAlert(alertType){
 
     }catch(error){
 
-        alert("Unable to send update");
         console.error(error);
+        alert("Unable to send update");
     }
 }
+
+</script>
+
 
 </script>
 
