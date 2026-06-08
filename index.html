@@ -8,146 +8,137 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: Arial, sans-serif;
-      background: #f0f4ff;
+      background: linear-gradient(160deg, #f0f4ff 0%, #fdf0ff 100%);
+      min-height: 100vh;
       color: #333;
-      padding: 20px 16px 40px;
+      padding: 24px 16px 48px;
     }
-    h1 {
+    .app-header {
       text-align: center;
-      font-size: 24px;
-      color: #3C3489;
-      margin-bottom: 4px;
-    }
-    .subtitle {
-      text-align: center;
-      color: #534AB7;
-      font-size: 15px;
       margin-bottom: 20px;
+    }
+    .app-header h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: #3C3489;
+    }
+    .app-header p {
+      font-size: 15px;
+      color: #7c6fcd;
+      margin-top: 4px;
     }
     .card {
       background: white;
-      border-radius: 20px;
-      padding: 16px;
+      border-radius: 22px;
+      padding: 18px;
       margin-bottom: 14px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      box-shadow: 0 4px 16px rgba(83,74,183,0.08);
     }
     .card-title {
-      font-size: 12px;
-      font-weight: bold;
-      color: #888;
+      font-size: 11px;
+      font-weight: 800;
+      color: #bbb;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 10px;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
     }
     .btn-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 8px;
     }
-    .select-btn {
-      border: 2px solid #e0e0e0;
-      border-radius: 14px;
-      padding: 10px 6px;
+    .sel-btn {
+      border: 2.5px solid #eee;
+      border-radius: 16px;
+      padding: 12px 6px 10px;
       text-align: center;
       cursor: pointer;
       font-size: 12px;
-      font-weight: bold;
-      background: #f8f9fa;
-      color: #555;
-      transition: all 0.15s;
+      font-weight: 700;
+      background: #fafafa;
+      color: #bbb;
+      transition: transform 0.1s;
     }
-    .select-btn .emoji {
-      font-size: 24px;
+    .sel-btn:active { transform: scale(0.96); }
+    .sel-btn .ico {
+      font-size: 28px;
       display: block;
-      margin-bottom: 4px;
+      margin-bottom: 5px;
     }
-    .select-btn.active-good {
-      background: #EAF3DE;
-      border-color: #639922;
-      color: #27500A;
-    }
-    .select-btn.active-okay {
-      background: #FAEEDA;
-      border-color: #BA7517;
-      color: #633806;
-    }
-    .select-btn.active-struggle {
-      background: #FAECE7;
-      border-color: #993C1D;
-      color: #712B13;
-    }
-    .select-btn.active-high {
-      background: #E6F1FB;
-      border-color: #378ADD;
-      color: #0C447C;
-    }
-    .select-btn.active-medium {
-      background: #FAEEDA;
-      border-color: #BA7517;
-      color: #633806;
-    }
-    .select-btn.active-low {
-      background: #FAECE7;
-      border-color: #993C1D;
-      color: #712B13;
-    }
-    .support-btn {
+    .sel-btn.mood-good { border-color: #5cb85c; background: #f0faf0; color: #2d7a2d; }
+    .sel-btn.mood-okay { border-color: #f0ad4e; background: #fffbf0; color: #8a5c00; }
+    .sel-btn.mood-struggle { border-color: #e05c5c; background: #fff5f5; color: #a02020; }
+    .sel-btn.energy-high { border-color: #378ADD; background: #eef6ff; color: #0C447C; }
+    .sel-btn.energy-medium { border-color: #f0ad4e; background: #fffbf0; color: #8a5c00; }
+    .sel-btn.energy-low { border-color: #e05c5c; background: #fff5f5; color: #a02020; }
+    .sel-btn.selected { box-shadow: 0 0 0 3px rgba(83,74,183,0.25); transform: scale(1.04); }
+    .sup-btn {
       width: 100%;
       border: none;
-      border-radius: 14px;
-      padding: 15px 14px;
-      margin-bottom: 8px;
+      border-radius: 16px;
+      padding: 16px 16px;
+      margin-bottom: 10px;
       font-size: 16px;
-      font-weight: bold;
+      font-weight: 800;
       cursor: pointer;
       text-align: left;
+      transition: transform 0.1s;
     }
-    .support-btn:last-child { margin-bottom: 0; }
-    .support-ok { background: #EAF3DE; color: #27500A; }
-    .support-support { background: #FAEEDA; color: #633806; }
-    .support-help { background: #FAECE7; color: #712B13; }
+    .sup-btn:last-child { margin-bottom: 0; }
+    .sup-btn:active { transform: scale(0.98); }
+    .sup-ok { background: linear-gradient(90deg, #d4f5d4, #b8edb8); color: #1a6b1a; }
+    .sup-support { background: linear-gradient(90deg, #fff0cc, #ffe8a0); color: #7a5200; }
+    .sup-help { background: linear-gradient(90deg, #ffd6d6, #ffb8b8); color: #8a1a1a; }
     .task-item {
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 12px;
-      background: #f8f9fa;
-      border-radius: 12px;
+      padding: 14px 12px;
+      border-radius: 14px;
       margin-bottom: 8px;
       font-size: 15px;
-      color: #333;
+      font-weight: 600;
+      cursor: pointer;
     }
     .task-item:last-child { margin-bottom: 0; }
+    .task-item:nth-child(1) { background: #eef3ff; color: #3C3489; }
+    .task-item:nth-child(2) { background: #fdf0ff; color: #7a1fa0; }
+    .task-item:nth-child(3) { background: #fff0f5; color: #a01a4a; }
+    .task-item:nth-child(4) { background: #f0faf0; color: #2d7a2d; }
+    .task-item:nth-child(5) { background: #fffbf0; color: #8a5c00; }
     .task-item input[type="checkbox"] {
       width: 22px;
       height: 22px;
       cursor: pointer;
       accent-color: #534AB7;
+      flex-shrink: 0;
     }
     .footer {
       text-align: center;
-      color: #aaa;
+      color: #bbb;
       font-size: 12px;
-      margin-top: 20px;
+      margin-top: 24px;
     }
   </style>
 </head>
 <body>
 
-  <h1>Hello Jesse 🌈</h1>
-  <div class="subtitle">How are you feeling?</div>
+  <div class="app-header">
+    <h1>Hi Jesse 💜</h1>
+    <p>How are you feeling?</p>
+  </div>
 
   <div class="card">
     <div class="card-title">Mood</div>
     <div class="btn-grid">
-      <div class="select-btn" id="mood-good" onclick="selectMood('Good', 'active-good')">
-        <span class="emoji">😊</span>Good
+      <div class="sel-btn mood-good" id="mood-Good" onclick="selectMood('Good')">
+        <span class="ico">😊</span>Good
       </div>
-      <div class="select-btn" id="mood-okay" onclick="selectMood('Okay', 'active-okay')">
-        <span class="emoji">😐</span>Okay
+      <div class="sel-btn mood-okay" id="mood-Okay" onclick="selectMood('Okay')">
+        <span class="ico">😐</span>Okay
       </div>
-      <div class="select-btn" id="mood-struggle" onclick="selectMood('Struggling', 'active-struggle')">
-        <span class="emoji">😔</span>Struggling
+      <div class="sel-btn mood-struggle" id="mood-Struggling" onclick="selectMood('Struggling')">
+        <span class="ico">😔</span>Struggling
       </div>
     </div>
   </div>
@@ -155,23 +146,23 @@
   <div class="card">
     <div class="card-title">Energy</div>
     <div class="btn-grid">
-      <div class="select-btn" id="energy-high" onclick="selectEnergy('High', 'active-high')">
-        <span class="emoji">⚡</span>High
+      <div class="sel-btn energy-high" id="energy-High" onclick="selectEnergy('High')">
+        <span class="ico">⚡</span>High
       </div>
-      <div class="select-btn" id="energy-medium" onclick="selectEnergy('Medium', 'active-medium')">
-        <span class="emoji">🔋</span>Medium
+      <div class="sel-btn energy-medium" id="energy-Medium" onclick="selectEnergy('Medium')">
+        <span class="ico">🔋</span>Medium
       </div>
-      <div class="select-btn" id="energy-low" onclick="selectEnergy('Low', 'active-low')">
-        <span class="emoji">🪫</span>Low
+      <div class="sel-btn energy-low" id="energy-Low" onclick="selectEnergy('Low')">
+        <span class="ico">🪫</span>Low
       </div>
     </div>
   </div>
 
   <div class="card">
     <div class="card-title">Support</div>
-    <button class="support-btn support-ok" onclick="sendAlert('OKAY')">🟢 I'm okay</button>
-    <button class="support-btn support-support" onclick="sendAlert('SUPPORT')">🟡 I could use some support</button>
-    <button class="support-btn support-help" onclick="sendAlert('HELP')">🔴 Dad, I need help today</button>
+    <button class="sup-btn sup-ok" onclick="sendAlert('OKAY')">🟢 I'm okay</button>
+    <button class="sup-btn sup-support" onclick="sendAlert('SUPPORT')">🟡 I could use some support</button>
+    <button class="sup-btn sup-help" onclick="sendAlert('HELP')">🔴 Dad, I need help today</button>
   </div>
 
   <div class="card">
@@ -179,7 +170,7 @@
     <div id="tasks">Loading tasks...</div>
   </div>
 
-  <div class="footer">Daily Support App v4</div>
+  <div class="footer">Daily Support App 💜</div>
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzlTd0HcORu-R78042GmDC5buO-69X9XRB6NjPh-Qmtj_5fnA-fSKBAkXCnuufS5LU5/exec";
@@ -187,20 +178,20 @@
     let selectedMood = "";
     let selectedEnergy = "";
 
-    function selectMood(value, activeClass) {
+    function selectMood(value) {
       selectedMood = value;
-      document.querySelectorAll('#mood-good, #mood-okay, #mood-struggle').forEach(btn => {
-        btn.className = 'select-btn';
+      document.querySelectorAll('.mood-good, .mood-okay, .mood-struggle').forEach(btn => {
+        btn.classList.remove('selected');
       });
-      document.getElementById('mood-' + value.toLowerCase().replace('struggling','struggle')).classList.add(activeClass);
+      document.getElementById('mood-' + value).classList.add('selected');
     }
 
-    function selectEnergy(value, activeClass) {
+    function selectEnergy(value) {
       selectedEnergy = value;
-      document.querySelectorAll('#energy-high, #energy-medium, #energy-low').forEach(btn => {
-        btn.className = 'select-btn';
+      document.querySelectorAll('.energy-high, .energy-medium, .energy-low').forEach(btn => {
+        btn.classList.remove('selected');
       });
-      document.getElementById('energy-' + value.toLowerCase()).classList.add(activeClass);
+      document.getElementById('energy-' + value).classList.add('selected');
     }
 
     async function sendAlert(alertType) {
@@ -237,7 +228,7 @@
         });
       } catch(e) {}
 
-      alert("Thanks Jesse ❤️");
+      alert("Thanks Jesse 💜");
     }
 
     async function completeTask(taskId) {
@@ -256,7 +247,15 @@
         const response = await fetch(API_URL);
         const data = await response.json();
         const tasks = data.tasks;
+        const colors = [
+          { bg: "#eef3ff", color: "#3C3489" },
+          { bg: "#fdf0ff", color: "#7a1fa0" },
+          { bg: "#fff0f5", color: "#a01a4a" },
+          { bg: "#f0faf0", color: "#2d7a2d" },
+          { bg: "#fffbf0", color: "#8a5c00" }
+        ];
         let html = "";
+        let count = 0;
         for (let i = 1; i < tasks.length; i++) {
           const row = tasks[i];
           const taskId = row[0];
@@ -264,16 +263,18 @@
           const taskTitle = row[4];
           const status = row[6];
           if (userId == 2 && status !== "Completed") {
+            const c = colors[count % colors.length];
             html += `
-              <div class="task-item">
+              <div class="task-item" style="background:${c.bg}; color:${c.color}">
                 <input type="checkbox" onchange="completeTask(${taskId})">
                 ${taskTitle}
               </div>
             `;
+            count++;
           }
         }
         if (html === "") {
-          html = "<p style='text-align:center; color:#639922; font-weight:bold; padding:10px'>🎉 All tasks completed!</p>";
+          html = "<p style='text-align:center; color:#5cb85c; font-weight:800; padding:12px'>🎉 All tasks completed!</p>";
         }
         document.getElementById("tasks").innerHTML = html;
       } catch(error) {
