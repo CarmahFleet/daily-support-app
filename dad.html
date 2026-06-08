@@ -1,273 +1,205 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dad Dashboard</title>
-
-<style>
-
-body{
-    font-family: Arial, sans-serif;
-    background:#f4f6f8;
-    margin:0;
-    padding:20px;
-    color:#333;
-}
-
-.container{
-    max-width:800px;
-    margin:auto;
-}
-
-.card{
-    background:white;
-    border-radius:16px;
-    padding:24px;
-    margin-bottom:20px;
-    box-shadow:0 2px 8px rgba(0,0,0,0.08);
-}
-
-h1{
-    text-align:center;
-    margin-bottom:30px;
-}
-
-h2{
-    margin-top:0;
-}
-
-.status{
-    font-size:28px;
-    font-weight:bold;
-    margin-bottom:10px;
-}
-
-.message{
-    font-size:20px;
-    margin-bottom:10px;
-}
-
-.time{
-    color:#666;
-    font-size:14px;
-}
-
-.checkin-row{
-    display:flex;
-    gap:20px;
-    flex-wrap:wrap;
-}
-
-.checkin-box{
-    flex:1;
-    min-width:220px;
-    padding:20px;
-    border-radius:12px;
-    background:#f8f9fa;
-}
-
-.alert-item{
-    padding:12px 0;
-    border-bottom:1px solid #eee;
-}
-
-.alert-item:last-child{
-    border-bottom:none;
-}
-
-.alert-type{
-    font-weight:bold;
-    font-size:18px;
-}
-
-.alert-message{
-    margin-top:4px;
-}
-
-.alert-date{
-    color:#777;
-    font-size:13px;
-    margin-top:4px;
-}
-
-.footer{
-    text-align:center;
-    color:#888;
-    font-size:12px;
-    margin-top:20px;
-}
-
-</style>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dad Dashboard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f4ff;
+      color: #333;
+      padding: 20px 16px 40px;
+    }
+    h1 {
+      text-align: center;
+      font-size: 24px;
+      color: #3C3489;
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      text-align: center;
+      color: #534AB7;
+      font-size: 15px;
+      margin-bottom: 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .card-title {
+      font-size: 12px;
+      font-weight: bold;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+    .badge-okay { background: #EAF3DE; color: #27500A; }
+    .badge-support { background: #FAEEDA; color: #633806; }
+    .badge-help { background: #FAECE7; color: #712B13; }
+    .checkin-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .checkin-box {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 12px 8px;
+      text-align: center;
+    }
+    .checkin-box .label {
+      font-size: 11px;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-bottom: 6px;
+    }
+    .checkin-box .value {
+      font-size: 15px;
+      font-weight: bold;
+      color: #3C3489;
+    }
+    .alert-item {
+      padding: 12px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      margin-bottom: 8px;
+    }
+    .alert-item:last-child { margin-bottom: 0; }
+    .alert-type {
+      font-weight: bold;
+      font-size: 15px;
+      margin-bottom: 2px;
+    }
+    .alert-date {
+      font-size: 12px;
+      color: #999;
+      margin-top: 4px;
+    }
+    .time-tag {
+      font-size: 12px;
+      color: #999;
+      margin-top: 6px;
+    }
+    .footer {
+      text-align: center;
+      color: #aaa;
+      font-size: 12px;
+      margin-top: 20px;
+    }
+  </style>
 </head>
-
 <body>
 
-<div class="container">
+  <h1>Hello Dad 👋</h1>
+  <div class="subtitle">Here's how Jesse is doing</div>
 
-```
-<h1>Hello Dad 👋</h1>
+  <div class="card">
+    <div class="card-title">Latest Support Request</div>
+    <div id="status">Loading...</div>
+    <div id="latestTime" class="time-tag"></div>
+  </div>
 
-<div class="card">
-
-    <h2>Latest Support Request</h2>
-
-    <div id="status" class="status">
-        Loading...
+  <div class="card">
+    <div class="card-title">Latest Check-In</div>
+    <div class="checkin-grid">
+      <div class="checkin-box">
+        <div class="label">Mood</div>
+        <div class="value" id="mood">—</div>
+      </div>
+      <div class="checkin-box">
+        <div class="label">Energy</div>
+        <div class="value" id="energy">—</div>
+      </div>
+      <div class="checkin-box">
+        <div class="label">Need</div>
+        <div class="value" id="needToday">—</div>
+      </div>
     </div>
+    <div id="checkinTime" class="time-tag" style="margin-top:10px"></div>
+  </div>
 
-    <div id="message" class="message">
-    </div>
+  <div class="card">
+    <div class="card-title">Recent Alerts</div>
+    <div id="alerts">Loading...</div>
+  </div>
 
-    <div id="latestTime" class="time">
-    </div>
+  <div class="footer">Dad Dashboard v2 · Auto-refreshes every 30 seconds</div>
 
-</div>
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbzlTd0HcORu-R78042GmDC5buO-69X9XRB6NjPh-Qmtj_5fnA-fSKBAkXCnuufS5LU5/exec";
 
-<div class="card">
-
-    <h2>Latest Check-In</h2>
-
-    <div class="checkin-row">
-
-        <div class="checkin-box">
-            <strong>Mood</strong>
-            <div id="mood">Loading...</div>
-        </div>
-
-        <div class="checkin-box">
-            <strong>Energy</strong>
-            <div id="energy">Loading...</div>
-        </div>
-
-        <div class="checkin-box">
-            <strong>Need Today</strong>
-            <div id="needToday">Loading...</div>
-        </div>
-
-    </div>
-
-</div>
-
-<div class="card">
-
-    <h2>Recent Alerts</h2>
-
-    <div id="alerts">
-        Loading...
-    </div>
-
-</div>
-
-<div class="footer">
-    Dad Dashboard v1
-</div>
-```
-
-</div>
-
-<script>
-
-const API_URL =
-"https://script.google.com/macros/s/AKfycbzlTd0HcORu-R78042GmDC5buO-69X9XRB6NjPh-Qmtj_5fnA-fSKBAkXCnuufS5LU5/exec";
-
-function getAlertLabel(type){
-
-    if(type === "OKAY"){
-        return "🟢 OKAY";
+    function getAlertLabel(type) {
+      if (type === "OKAY") return "🟢 I'm okay";
+      if (type === "SUPPORT") return "🟡 I could use some support";
+      if (type === "HELP") return "🔴 Dad, I need help today";
+      return type;
     }
 
-    if(type === "SUPPORT"){
-        return "🟡 SUPPORT";
+    function getBadgeClass(type) {
+      if (type === "OKAY") return "badge-okay";
+      if (type === "SUPPORT") return "badge-support";
+      if (type === "HELP") return "badge-help";
+      return "";
     }
 
-    if(type === "HELP"){
-        return "🔴 HELP";
-    }
-
-    return type;
-}
-
-async function loadDashboard(){
-
-    try{
-
+    async function loadDashboard() {
+      try {
         const response = await fetch(API_URL);
-
         const data = await response.json();
-
         const alerts = data.supportAlerts || [];
         const checkIns = data.checkIns || [];
 
-        if(alerts.length > 1){
+        if (alerts.length > 1) {
+          const latest = alerts[alerts.length - 1];
+          document.getElementById("status").innerHTML =
+            `<span class="status-badge ${getBadgeClass(latest[3])}">${getAlertLabel(latest[3])}</span>`;
+          document.getElementById("latestTime").innerHTML = "Received: " + latest[2];
 
-            const latest = alerts[alerts.length - 1];
-
-            document.getElementById("status").innerHTML =
-                getAlertLabel(latest[3]);
-
-            document.getElementById("message").innerHTML =
-                latest[4];
-
-            document.getElementById("latestTime").innerHTML =
-                "Received: " + latest[2];
-
-            let html = "";
-
-            for(let i = alerts.length - 1; i >= 1; i--){
-
-                html += `
-                    <div class="alert-item">
-                        <div class="alert-type">
-                            ${getAlertLabel(alerts[i][3])}
-                        </div>
-
-                        <div class="alert-message">
-                            ${alerts[i][4]}
-                        </div>
-
-                        <div class="alert-date">
-                            ${alerts[i][2]}
-                        </div>
-                    </div>
-                `;
-            }
-
-            document.getElementById("alerts").innerHTML = html;
+          let html = "";
+          for (let i = alerts.length - 1; i >= 1; i--) {
+            html += `
+              <div class="alert-item">
+                <div class="alert-type">${getAlertLabel(alerts[i][3])}</div>
+                <div class="alert-date">${alerts[i][2]}</div>
+              </div>
+            `;
+          }
+          document.getElementById("alerts").innerHTML = html;
+        } else {
+          document.getElementById("status").innerHTML = "<span style='color:#999'>No alerts yet</span>";
+          document.getElementById("alerts").innerHTML = "<span style='color:#999'>No alerts yet</span>";
         }
 
-        if(checkIns.length > 2){
-
-            const latestCheckIn =
-                checkIns[checkIns.length - 1];
-
-            document.getElementById("mood").innerHTML =
-                latestCheckIn[3];
-
-            document.getElementById("energy").innerHTML =
-                latestCheckIn[4];
-
-            document.getElementById("needToday").innerHTML =
-                latestCheckIn[5];
+        if (checkIns.length > 1) {
+          const latest = checkIns[checkIns.length - 1];
+          document.getElementById("mood").innerHTML = latest[3] || "—";
+          document.getElementById("energy").innerHTML = latest[4] || "—";
+          document.getElementById("needToday").innerHTML = latest[5] || "—";
+          document.getElementById("checkinTime").innerHTML = "Updated: " + latest[2];
         }
 
-    }catch(error){
-
-        console.error(error);
-
-        document.getElementById("status").innerHTML =
-            "Unable to load dashboard";
+      } catch(error) {
+        document.getElementById("status").innerHTML = "Unable to load dashboard";
+      }
     }
-}
 
-loadDashboard();
-
-setInterval(loadDashboard,30000);
-
-</script>
-
+    loadDashboard();
+    setInterval(loadDashboard, 30000);
+  </script>
 </body>
 </html>
