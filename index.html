@@ -1,10 +1,167 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Daily Support App</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Support App</title>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    margin:0;
+    background:#f4f6f8;
+    color:#333;
+}
+
+.container{
+    max-width:500px;
+    margin:auto;
+    padding:20px;
+}
+
+.card{
+    background:white;
+    border-radius:16px;
+    padding:20px;
+    margin-bottom:16px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.08);
+}
+
+h1{
+    text-align:center;
+    margin-bottom:5px;
+}
+
+.subtitle{
+    text-align:center;
+    color:#666;
+    margin-bottom:25px;
+}
+
+.button{
+    width:100%;
+    border:none;
+    border-radius:12px;
+    padding:14px;
+    margin:8px 0;
+    font-size:16px;
+    cursor:pointer;
+}
+
+.green{
+    background:#d4edda;
+}
+
+.yellow{
+    background:#fff3cd;
+}
+
+.red{
+    background:#f8d7da;
+}
+
+.input-group{
+    margin-bottom:15px;
+}
+
+label{
+    font-weight:bold;
+}
+
+select{
+    width:100%;
+    padding:10px;
+    margin-top:6px;
+    border-radius:8px;
+    border:1px solid #ccc;
+}
+
+.checklist{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.footer{
+    text-align:center;
+    color:#888;
+    font-size:12px;
+    margin-top:25px;
+}
+</style>
 </head>
+
 <body>
-    <h1>Daily Support App</h1>
-    <p>Cloudflare deployment successful.</p>
+
+<div class="container">
+
+    <h1>Daily Support</h1>
+
+    <div class="subtitle">
+        How are you feeling today?
+    </div>
+
+    <div class="card">
+        <div class="input-group">
+            <label>Mood</label>
+            <select>
+                <option>😊 Good</option>
+                <option>😐 Okay</option>
+                <option>😔 Struggling</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>Energy</label>
+            <select>
+                <option>⚡ High</option>
+                <option>🔋 Medium</option>
+                <option>🪫 Low</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Support</h3>
+
+        <button class="button green">
+            🟢 I'm okay
+        </button>
+
+        <button class="button yellow">
+            🟡 I'd appreciate support
+        </button>
+
+        <button class="button red">
+            🔴 Dad, I need help today
+        </button>
+    </div>
+
+    <div class="card">
+        <h3>Today's Focus</h3>
+
+        <div class="checklist">
+            <label><input type="checkbox"> Shower</label>
+            <label><input type="checkbox"> Eat breakfast</label>
+            <label><input type="checkbox"> Attend session</label>
+            <label><input type="checkbox"> Go for walk</label>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Tomorrow's Plan</h3>
+
+        <div class="checklist">
+            <label><input type="checkbox"> Add tomorrow's goals</label>
+            <label><input type="checkbox"> Plan appointments</label>
+        </div>
+    </div>
+
+    <div class="footer">
+        Daily Support App v1
+    </div>
+
+</div>
+
 </body>
 </html>
