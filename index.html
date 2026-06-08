@@ -168,11 +168,8 @@ select{
 </div>
 
 <script>
-<script>
 
-const API_URL = "https://script.google.com/macros/s/AKfycbzlTd0HcORu-R78042GmDC5buO-69X9XRB6NjPh-Qmtj_5fnA-fSKBAkXCnuufS5LU5/exec";
-
-async function sendAlert(alertType){
+function sendAlert(alertType){
 
     let message = "";
 
@@ -190,32 +187,11 @@ async function sendAlert(alertType){
             break;
     }
 
-    try{
+    alert("Button pressed: " + message);
 
-        await fetch(API_URL,{
-            method:"POST",
-            mode:"no-cors",
-            headers:{
-                "Content-Type":"text/plain"
-            },
-            body:JSON.stringify({
-                userId:2,
-                alertType:alertType,
-                message:message
-            })
-        });
-
-        alert("Support update sent ❤️");
-
-    }catch(error){
-
-        console.error(error);
-        alert("Unable to send update");
-    }
+    console.log("Alert Type:", alertType);
+    console.log("Message:", message);
 }
-
-</script>
-
 
 </script>
 
