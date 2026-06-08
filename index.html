@@ -209,6 +209,8 @@ async function sendAlert(alertType){
 
 async function completeTask(taskId){
 
+    alert("Task ID = " + taskId);
+
     await fetch(API_URL,{
         method:"POST",
         mode:"no-cors",
