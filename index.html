@@ -208,22 +208,16 @@ async function sendAlert(alertType){
 }
 
 async function completeTask(taskId){
-
-    alert("Task ID = " + taskId);
-
-    await fetch(API_URL,{
-        method:"POST",
-        mode:"no-cors",
-        headers:{
-            "Content-Type":"text/plain"
-        },
-        body:JSON.stringify({
-            action:"completeTask",
-            taskId:taskId
-        })
+  try {
+    await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain" },
+      body: JSON.stringify({ action: "completeTask", taskId: taskId })
     });
-
-    setTimeout(loadTasks,1000);
+  } catch(e) {
+    // redirect from Apps Script is safe to ignore
+  }
+  setTimeout(loadTasks, 1500);
 }
 
 async function loadTasks(){
