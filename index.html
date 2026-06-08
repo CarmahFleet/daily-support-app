@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-
 <html lang="en">
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -97,83 +97,84 @@ select{
 
 <div class="container">
 
-```
-<h1>Daily Support</h1>
+    <h1>Daily Support</h1>
 
-<div class="subtitle">
-    How are you feeling today?
-</div>
-
-<div class="card">
-    <div class="input-group">
-        <label>Mood</label>
-        <select>
-            <option>😊 Good</option>
-            <option>😐 Okay</option>
-            <option>😔 Struggling</option>
-        </select>
+    <div class="subtitle">
+        How are you feeling today?
     </div>
 
-    <div class="input-group">
-        <label>Energy</label>
-        <select>
-            <option>⚡ High</option>
-            <option>🔋 Medium</option>
-            <option>🪫 Low</option>
-        </select>
+    <div class="card">
+        <div class="input-group">
+            <label>Mood</label>
+            <select>
+                <option>😊 Good</option>
+                <option>😐 Okay</option>
+                <option>😔 Struggling</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>Energy</label>
+            <select>
+                <option>⚡ High</option>
+                <option>🔋 Medium</option>
+                <option>🪫 Low</option>
+            </select>
+        </div>
     </div>
-</div>
 
-<div class="card">
-    <h3>Support</h3>
+    <div class="card">
+        <h3>Support</h3>
 
-    <button class="button green" onclick="sendAlert('OKAY')">
-        🟢 I'm okay
-    </button>
+        <button class="button green" onclick="sendAlert('OKAY')">
+            🟢 I'm okay
+        </button>
 
-    <button class="button yellow" onclick="sendAlert('SUPPORT')">
-        🟡 I could use some support
-    </button>
+        <button class="button yellow" onclick="sendAlert('SUPPORT')">
+            🟡 I could use some support
+        </button>
 
-    <button class="button red" onclick="sendAlert('HELP')">
-        🔴 Dad, I need help today
-    </button>
-</div>
-
-<div class="card">
-    <h3>Today's Focus</h3>
-
-    <div class="checklist">
-        <label><input type="checkbox"> Shower</label>
-        <label><input type="checkbox"> Eat breakfast</label>
-        <label><input type="checkbox"> Attend session</label>
-        <label><input type="checkbox"> Go for walk</label>
+        <button class="button red" onclick="sendAlert('HELP')">
+            🔴 Dad, I need help today
+        </button>
     </div>
-</div>
 
-<div class="card">
-    <h3>Tomorrow's Plan</h3>
+    <div class="card">
+        <h3>Today's Focus</h3>
 
-    <div class="checklist">
-        <label><input type="checkbox"> Add tomorrow's goals</label>
-        <label><input type="checkbox"> Plan appointments</label>
+        <div class="checklist">
+            <label><input type="checkbox"> Shower</label>
+            <label><input type="checkbox"> Eat breakfast</label>
+            <label><input type="checkbox"> Attend session</label>
+            <label><input type="checkbox"> Go for walk</label>
+        </div>
     </div>
-</div>
 
-<div class="footer">
-    Daily Support App v1
-</div>
-```
+    <div class="card">
+        <h3>Tomorrow's Plan</h3>
+
+        <div class="checklist">
+            <label><input type="checkbox"> Add tomorrow's goals</label>
+            <label><input type="checkbox"> Plan appointments</label>
+        </div>
+    </div>
+
+    <div class="footer">
+        Daily Support App v1
+    </div>
 
 </div>
 
 <script>
 
-function sendAlert(alertType){
+const API_URL = "https://script.google.com/macros/s/AKfycbzlTd0HcORu-R78042GmDC5buO-69X9XRB6NjPh-Qmtj_5fnA-fSKBAkXCnuufS5LU5/exec";
+
+async function sendAlert(alertType){
 
     let message = "";
 
     switch(alertType){
+
         case "OKAY":
             message = "I'm okay today";
             break;
@@ -187,10 +188,35 @@ function sendAlert(alertType){
             break;
     }
 
-    alert("Button pressed: " + message);
-
-    console.log("Alert Type:", alertType);
+    console.log("Sending alert...");
+    console.log("Type:", alertType);
     console.log("Message:", message);
+
+    try {
+
+        const response = await fetch(API_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: {
+                "Content-Type": "text/plain"
+            },
+            body: JSON.stringify({
+                userId: 2,
+                alertType: alertType,
+                message: message
+            })
+        });
+
+        console.log("Fetch completed", response);
+
+        alert("Support update sent ❤️");
+
+    } catch(error) {
+
+        console.error("FETCH ERROR:", error);
+
+        alert("Unable to send update");
+    }
 }
 
 </script>
