@@ -8,6 +8,7 @@
 <title>Daily Support App</title>
 
 <style>
+
 body{
     font-family: Arial, sans-serif;
     margin:0;
@@ -31,7 +32,6 @@ body{
 
 h1{
     text-align:center;
-    margin-bottom:5px;
 }
 
 .subtitle{
@@ -78,15 +78,11 @@ select{
     border:1px solid #ccc;
 }
 
-.checklist{
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-}
-
 .task-item{
-    padding:10px;
-    border-radius:8px;
+    display:block;
+    padding:12px;
+    margin-bottom:10px;
+    border-radius:10px;
     background:#f8f9fa;
 }
 
@@ -96,6 +92,7 @@ select{
     font-size:12px;
     margin-top:25px;
 }
+
 </style>
 
 </head>
@@ -115,6 +112,7 @@ select{
 
     <div class="input-group">
         <label>Mood</label>
+
         <select>
             <option>😊 Good</option>
             <option>😐 Okay</option>
@@ -124,6 +122,7 @@ select{
 
     <div class="input-group">
         <label>Energy</label>
+
         <select>
             <option>⚡ High</option>
             <option>🔋 Medium</option>
@@ -155,14 +154,14 @@ select{
 
     <h3>Today's Tasks</h3>
 
-    <div id="tasks" class="checklist">
+    <div id="tasks">
         Loading tasks...
     </div>
 
 </div>
 
 <div class="footer">
-    Daily Support App v2
+    Daily Support App v3
 </div>
 ```
 
@@ -192,29 +191,37 @@ async function sendAlert(alertType){
             break;
     }
 
-    try {
+    await fetch(API_URL,{
+        method:"POST",
+        mode:"no-cors",
+        headers:{
+            "Content-Type":"text/plain"
+        },
+        body:JSON.stringify({
+            userId:2,
+            alertType:alertType,
+            message:message
+        })
+    });
 
-        await fetch(API_URL,{
-            method:"POST",
-            mode:"no-cors",
-            headers:{
-                "Content-Type":"text/plain"
-            },
-            body:JSON.stringify({
-                userId:2,
-                alertType:alertType,
-                message:message
-            })
-        });
+    alert("Support update sent ❤️");
+}
 
-        alert("Support update sent ❤️");
+async function completeTask(taskId){
 
-    } catch(error){
+    await fetch(API_URL,{
+        method:"POST",
+        mode:"no-cors",
+        headers:{
+            "Content-Type":"text/plain"
+        },
+        body:JSON.stringify({
+            action:"completeTask",
+            taskId:taskId
+        })
+    });
 
-        console.error(error);
-
-        alert("Unable to send update");
-    }
+    setTimeout(loadTasks,1000);
 }
 
 async function loadTasks(){
@@ -225,14 +232,15 @@ async function loadTasks(){
 
         const data = await response.json();
 
-        const tasks = data.tasks || [];
+        const tasks = data.tasks;
 
         let html = "";
 
-        for(let i = 1; i < tasks.length; i++){
+        for(let i=1;i<tasks.length;i++){
 
             const row = tasks[i];
 
+            const taskId = row[0];
             const userId = row[1];
             const taskTitle = row[4];
             const status = row[6];
@@ -241,7 +249,10 @@ async function loadTasks(){
 
                 html += `
                     <label class="task-item">
-                        <input type="checkbox">
+                        <input
+                            type="checkbox"
+                            onchange="completeTask(${taskId})"
+                        >
                         ${taskTitle}
                     </label>
                 `;
@@ -249,7 +260,7 @@ async function loadTasks(){
         }
 
         if(html === ""){
-            html = "No active tasks";
+            html = "<p>🎉 All tasks completed!</p>";
         }
 
         document.getElementById("tasks").innerHTML = html;
