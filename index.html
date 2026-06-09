@@ -12,8 +12,6 @@
       min-height: 100vh;
       color: #333;
     }
-
-    /* Lock Screen */
     .lock-screen {
       display: flex;
       flex-direction: column;
@@ -59,11 +57,7 @@
       cursor: pointer;
     }
     .lock-error { color: #e05c5c; font-size: 13px; margin-top: 10px; font-weight: 600; min-height: 20px; }
-
-    /* App */
     .app-content { display: none; padding: 0 0 48px; }
-
-    /* Top nav */
     .top-nav {
       display: flex;
       background: white;
@@ -83,16 +77,10 @@
       cursor: pointer;
       border-bottom: 3px solid transparent;
       text-decoration: none;
+      display: block;
     }
-    .nav-tab.active {
-      color: #534AB7;
-      border-bottom-color: #534AB7;
-    }
-
-    /* Page padding */
+    .nav-tab.active { color: #534AB7; border-bottom-color: #534AB7; }
     .page-body { padding: 20px 16px 48px; }
-
-    /* Header */
     .app-header {
       display: flex;
       align-items: flex-start;
@@ -124,8 +112,6 @@
       50% { box-shadow: 0 4px 20px rgba(204,0,0,0.65); }
       100% { box-shadow: 0 4px 12px rgba(204,0,0,0.35); }
     }
-
-    /* Greeting box */
     .greeting-box {
       background: white;
       border-radius: 22px;
@@ -136,8 +122,6 @@
     }
     .greeting-box .greeting-text { font-size: 15px; font-weight: 800; color: #3C3489; margin-bottom: 6px; }
     .greeting-box .encouragement { font-size: 14px; color: #555; line-height: 1.5; }
-
-    /* Dad response */
     .dad-response-box {
       background: #f0faf0;
       border-radius: 22px;
@@ -148,8 +132,6 @@
     }
     .dad-response-box .dr-title { font-size: 11px; font-weight: 800; color: #2d7a2d; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
     .dad-response-box .dr-message { font-size: 15px; font-weight: 700; color: #1a6b1a; }
-
-    /* Cards */
     .card {
       background: white;
       border-radius: 22px;
@@ -165,8 +147,6 @@
       letter-spacing: 1px;
       margin-bottom: 12px;
     }
-
-    /* Mood/Energy */
     .btn-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
     .sel-btn {
       border: 2.5px solid #eee;
@@ -187,11 +167,7 @@
     .sel-btn.energy-medium { border-color: #f0ad4e; background: #fffbf0; color: #8a5c00; }
     .sel-btn.energy-low { border-color: #e05c5c; background: #fff5f5; color: #a02020; }
     .sel-btn.selected { box-shadow: 0 0 0 3px rgba(83,74,183,0.3); transform: scale(1.05); }
-
-    /* Struggling mode */
     body.struggling .card { border: 2px solid #f5c6cb; }
-
-    /* Support buttons */
     .sup-btn {
       width: 100%;
       border: none;
@@ -209,13 +185,7 @@
     .sup-ok { background: linear-gradient(90deg, #d4f5d4, #b8edb8); color: #1a6b1a; }
     .sup-support { background: linear-gradient(90deg, #fff0cc, #ffe8a0); color: #7a5200; }
     .sup-help { background: linear-gradient(90deg, #ffd6d6, #ffb8b8); color: #8a1a1a; }
-
-    /* Inline input row */
-    .inline-row {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
+    .inline-row { display: flex; gap: 8px; align-items: center; }
     .inline-input {
       flex: 1;
       padding: 12px 14px;
@@ -238,8 +208,6 @@
       white-space: nowrap;
       flex-shrink: 0;
     }
-
-    /* Daily living */
     .dl-item {
       display: flex;
       align-items: center;
@@ -264,8 +232,6 @@
       font-weight: 800;
       margin-bottom: 12px;
     }
-
-    /* Dad corner */
     .dad-corner-card {
       background: linear-gradient(135deg, #fff8e6, #fff0cc);
       border-radius: 22px;
@@ -290,8 +256,6 @@
     .step-dot { width: 10px; height: 10px; border-radius: 50%; background: #f0ad4e; flex-shrink: 0; }
     .step-dot.done { background: #5cb85c; }
     .dad-progress { font-size: 12px; color: #b8860b; margin-top: 8px; font-weight: 700; }
-
-    /* Overlays */
     .overlay {
       display: none;
       position: fixed;
@@ -355,8 +319,6 @@
       color: #555;
     }
     .support-type-btn.selected { border-color: #534AB7; background: #eef3ff; color: #3C3489; }
-
-    /* SOS */
     .sos-overlay {
       display: none;
       position: fixed;
@@ -399,41 +361,6 @@
       font-weight: 700;
       cursor: pointer;
     }
-
-    /* AI celebration */
-    .celebration-overlay {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(83,74,183,0.85);
-      z-index: 150;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-    .celebration-overlay.active { display: flex; }
-    .celebration-card {
-      background: white;
-      border-radius: 28px;
-      padding: 32px 24px;
-      max-width: 320px;
-      width: 100%;
-      text-align: center;
-    }
-    .celebration-icon { font-size: 52px; margin-bottom: 12px; }
-    .celebration-msg { font-size: 15px; color: #555; line-height: 1.6; margin-bottom: 20px; }
-    .celebration-btn {
-      width: 100%;
-      padding: 14px;
-      border-radius: 14px;
-      border: none;
-      background: linear-gradient(90deg, #534AB7, #c054b8);
-      color: white;
-      font-size: 15px;
-      font-weight: 800;
-      cursor: pointer;
-    }
-
     .saved-msg { text-align: center; color: #5cb85c; font-weight: 800; padding: 8px; font-size: 13px; display: none; }
     .footer { text-align: center; color: #bbb; font-size: 12px; margin-top: 24px; }
   </style>
@@ -468,6 +395,15 @@
         <div style="font-size:20px;font-weight:900;color:#3C3489;margin-bottom:8px">Message Sent</div>
         <div style="font-size:14px;color:#555;margin-bottom:20px;line-height:1.6">
           Your message has been sent to Dad. He will contact you as soon as possible.
+        </div>
+        <div style="text-align:left;background:#f8f0ff;border-radius:14px;padding:14px;margin-bottom:16px">
+          <div style="font-size:12px;font-weight:800;color:#7c6fcd;margin-bottom:8px">WHILE YOU WAIT</div>
+          <div style="font-size:14px;color:#555;line-height:1.8">
+            🌬️ Take some slow deep breaths<br>
+            🎵 Put on your favourite music<br>
+            🛋️ Sit somewhere comfortable<br>
+            🐾 Spend time with a pet if you can
+          </div>
         </div>
         <button class="sos-cancel-btn" onclick="closeSOS()">Close</button>
       </div>
@@ -512,28 +448,14 @@
     </div>
   </div>
 
-  <!-- Celebration Overlay -->
-  <div class="celebration-overlay" id="celebrationOverlay">
-    <div class="celebration-card">
-      <div class="celebration-icon" id="celebrationIcon">🎉</div>
-      <div style="font-size:18px;font-weight:900;color:#3C3489;margin-bottom:8px" id="celebrationTitle">Well done!</div>
-      <div class="celebration-msg" id="celebrationMsg">Loading your message...</div>
-      <button class="celebration-btn" onclick="closeCelebration()">Thanks 💜</button>
-    </div>
-  </div>
-
   <!-- App Content -->
   <div class="app-content" id="appContent">
-
-    <!-- Top Nav -->
     <div class="top-nav">
       <div class="nav-tab active">✨ Check In</div>
-      <a class="nav-tab" href="goals.html" id="goalsTabLink">🎯 Goals & Tasks</a>
+      <a class="nav-tab" href="goals.html">🎯 Goals & Tasks</a>
     </div>
-
     <div class="page-body">
 
-      <!-- Header -->
       <div class="app-header">
         <div class="header-text">
           <h1>Hi Jesse 💜</h1>
@@ -612,17 +534,6 @@
         <div class="saved-msg" id="difficultSaved">Amazing! You should be proud 💜</div>
       </div>
 
-      <!-- Tomorrow's Plan -->
-      <div class="card">
-        <div class="card-title">Tomorrow's Plan 🌙</div>
-        <div class="inline-row">
-          <input class="inline-input" type="text" id="tomorrowInput"
-            placeholder="One thing you'd like to do tomorrow...">
-          <button class="inline-btn" onclick="saveTomorrowPlan()">Save 💜</button>
-        </div>
-        <div class="saved-msg" id="tomorrowSaved">Saved! Something to look forward to 💜</div>
-      </div>
-
       <!-- Dad's Corner -->
       <div class="dad-corner-card">
         <div class="dad-corner-title">👨 Dad's Corner</div>
@@ -697,7 +608,6 @@
         showDadResponse();
         renderDailyLiving();
         loadDadCorner();
-        checkTomorrowPlan();
       } catch(e) { console.error(e); }
     }
 
@@ -705,26 +615,12 @@
       const hour = new Date().getHours();
       const time = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
       document.getElementById("greetingText").innerHTML = `${time}, Jesse 💜`;
-
-      // Check yesterday's tomorrow plan
-      if (appData?.tomorrowPlan?.length > 1) {
-        const plans = appData.tomorrowPlan;
-        const latest = plans[plans.length - 1];
-        const planDate = new Date(latest[2]);
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        if (planDate.toDateString() === yesterday.toDateString()) {
-          document.getElementById("encouragementText").innerHTML =
-            `Yesterday you planned to: <strong>${latest[3]}</strong> — you've got this! 💜`;
-          return;
-        }
-      }
       document.getElementById("encouragementText").innerHTML =
         ENCOURAGEMENT[new Date().getDay() % ENCOURAGEMENT.length];
     }
 
     function showDadResponse() {
-      if (!appData?.dadResponses?.length > 1) return;
+      if (!appData?.dadResponses || appData.dadResponses.length <= 1) return;
       const responses = appData.dadResponses;
       const latest = responses[responses.length - 1];
       if (new Date(latest[3]).toDateString() === new Date().toDateString()) {
@@ -802,6 +698,7 @@
       document.getElementById("sosOverlay").classList.add("active");
     }
     function closeSOS() { document.getElementById("sosOverlay").classList.remove("active"); }
+
     async function confirmSOS() {
       await saveAlert("SOS", "🆘 Jesse has sent an SOS and needs urgent help right now.", "");
       document.getElementById("sosConfirmScreen").style.display = "none";
@@ -811,7 +708,6 @@
     function openOverlay(id) { document.getElementById(id).classList.add("active"); }
     function closeOverlay(id) { document.getElementById(id).classList.remove("active"); }
 
-    // Daily Living
     function renderDailyLiving() {
       const completed = [];
       if (appData?.dailyLiving?.length > 1) {
@@ -875,29 +771,6 @@
       setTimeout(() => document.getElementById("difficultSaved").style.display = "none", 3000);
     }
 
-    async function saveTomorrowPlan() {
-      const intention = document.getElementById("tomorrowInput").value.trim();
-      if (!intention) return;
-      try {
-        await fetch(API_URL, {
-          method:"POST", headers:{"Content-Type":"text/plain"},
-          body: JSON.stringify({ action:"saveTomorrowPlan", userId:2, intention })
-        });
-      } catch(e) {}
-      document.getElementById("tomorrowInput").value = "";
-      document.getElementById("tomorrowSaved").style.display = "block";
-      setTimeout(() => document.getElementById("tomorrowSaved").style.display = "none", 3000);
-    }
-
-    function checkTomorrowPlan() {
-      if (!appData?.tomorrowPlan?.length > 1) return;
-      const plans = appData.tomorrowPlan;
-      const latest = plans[plans.length - 1];
-      if (new Date(latest[2]).toDateString() === new Date().toDateString()) {
-        document.getElementById("tomorrowInput").value = latest[3];
-      }
-    }
-
     function loadDadCorner() {
       if (!appData?.dadCorner?.length > 1) {
         document.getElementById("dadCornerContent").innerHTML =
@@ -921,37 +794,6 @@
       document.getElementById("dadCornerContent").innerHTML = html;
     }
 
-    // AI Celebration
-    async function showCelebration(type, context) {
-      document.getElementById("celebrationIcon").innerText = type === "goal" ? "🏆" : "🎉";
-      document.getElementById("celebrationTitle").innerText = type === "goal" ? "Goal Completed!" : "Task Done!";
-      document.getElementById("celebrationMsg").innerText = "Getting your message...";
-      document.getElementById("celebrationOverlay").classList.add("active");
-      try {
-        const prompt = type === "goal"
-          ? `Write a warm, personal 2-3 sentence celebration message for Jesse who just completed her goal: "${context}". Use her name. Be genuine and encouraging. No emojis in the text itself.`
-          : `Write a warm, personal 1-2 sentence encouraging message for Jesse who just completed a task: "${context}". Use her name. Be genuine and encouraging. No emojis in the text itself.`;
-        const res = await fetch("https://api.anthropic.com/v1/messages", {
-          method:"POST",
-          headers:{"Content-Type":"application/json"},
-          body: JSON.stringify({
-            model:"claude-sonnet-4-20250514",
-            max_tokens:200,
-            messages:[{ role:"user", content:prompt }]
-          })
-        });
-        const data = await res.json();
-        document.getElementById("celebrationMsg").innerText = data.content[0].text;
-      } catch(e) {
-        document.getElementById("celebrationMsg").innerText = "Jesse, you did it. Every step you take is proof of your strength. 💜";
-      }
-    }
-
-    function closeCelebration() {
-      document.getElementById("celebrationOverlay").classList.remove("active");
-    }
-
-    // Check auth on load
     window.onload = function() {
       if (sessionStorage.getItem("auth") === "true") {
         document.getElementById("lockScreen").style.display = "none";
