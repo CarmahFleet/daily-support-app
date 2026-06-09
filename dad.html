@@ -504,17 +504,18 @@
 
     // ─── AUTH ────────────────────────────────────────────────
 
-function checkPin() {
+ffunction checkPin() {
   const val = document.getElementById("pinInput").value;
   if (val === PASSWORD) {
     authed = true;
-    sessionStorage.setItem("jessieAuth", Date.now().toString());
+    sessionStorage.setItem("dadAuth", Date.now().toString());
     document.getElementById("pinInput").value = "";
     document.getElementById("pinError").innerText = "";
     document.getElementById("lockScreen").style.display = "none";
     document.getElementById("appContent").style.display = "block";
     resetTimer();
-    initApp();
+    loadDashboard();
+    setInterval(loadDashboard, 30000);
   } else {
     document.getElementById("pinError").innerText = "Incorrect password. Try again.";
     document.getElementById("pinInput").value = "";
