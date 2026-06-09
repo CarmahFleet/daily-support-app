@@ -899,22 +899,27 @@
       }
     }
 
-    async function showCelebration(focus) {
-      document.getElementById("celebrationMsg").innerText = "Getting your message...";
-      document.getElementById("celebrationOverlay").classList.add("active");
-      try {
-        const res = await fetch(API_URL, {
-          method: "POST", headers: { "Content-Type": "text/plain" },
-          body: JSON.stringify({ action: "aiCelebrate", type: "goal", context: `weekly focus: ${focus}` })
-        });
-        const data = await res.json();
-        document.getElementById("celebrationMsg").innerText = data.success
-          ? data.message
-          : "You set a goal this week and worked toward it. That matters. 💜";
-      } catch(e) {
-        document.getElementById("celebrationMsg").innerText = "You set a goal this week and worked toward it. That matters. 💜";
-      }
-    }
+async function showCelebration(focus) {
+  document.getElementById("celebrationMsg").innerText = "Getting your message...";
+  document.getElementById("celebrationOverlay").classList.add("active");
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain" },
+      body: JSON.stringify({
+        action: "aiCelebrateDad",
+        context: focus
+      })
+    });
+    const data = await res.json();
+    document.getElementById("celebrationMsg").innerText = data.success
+      ? data.message
+      : "You set a goal this week and worked toward it. That matters. Well done. 💜";
+  } catch(e) {
+    document.getElementById("celebrationMsg").innerText =
+      "You set a goal this week and worked toward it. That matters. Well done. 💜";
+  }
+}}
 
     function closeCelebration() {
       document.getElementById("celebrationOverlay").classList.remove("active");
