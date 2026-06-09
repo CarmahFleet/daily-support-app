@@ -182,14 +182,7 @@
       margin-bottom: 14px;
       border: 2px solid #ffe8a0;
     }
-    .dad-corner-title-label {
-      font-size: 11px;
-      font-weight: 800;
-      color: #b8860b;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 12px;
-    }
+    .dad-corner-title-label { font-size: 11px; font-weight: 800; color: #b8860b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
     .dad-focus-input {
       width: 100%;
       padding: 12px 14px;
@@ -225,20 +218,18 @@
       margin-bottom: 8px;
     }
     .dad-complete-btn {
-      width: 100%;
+      flex: 1;
       padding: 13px;
       border-radius: 14px;
       border: none;
       background: linear-gradient(90deg, #5cb85c, #3d9a3d);
       color: white;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 800;
       cursor: pointer;
-      margin-bottom: 8px;
     }
     .dad-new-btn {
-      width: 100%;
-      padding: 13px;
+      padding: 13px 16px;
       border-radius: 14px;
       border: 2px solid #ffe8a0;
       background: white;
@@ -246,7 +237,7 @@
       font-size: 14px;
       font-weight: 800;
       cursor: pointer;
-      margin-bottom: 8px;
+      flex-shrink: 0;
     }
     .dad-ai-btn {
       width: 100%;
@@ -271,10 +262,10 @@
       line-height: 1.6;
       display: none;
     }
-    .dad-step-item {
+    .dad-step-row {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       padding: 10px 12px;
       background: white;
       border-radius: 12px;
@@ -282,12 +273,12 @@
       font-size: 13px;
       color: #555;
     }
-    .dad-step-item.done { opacity: 0.5; text-decoration: line-through; }
-    .dad-step-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: #f0ad4e; flex-shrink: 0; }
+    .dad-step-row.done { opacity: 0.5; text-decoration: line-through; }
+    .dad-step-row input[type="checkbox"] { width: 18px; height: 18px; accent-color: #f0ad4e; flex-shrink: 0; }
     .dad-step-label { flex: 1; }
     .ai-loading { color: #b8860b; font-size: 13px; font-style: italic; padding: 8px 0; display: none; }
 
-    /* Archive sections */
+    /* Archive */
     .archive-section {
       background: white;
       border-radius: 22px;
@@ -302,14 +293,7 @@
       cursor: pointer;
       gap: 10px;
     }
-    .archive-header-text {
-      flex: 1;
-      font-size: 11px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: #f0ad4e;
-    }
+    .archive-header-text { flex: 1; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #f0ad4e; }
     .archive-body { display: none; padding: 0 18px 16px; }
     .archive-body.open { display: block; }
     .archive-item {
@@ -328,7 +312,7 @@
     .archive-date { font-size: 11px; font-weight: 400; color: #999; margin-left: auto; flex-shrink: 0; }
     .chevron { font-size: 12px; color: #bbb; transition: transform 0.2s; }
 
-    /* Celebration overlay */
+    /* Celebration */
     .celebration-overlay {
       display: none;
       position: fixed;
@@ -360,7 +344,7 @@
       cursor: pointer;
     }
 
-    /* Edit overlay */
+    /* Overlays */
     .overlay {
       display: none;
       position: fixed;
@@ -372,69 +356,21 @@
       padding: 20px;
     }
     .overlay.active { display: flex; }
-    .overlay-card {
-      background: white;
-      border-radius: 28px;
-      padding: 28px 24px;
-      max-width: 320px;
-      width: 100%;
-    }
+    .overlay-card { background: white; border-radius: 28px; padding: 28px 24px; max-width: 320px; width: 100%; }
     .overlay-title { font-size: 16px; font-weight: 800; color: #3C3489; margin-bottom: 12px; }
-    .overlay-input {
-      width: 100%;
-      padding: 12px 14px;
-      border-radius: 14px;
-      border: 2px solid #e0e0f0;
-      font-size: 14px;
-      outline: none;
-      color: #333;
-      margin-bottom: 10px;
-    }
+    .overlay-input { width: 100%; padding: 12px 14px; border-radius: 14px; border: 2px solid #e0e0f0; font-size: 14px; outline: none; color: #333; margin-bottom: 10px; }
     .overlay-input:focus { border-color: #7c6fcd; }
-    .overlay-save-btn {
-      width: 100%;
-      padding: 13px;
-      border-radius: 14px;
-      border: none;
-      background: linear-gradient(90deg, #534AB7, #c054b8);
-      color: white;
-      font-size: 14px;
-      font-weight: 800;
-      cursor: pointer;
-      margin-bottom: 8px;
-    }
-    .overlay-cancel-btn {
-      width: 100%;
-      padding: 12px;
-      border-radius: 14px;
-      border: 2px solid #eee;
-      background: white;
-      color: #888;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-    }
+    .overlay-save-btn { width: 100%; padding: 13px; border-radius: 14px; border: none; background: linear-gradient(90deg, #534AB7, #c054b8); color: white; font-size: 14px; font-weight: 800; cursor: pointer; margin-bottom: 8px; }
+    .overlay-cancel-btn { width: 100%; padding: 12px; border-radius: 14px; border: 2px solid #eee; background: white; color: #888; font-size: 13px; font-weight: 700; cursor: pointer; }
     .confirm-title { font-size: 18px; font-weight: 900; color: #cc0000; margin-bottom: 8px; text-align: center; }
     .confirm-msg { font-size: 14px; color: #555; margin-bottom: 20px; text-align: center; line-height: 1.5; }
-    .confirm-delete-btn {
-      width: 100%;
-      padding: 13px;
-      border-radius: 14px;
-      border: none;
-      background: linear-gradient(90deg, #ff3b3b, #cc0000);
-      color: white;
-      font-size: 14px;
-      font-weight: 800;
-      cursor: pointer;
-      margin-bottom: 8px;
-    }
+    .confirm-delete-btn { width: 100%; padding: 13px; border-radius: 14px; border: none; background: linear-gradient(90deg, #ff3b3b, #cc0000); color: white; font-size: 14px; font-weight: 800; cursor: pointer; margin-bottom: 8px; }
 
     .footer { text-align: center; color: #bbb; font-size: 12px; margin-top: 24px; }
   </style>
 </head>
 <body>
 
-  <!-- Lock Screen -->
   <div class="lock-screen" id="lockScreen">
     <div class="lock-card">
       <div class="lock-icon">👋</div>
@@ -447,7 +383,6 @@
     </div>
   </div>
 
-  <!-- Celebration Overlay -->
   <div class="celebration-overlay" id="celebrationOverlay">
     <div class="celebration-card">
       <div style="font-size:52px;margin-bottom:12px">🏆</div>
@@ -457,7 +392,6 @@
     </div>
   </div>
 
-  <!-- Edit Overlay -->
   <div class="overlay" id="editOverlay">
     <div class="overlay-card">
       <div class="overlay-title" id="editOverlayTitle">Edit</div>
@@ -467,7 +401,6 @@
     </div>
   </div>
 
-  <!-- Confirm Delete Overlay -->
   <div class="overlay" id="confirmDeleteOverlay">
     <div class="overlay-card">
       <div class="confirm-title">Delete?</div>
@@ -477,7 +410,6 @@
     </div>
   </div>
 
-  <!-- App Content -->
   <div class="app-content" id="appContent">
     <div class="page-body">
 
@@ -486,13 +418,11 @@
         <p>Here's how Jesse is doing</p>
       </div>
 
-      <!-- SOS Banner -->
       <div class="sos-banner" id="sosBanner">
         <h2>🆘 SOS ALERT</h2>
         <p>Jesse needs urgent help right now. Contact her immediately.</p>
       </div>
 
-      <!-- Latest Alert -->
       <div class="card">
         <div class="card-title">Latest Support Request</div>
         <div id="latestAlert"><span style="color:#ccc">No alerts yet</span></div>
@@ -500,7 +430,6 @@
         <div id="latestSupportType"></div>
       </div>
 
-      <!-- Respond to Jesse -->
       <div class="card" id="respondCard" style="display:none">
         <div class="card-title">Respond to Jesse</div>
         <button class="response-btn" onclick="sendResponse('💜 I\'ve seen this. I love you.')">💜 I've seen this. I love you.</button>
@@ -510,39 +439,26 @@
         <div class="response-sent" id="responseSent">Response sent to Jesse 💜</div>
       </div>
 
-      <!-- Latest Check-In -->
       <div class="card">
         <div class="card-title">Latest Check-In</div>
         <div class="checkin-grid">
-          <div class="checkin-box">
-            <div class="label">Mood</div>
-            <div class="value" id="mood">—</div>
-          </div>
-          <div class="checkin-box">
-            <div class="label">Energy</div>
-            <div class="value" id="energy">—</div>
-          </div>
-          <div class="checkin-box">
-            <div class="label">Need</div>
-            <div class="value" id="needToday">—</div>
-          </div>
+          <div class="checkin-box"><div class="label">Mood</div><div class="value" id="mood">—</div></div>
+          <div class="checkin-box"><div class="label">Energy</div><div class="value" id="energy">—</div></div>
+          <div class="checkin-box"><div class="label">Need</div><div class="value" id="needToday">—</div></div>
         </div>
         <div id="checkinTime" class="time-tag"></div>
       </div>
 
-      <!-- Daily Living Summary -->
       <div class="card">
         <div class="card-title">Jesse's Daily Living Today</div>
         <div id="dailyLivingSummary">Loading...</div>
       </div>
 
-      <!-- Difficult Thing -->
       <div class="card">
         <div class="card-title">Difficult Thing Jesse Did Today 💪</div>
         <div id="difficultThingToday"><span style="color:#ccc">Nothing recorded yet today</span></div>
       </div>
 
-      <!-- Recent Alerts -->
       <div class="card">
         <div class="card-title">Recent Alerts</div>
         <div id="recentAlerts"><span style="color:#ccc">No alerts yet</span></div>
@@ -559,17 +475,16 @@
             <button class="icon-btn" onclick="openEditFocus()">✏️</button>
           </div>
           <div id="dadCornerStepsList"></div>
-          <div id="dadCornerProgress" class="time-tag" style="margin-top:8px;color:#b8860b;font-weight:700"></div>
+          <div id="dadCornerProgress" style="font-size:12px;color:#b8860b;font-weight:700;margin-top:8px"></div>
           <div style="display:flex;gap:8px;margin-top:12px">
             <button class="dad-complete-btn" onclick="completeDadCorner()">✅ Mark week as complete</button>
-            <button class="dad-new-btn" style="flex:0;padding:13px 14px;margin:0" onclick="startNewFocus()">＋ New</button>
+            <button class="dad-new-btn" onclick="startNewFocus()">＋ New</button>
           </div>
         </div>
 
         <!-- Form view -->
         <div id="dadCornerForm">
-          <input class="dad-focus-input" type="text" id="dadFocusInput"
-            placeholder="What's your focus this week?">
+          <input class="dad-focus-input" type="text" id="dadFocusInput" placeholder="What's your focus this week?">
           <div id="dadStepInputs">
             <input class="dad-step-input" type="text" placeholder="Step 1..." id="dadStep1">
             <input class="dad-step-input" type="text" placeholder="Step 2..." id="dadStep2">
@@ -584,7 +499,7 @@
         </div>
       </div>
 
-      <!-- Completed Focus Archive -->
+      <!-- Archive -->
       <div class="archive-section" id="dadArchiveSection" style="display:none">
         <div class="archive-header" onclick="toggleArchive()">
           <div class="archive-header-text">🏆 My Completed Weekly Focuses</div>
@@ -594,30 +509,92 @@
       </div>
 
       <div class="footer">Dad Dashboard 💜 · Refreshes every 30 seconds</div>
-
     </div>
   </div>
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzlTd0HcORu-R78042GmDC5buO-69X9XRB6NjPh-Qmtj_5fnA-fSKBAkXCnuufS5LU5/exec";
     const PASSWORD = "Beckett";
+    const TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
 
     let appData = null;
     let latestAlertId = null;
     let editTarget = null;
     let deleteTarget = null;
     let currentDadCorner = null;
+    let activityTimer = null;
+
+    // ─── AUTH & TIMEOUT ──────────────────────────────────────
 
     function checkPin() {
       const val = document.getElementById("pinInput").value;
       if (val === PASSWORD) {
+        sessionStorage.setItem("dadAuth", "true");
+        sessionStorage.setItem("dadAuthTime", Date.now().toString());
         document.getElementById("lockScreen").style.display = "none";
         document.getElementById("appContent").style.display = "block";
+        document.getElementById("pinInput").value = "";
+        document.getElementById("pinError").innerText = "";
+        startActivityTimer();
         loadDashboard();
         setInterval(loadDashboard, 30000);
       } else {
         document.getElementById("pinError").innerText = "Incorrect password. Try again.";
         document.getElementById("pinInput").value = "";
+      }
+    }
+
+    function startActivityTimer() {
+      clearTimeout(activityTimer);
+      activityTimer = setTimeout(lockApp, TIMEOUT_MS);
+    }
+
+    function resetActivityTimer() {
+      clearTimeout(activityTimer);
+      activityTimer = setTimeout(lockApp, TIMEOUT_MS);
+    }
+
+    function lockApp() {
+      sessionStorage.removeItem("dadAuth");
+      sessionStorage.removeItem("dadAuthTime");
+      document.getElementById("appContent").style.display = "none";
+      document.getElementById("lockScreen").style.display = "flex";
+      document.getElementById("pinInput").value = "";
+      document.getElementById("pinError").innerText = "";
+    }
+
+    function isAuthed() {
+      const authed = sessionStorage.getItem("dadAuth");
+      const authTime = parseInt(sessionStorage.getItem("dadAuthTime") || "0");
+      return authed === "true" && (Date.now() - authTime) < TIMEOUT_MS;
+    }
+
+    window.onload = function() {
+      if (isAuthed()) {
+        document.getElementById("lockScreen").style.display = "none";
+        document.getElementById("appContent").style.display = "block";
+        startActivityTimer();
+        loadDashboard();
+        setInterval(loadDashboard, 30000);
+      }
+      document.addEventListener("touchstart", resetActivityTimer);
+      document.addEventListener("click", resetActivityTimer);
+    };
+
+    // ─── DASHBOARD ───────────────────────────────────────────
+
+    async function loadDashboard() {
+      try {
+        const response = await fetch(API_URL);
+        appData = await response.json();
+        renderAlerts();
+        renderCheckIn();
+        renderDailyLiving();
+        renderDifficultThing();
+        renderDadCorner();
+        renderDadArchive();
+      } catch(e) {
+        document.getElementById("latestAlert").innerHTML = "Unable to load";
       }
     }
 
@@ -645,44 +622,21 @@
       return "";
     }
 
-    async function loadDashboard() {
-      try {
-        const response = await fetch(API_URL);
-        appData = await response.json();
-        renderAlerts();
-        renderCheckIn();
-        renderDailyLiving();
-        renderDifficultThing();
-        renderDadCorner();
-        renderDadArchive();
-      } catch(e) {
-        document.getElementById("latestAlert").innerHTML = "Unable to load";
-      }
-    }
-
     function renderAlerts() {
       const alerts = appData.supportAlerts || [];
       if (alerts.length <= 1) return;
       const latest = alerts[alerts.length - 1];
       latestAlertId = latest[0];
       const alertType = latest[3];
-
-      if (alertType === "SOS") {
-        document.getElementById("sosBanner").style.display = "block";
-      }
-      if (alertType !== "OKAY") {
-        document.getElementById("respondCard").style.display = "block";
-      }
-
+      if (alertType === "SOS") document.getElementById("sosBanner").style.display = "block";
+      if (alertType !== "OKAY") document.getElementById("respondCard").style.display = "block";
       document.getElementById("latestAlert").innerHTML =
         `<span class="status-badge ${getBadgeClass(alertType)}">${getAlertLabel(alertType)}</span>`;
       document.getElementById("latestAlertTime").innerHTML = "Received: " + latest[2];
-
       if (latest[5]) {
         document.getElementById("latestSupportType").innerHTML =
           `<span class="support-type-tag">Needs: ${latest[5]}</span>`;
       }
-
       let html = "";
       const start = Math.max(1, alerts.length - 5);
       for (let i = alerts.length - 1; i >= start; i--) {
@@ -709,24 +663,15 @@
     function renderDailyLiving() {
       const dl = appData.dailyLiving || [];
       const today = new Date().toDateString();
-      const DAILY_LIVING = [
-        "Brush Teeth","Get Dressed","Medication (morning)","Breakfast",
-        "Drink Water","Lunch","Outside Time","Dinner","Medication (evening)","Shower","Sleep"
-      ];
+      const ITEMS = ["Brush Teeth","Get Dressed","Medication (morning)","Breakfast","Drink Water","Lunch","Outside Time","Dinner","Medication (evening)","Shower","Sleep"];
       const completed = [];
       dl.forEach(row => {
-        if (row[1] == 2 && new Date(row[2]).toDateString() === today && row[4] === true) {
-          completed.push(row[3]);
-        }
+        if (row[1] == 2 && new Date(row[2]).toDateString() === today && row[4] === true) completed.push(row[3]);
       });
       let html = "";
-      DAILY_LIVING.forEach(item => {
+      ITEMS.forEach(item => {
         const done = completed.includes(item);
-        html += `
-          <div class="dl-summary-item ${done?'dl-done':'dl-not-done'}">
-            <span>${item}</span>
-            <span>${done ? '✅' : '○'}</span>
-          </div>`;
+        html += `<div class="dl-summary-item ${done?'dl-done':'dl-not-done'}"><span>${item}</span><span>${done?'✅':'○'}</span></div>`;
       });
       document.getElementById("dailyLivingSummary").innerHTML = html || "<span style='color:#ccc'>No data yet</span>";
     }
@@ -760,40 +705,34 @@
 
     function renderDadCorner() {
       const dc = appData.dadCorner || [];
-      // Find latest active entry
+      // Col index: 0=ID, 1=UserID, 2=Status, 3=FocusName, 4=Steps, 5=CompletedSteps, 6=CreatedDate, 7=CompletedDate
       let latest = null;
       for (let i = dc.length - 1; i >= 1; i--) {
-        if (dc[i][3] !== "COMPLETED") { latest = dc[i]; break; }
+        if (dc[i][2] !== 'Completed') { latest = dc[i]; break; }
       }
-
       if (!latest) {
         document.getElementById("dadCornerForm").style.display = "block";
         document.getElementById("dadCornerView").style.display = "none";
         return;
       }
-
       currentDadCorner = latest;
       const focus = latest[3];
       const steps = JSON.parse(latest[4] || '[]');
       const completed = JSON.parse(latest[5] || '[]');
-
       document.getElementById("dadFocusLabel").innerText = "🎯 " + focus;
-
       let html = "";
       steps.forEach((step, idx) => {
         const done = completed.includes(step);
         html += `
-          <div class="dad-step-item ${done?'done':''}">
+          <div class="dad-step-row ${done?'done':''}">
             <input type="checkbox" ${done?'checked':''} onchange="tickDadStep('${escStr(step)}',this.checked)">
             <span class="dad-step-label">${step}</span>
             <button class="icon-btn" onclick="openEditStep(${idx},'${escStr(step)}')">✏️</button>
             <button class="icon-btn" onclick="openDeleteStep(${idx},'${escStr(step)}')">🗑️</button>
           </div>`;
       });
-
       document.getElementById("dadCornerStepsList").innerHTML = html;
-      document.getElementById("dadCornerProgress").innerHTML =
-        `${completed.length} of ${steps.length} steps completed`;
+      document.getElementById("dadCornerProgress").innerHTML = `${completed.length} of ${steps.length} steps completed`;
       document.getElementById("dadCornerView").style.display = "block";
       document.getElementById("dadCornerForm").style.display = "none";
     }
@@ -802,17 +741,17 @@
       const dc = appData.dadCorner || [];
       const completed = [];
       for (let i = 1; i < dc.length; i++) {
-        if (dc[i][3] === "COMPLETED") completed.push(dc[i]);
+        if (dc[i][2] === 'Completed') completed.push(dc[i]);
       }
       const section = document.getElementById("dadArchiveSection");
       if (completed.length === 0) { section.style.display = "none"; return; }
       section.style.display = "block";
       let html = "";
-      completed.forEach(item => {
+      completed.reverse().forEach(item => {
         html += `
           <div class="archive-item">
-            🏆 ${item[6] || item[2]}
-            <span class="archive-date">${formatDate(item[6])}</span>
+            🏆 ${item[3]}
+            <span class="archive-date">${formatDate(item[7])}</span>
           </div>`;
       });
       document.getElementById("dadArchiveBody").innerHTML = html;
@@ -822,9 +761,7 @@
       document.getElementById("dadCornerView").style.display = "none";
       document.getElementById("dadCornerForm").style.display = "block";
       document.getElementById("dadFocusInput").value = "";
-      for (let i = 1; i <= 5; i++) {
-        document.getElementById(`dadStep${i}`).value = "";
-      }
+      for (let i = 1; i <= 5; i++) document.getElementById(`dadStep${i}`).value = "";
     }
 
     async function completeDadCorner() {
@@ -833,10 +770,7 @@
         await fetch(API_URL, {
           method: "POST",
           headers: { "Content-Type": "text/plain" },
-          body: JSON.stringify({
-            action: "completeDadCorner",
-            rowId: currentDadCorner[0]
-          })
+          body: JSON.stringify({ action: "completeDadCorner", rowId: currentDadCorner[0] })
         });
       } catch(e) {}
       await showCelebration(currentDadCorner[3]);
@@ -844,7 +778,6 @@
     }
 
     function openEditFocus() {
-      if (!currentDadCorner) return;
       editTarget = { type: "focus" };
       document.getElementById("editOverlayTitle").innerText = "Edit Weekly Focus";
       document.getElementById("editInput").value = currentDadCorner[3];
@@ -862,39 +795,23 @@
       if (!editTarget || !currentDadCorner) return;
       const newValue = document.getElementById("editInput").value.trim();
       if (!newValue) return;
-
       const steps = JSON.parse(currentDadCorner[4] || '[]');
       const completed = JSON.parse(currentDadCorner[5] || '[]');
-
       if (editTarget.type === "focus") {
         await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain" },
-          body: JSON.stringify({
-            action: "editDadCornerFocus",
-            rowId: currentDadCorner[0],
-            newFocus: newValue
-          })
+          method: "POST", headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify({ action: "editDadCornerFocus", rowId: currentDadCorner[0], newFocus: newValue })
         });
-      } else if (editTarget.type === "step") {
+      } else {
         const oldStep = steps[editTarget.idx];
         steps[editTarget.idx] = newValue;
-        const completedIdx = completed.indexOf(oldStep);
-        if (completedIdx > -1) {
-          completed[completedIdx] = newValue;
-        }
+        const ci = completed.indexOf(oldStep);
+        if (ci > -1) completed[ci] = newValue;
         await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain" },
-          body: JSON.stringify({
-            action: "editDadCornerSteps",
-            rowId: currentDadCorner[0],
-            steps,
-            completed
-          })
+          method: "POST", headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify({ action: "editDadCornerSteps", rowId: currentDadCorner[0], steps, completed })
         });
       }
-
       closeOverlay("editOverlay");
       editTarget = null;
       await loadDashboard();
@@ -902,29 +819,20 @@
 
     function openDeleteStep(idx, step) {
       deleteTarget = { type: "step", idx, step };
-      document.getElementById("confirmDeleteMsg").innerHTML =
-        `Delete step "<strong>${step}</strong>"?`;
+      document.getElementById("confirmDeleteMsg").innerHTML = `Delete step "<strong>${step}</strong>"?`;
       document.getElementById("confirmDeleteOverlay").classList.add("active");
     }
 
     async function confirmDelete() {
       if (!deleteTarget || !currentDadCorner) return;
-      if (deleteTarget.type === "step") {
-        const steps = JSON.parse(currentDadCorner[4] || '[]');
-        const completed = JSON.parse(currentDadCorner[5] || '[]');
-        steps.splice(deleteTarget.idx, 1);
-        const newCompleted = completed.filter(s => s !== deleteTarget.step);
-        await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain" },
-          body: JSON.stringify({
-            action: "editDadCornerSteps",
-            rowId: currentDadCorner[0],
-            steps,
-            completed: newCompleted
-          })
-        });
-      }
+      const steps = JSON.parse(currentDadCorner[4] || '[]');
+      const completed = JSON.parse(currentDadCorner[5] || '[]');
+      steps.splice(deleteTarget.idx, 1);
+      const newCompleted = completed.filter(s => s !== deleteTarget.step);
+      await fetch(API_URL, {
+        method: "POST", headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify({ action: "editDadCornerSteps", rowId: currentDadCorner[0], steps, completed: newCompleted })
+      });
       closeOverlay("confirmDeleteOverlay");
       deleteTarget = null;
       await loadDashboard();
@@ -934,8 +842,7 @@
       if (!checked || !currentDadCorner) return;
       try {
         await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain" },
+          method: "POST", headers: { "Content-Type": "text/plain" },
           body: JSON.stringify({ action:"updateDadCornerStep", userId:1, step })
         });
       } catch(e) {}
@@ -952,16 +859,8 @@
       }
       try {
         await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain" },
-          body: JSON.stringify({
-            action: "saveDadCorner",
-            userId: 1,
-            week: getWeekString(),
-            focus,
-            steps,
-            completedSteps: []
-          })
+          method: "POST", headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify({ action:"saveDadCorner", userId:1, week: getWeekString(), focus, steps, completedSteps:[] })
         });
       } catch(e) {}
       await loadDashboard();
@@ -981,8 +880,7 @@
       document.getElementById("dadAiBox").style.display = "none";
       try {
         const res = await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain" },
+          method: "POST", headers: { "Content-Type": "text/plain" },
           body: JSON.stringify({ action: "aiDadSuggest", goal: focus })
         });
         const data = await res.json();
@@ -1001,28 +899,20 @@
       }
     }
 
-    // ─── CELEBRATION ─────────────────────────────────────────
-
     async function showCelebration(focus) {
       document.getElementById("celebrationMsg").innerText = "Getting your message...";
       document.getElementById("celebrationOverlay").classList.add("active");
       try {
         const res = await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain" },
-          body: JSON.stringify({
-            action: "aiCelebrate",
-            type: "goal",
-            context: `weekly focus: ${focus}`
-          })
+          method: "POST", headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify({ action: "aiCelebrate", type: "goal", context: `weekly focus: ${focus}` })
         });
         const data = await res.json();
         document.getElementById("celebrationMsg").innerText = data.success
           ? data.message
           : "You set a goal this week and worked toward it. That matters. 💜";
       } catch(e) {
-        document.getElementById("celebrationMsg").innerText =
-          "You set a goal this week and worked toward it. That matters. 💜";
+        document.getElementById("celebrationMsg").innerText = "You set a goal this week and worked toward it. That matters. 💜";
       }
     }
 
