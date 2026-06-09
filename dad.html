@@ -542,13 +542,14 @@ function checkPin() {
     }
 
 window.onload = function() {
-  const savedAuth = sessionStorage.getItem("jessieAuth");
+  const savedAuth = sessionStorage.getItem("dadAuth");
   if (savedAuth && (Date.now() - parseInt(savedAuth)) < TIMEOUT_MS) {
     authed = true;
     document.getElementById("lockScreen").style.display = "none";
     document.getElementById("appContent").style.display = "block";
     resetTimer();
-    initApp();
+    loadDashboard();
+    setInterval(loadDashboard, 30000);
   }
   document.addEventListener("touchstart", resetTimer);
   document.addEventListener("click", resetTimer);
