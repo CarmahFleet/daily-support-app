@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Goals & Tasks</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(160deg, #f0f4ff 0%, #fdf0ff 100%);
+      min-height: 100vh;
+      color: #333;
+    }
+
+    /* Auth check */
+    .auth-screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+      text-align: center;
+    }
+    .auth-screen p { color: #7c6fcd; font-size: 16px; margin-bottom: 16px; }
+    .auth-btn {
+      padding: 14px 28px;
+      border-radius: 14px;
+      border: none;
+      background: linear-gradient(90deg, #534AB7, #c054b8);
+      color: white;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .app-content { display: none; padding: 0 0 48px; }
+
+    /* Top nav */
+    .top-nav {
+      display: flex;
+      background: white;
+      border-bottom: 2px solid #f0f0f8;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 2px 8px rgba(83,74,183,0.06);
+    }
+    .nav-tab {
+      flex: 1;
+      padding: 14px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 800;
+      color: #bbb;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      text-decoration: none;
+    }
+    .nav-tab.active { color: #534AB7; border-bottom-color: #534AB7; }
+
+    .page-body { padding: 20px 16px 48px; }
+
+    .page-header { text-align: center; margin-bottom: 20px; }
+    .page-header h1 { font-size: 26px; font-weight: 800; color: #3C3489; }
+    .page-header p { font-size: 14px; color: #7c6fcd; margin-top: 4px; }
+
+    .card {
+      background: white;
+      border-radius: 22px;
+      padding: 18px;
+      margin-bottom: 14px;
+      box-shadow: 0 4px 16px rgba(83,74,183,0.08);
+    }
+    .card-title {
+      font-size: 11px;
+      font-weight: 800;
+      color: #bbb;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    /* Inline row */
+    .inline-row { display: flex; gap: 8px; align-items: center; }
+    .inline-input {
+      flex: 1;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 2px solid #e0e0f0;
+      font-size: 14px;
+      outline: none;
+      color: #333;
+    }
+    .inline-input:focus { border-color: #7c6fcd; }
+    .inline-btn {
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: none;
+      background: linear-gradient(90deg, #534AB7, #c054b8);
+      color: white;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* Task items */
+    .task-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 13px 12px;
+      border-radius: 14px;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .task-item:last-child { margin-bottom: 0; }
+    .task-item input[type="checkbox"] { width: 22px; height: 22px; cursor: pointer; accent-color: #534AB7; flex-shrink: 0; }
+    .task-label { flex: 1; }
+    .task-tag {
+      font-size: 10px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 10px;
+      background: rgba(83,74,183,0.1);
+      color: #534AB7;
+      flex-shrink: 0;
+    }
+    .edit-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      padding: 2px 4px;
+      flex-shrink: 0;
+      opacity: 0.5;
+    }
+    .edit-btn:hover { opacity: 1; }
+
+    /* Goal section */
+    .goal-section {
+      background: #f8f9ff;
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 12px;
+      border: 2px solid #e8e4ff;
+    }
+    .goal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .goal-name { font-size: 15px; font-weight: 800; color: #3C3489; flex: 1; }
+    .goal-edit-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      opacity: 0.5;
+      padding: 2px 4px;
+    }
+    .goal-task-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin-bottom: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      background: white;
+      color: #534AB7;
+    }
+    .goal-task-item.pending { opacity: 0.5; }
+    .goal-task-item input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; accent-color: #534AB7; flex-shrink: 0; }
+    .add-task-to-today {
+      font-size: 11px;
+      background: #eef3ff;
+      border: none;
+      border-radius: 8px;
+      padding: 4px 8px;
+      color: #534AB7;
+      font-weight: 700;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    /* AI box */
+    .ai-box {
+      background: #f8f0ff;
+      border-radius: 14px;
+      padding: 14px;
+      margin-top: 10px;
+      border: 2px solid #e0c0ff;
+      font-size: 13px;
+      color: #555;
+      line-height: 1.6;
+      display: none;
+    }
+    .ai-loading { color: #7c6fcd; font-size: 13px; font-style: italic; padding: 8px 0; display: none; }
+
+    /* Celebration */
+    .celebration-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(83,74,183,0.85);
+      z-index: 150;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .celebration-overlay.active { display: flex; }
+    .celebration-card {
+      background: white;
+      border-radius: 28px;
+      padding: 32px 24px;
+      max-width: 320px;
+      width: 100%;
+      text-align: center;
+    }
+    .celebration-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 14px;
+      border: none;
+      background: linear-gradient(90deg, #534AB7, #c054b8);
+      color: white;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    /* Edit overlay */
+    .edit-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .edit-overlay.active { display: flex; }
+    .edit-card {
+      background: white;
+      border-radius: 28px;
+      padding: 28px 24px;
+      max-width: 320px;
+      width: 100%;
+    }
+    .edit-title { font-size: 16px; font-weight: 800; color: #3C3489; margin-bottom: 12px; }
+    .edit-input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 2px solid #e0e0f0;
+      font-size: 14px;
+      outline: none;
+      color: #333;
+      margin-bottom: 10px;
+    }
+    .edit-input:focus { border-color: #7c6fcd; }
+    .edit-save-btn {
+      width: 100%;
+      padding: 13px;
+      border-radius: 14px;
+      border: none;
+      background: linear-gradient(90deg, #534AB7, #c054b8);
+      color: white;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      margin-bottom: 8px;
+    }
+    .edit-cancel-btn {
+      width: 100%;
+      padding: 12px;
+      border-radius: 14px;
+      border: 2px solid #eee;
+      background: white;
+      color: #888;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .saved-msg { text-align: center; color: #5cb85c; font-weight: 800; padding: 8px; font-size: 13px; display: none; }
+    .empty-msg { color: #bbb; font-size: 13px; text-align: center; padding: 8px 0; }
+    .footer { text-align: center; color: #bbb; font-size: 12px; margin-top: 24px; }
+
+    .COLORS { display: none; }
+  </style>
+</head>
+<body>
+
+  <!-- Auth check screen -->
+  <div class="auth-screen" id="authScreen">
+    <p>Please log in from the main app first.</p>
+    <a class="auth-btn" href="index.html">Go to Login</a>
+  </div>
+
+  <!-- Celebration Overlay -->
+  <div class="celebration-overlay" id="celebrationOverlay">
+    <div class="celebration-card">
+      <div style="font-size:52px;margin-bottom:12px" id="celebrationIcon">🎉</div>
+      <div style="font-size:18px;font-weight:900;color:#3C3489;margin-bottom:8px" id="celebrationTitle">Well done!</div>
+      <div style="font-size:15px;color:#555;line-height:1.6;margin-bottom:20px" id="celebrationMsg">Loading your message...</div>
+      <button class="celebration-btn" onclick="closeCelebration()">Thanks 💜</button>
+    </div>
+  </div>
+
+  <!-- Edit Overlay -->
+  <div class="edit-overlay" id="editOverlay">
+    <div class="edit-card">
+      <div class="edit-title" id="editTitle">Edit</div>
+      <input class="edit-input" type="text" id="editInput">
+      <button class="edit-save-btn" onclick="saveEdit()">Save changes</button>
+      <button class="edit-cancel-btn" onclick="closeEdit()">Cancel</button>
+    </div>
+  </div>
+
+  <!-- App Content -->
+  <div class="app-content" id="appContent">
+
+    <!-- Top Nav -->
+    <div class="top-nav">
+      <a class="nav-tab" href="index.html">✨ Check In</a>
+      <div class="nav-tab active">🎯 Goals & Tasks</div>
+    </div>
+
+    <div class="page-body">
+
+      <div class="page-header">
+        <h1>Goals & Tasks 🎯</h1>
+        <p>Your progress, one step at a time</p>
+      </div>
+
+      <!-- Today's Tasks -->
+      <div class="card">
+        <div class="card-title">Today's Tasks</div>
+        <div id="todayTasks"><div class="empty-msg">No tasks yet — add one below or from a goal</div></div>
+        <div style="margin-top:12px">
+          <div class="inline-row">
+            <input class="inline-input" type="text" id="manualTaskInput" placeholder="Add a task for today...">
+            <button class="inline-btn" onclick="addManualTask()">Add task</button>
+          </div>
+          <div class="saved-msg" id="taskSaved">Task added 💜</div>
+        </div>
+      </div>
+
+      <!-- Goals -->
+      <div class="card">
+        <div class="card-title">My Goals</div>
+        <div id="goalsList"><div class="empty-msg">No goals yet — add one below</div></div>
+        <div style="margin-top:12px">
+          <div class="inline-row">
+            <input class="inline-input" type="text" id="newGoalInput" placeholder="Add a new goal...">
+            <button class="inline-btn" onclick="addGoal()">Add goal</button>
+          </div>
+          <div class="ai-loading" id="aiLoading">✨ Getting AI suggestions...</div>
+          <div class="ai-box" id="aiSuggestions"></div>
+        </div>
+      </div>
+
+      <div class="footer">Daily Support App 💜</div>
+
+    </div>
+  </div>
+
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbzlTd0HcORu-R78042GmDC5buO-69X9XRB6NjPh-Qmtj_5fnA-fSKBAkXCnuufS5LU5/exec";
+
+    const COLORS = [
+      { bg:"#eef3ff", color:"#3C3489" },
+      { bg:"#fdf0ff", color:"#7a1fa0" },
+      { bg:"#fff0f5", color:"#a01a4a" },
+      { bg:"#f0faf0", color:"#2d7a2d" },
+      { bg:"#fffbf0", color:"#8a5c00" }
+    ];
+
+    let appData = null;
+    let editTarget = null; // { type: 'task'|'goal', id, currentValue }
+
+    // Auth check
+    window.onload = function() {
+      if (sessionStorage.getItem("auth") !== "true") {
+        document.getElementById("authScreen").style.display = "flex";
+      } else {
+        document.getElementById("appContent").style.display = "block";
+        initApp();
+      }
+    };
+
+    async function initApp() {
+      try {
+        const res = await fetch(API_URL);
+        appData = await res.json();
+        renderTodayTasks();
+        renderGoals();
+      } catch(e) { console.error(e); }
+    }
+
+    // Today's Tasks
+    function renderTodayTasks() {
+      const tasks = appData?.tasks || [];
+      const today = new Date().toDateString();
+      let html = "";
+      let count = 0;
+
+      for (let i = 1; i < tasks.length; i++) {
+        const row = tasks[i];
+        if (row[1] == 2 && row[6] !== "Completed") {
+          const c = COLORS[count % COLORS.length];
+          const isGoalTask = row[2] !== "" && row[2] !== null;
+          html += `
+            <div class="task-item" style="background:${c.bg};color:${c.color}">
+              <input type="checkbox" onchange="completeTask(${row[0]},'${row[4]}')">
+              <span class="task-label">${row[4]}</span>
+              ${isGoalTask ? `<span class="task-tag">Goal</span>` : ''}
+              <button class="edit-btn" onclick="openEdit('task',${row[0]},'${row[4]}')">✏️</button>
+            </div>`;
+          count++;
+        }
+      }
+      if (!html) html = `<div class="empty-msg">No tasks yet — add one below or from a goal</div>`;
+      document.getElementById("todayTasks").innerHTML = html;
+    }
+
+    async function addManualTask() {
+      const title = document.getElementById("manualTaskInput").value.trim();
+      if (!title) return;
+      try {
+        await fetch(API_URL, {
+          method:"POST", headers:{"Content-Type":"text/plain"},
+          body: JSON.stringify({ action:"saveTask", userId:2, goalId:"", milestoneId:"", title })
+        });
+      } catch(e) {}
+      document.getElementById("manualTaskInput").value = "";
+      document.getElementById("taskSaved").style.display = "block";
+      setTimeout(() => document.getElementById("taskSaved").style.display = "none", 2000);
+      await refreshData();
+      renderTodayTasks();
+    }
+
+    async function completeTask(taskId, taskTitle) {
+      try {
+        await fetch(API_URL, {
+          method:"POST", headers:{"Content-Type":"text/plain"},
+          body: JSON.stringify({ action:"completeTask", taskId })
+        });
+      } catch(e) {}
+      await showCelebration("task", taskTitle);
+      await refreshData();
+      renderTodayTasks();
+      renderGoals();
+    }
+
+    // Goals
+    function renderGoals() {
+      const goals = appData?.goals || [];
+      const tasks = appData?.tasks || [];
+      if (goals.length <= 1) {
+        document.getElementById("goalsList").innerHTML = `<div class="empty-msg">No goals yet — add one below</div>`;
+        return;
+      }
+      let html = "";
+      for (let i = 1; i < goals.length; i++) {
+        const goal = goals[i];
+        if (!goal[2]) continue;
+        const goalId = goal[0];
+        const goalName = goal[2];
+        const goalTasks = tasks.filter(t => String(t[2]) === String(goalId) && t[0] !== "TaskID");
+        const completedTasks = goalTasks.filter(t => t[6] === "Completed");
+        const pendingTasks = goalTasks.filter(t => t[6] !== "Completed");
+        const isGoalDone = goalTasks.length > 0 && pendingTasks.length === 0;
+
+        html += `
+          <div class="goal-section">
+            <div class="goal-header">
+              <div class="goal-name">🎯 ${goalName} ${isGoalDone ? '✅' : ''}</div>
+              <button class="goal-edit-btn" onclick="openEdit('goal',${goalId},'${goalName}')">✏️</button>
+            </div>`;
+
+        // Show completed tasks (greyed)
+        completedTasks.forEach(t => {
+          html += `
+            <div class="goal-task-item" style="opacity:0.4;text-decoration:line-through">
+              <input type="checkbox" checked disabled>
+              <span style="flex:1">${t[4]}</span>
+            </div>`;
+        });
+
+        // Show next pending task only (auto-queue)
+        if (pendingTasks.length > 0) {
+          const next = pendingTasks[0];
+          html += `
+            <div class="goal-task-item">
+              <input type="checkbox" onchange="completeTask(${next[0]},'${next[4]}')">
+              <span style="flex:1">${next[4]}</span>
+              <button class="add-task-to-today" onclick="addGoalTaskToToday(${next[0]},'${next[4]}',${goalId})">+ Today</button>
+            </div>`;
+
+          // Show remaining queued tasks
+          for (let j = 1; j < pendingTasks.length; j++) {
+            html += `
+              <div class="goal-task-item pending">
+                <span style="width:20px;flex-shrink:0;text-align:center;color:#bbb">○</span>
+                <span style="flex:1">${pendingTasks[j][4]}</span>
+                <button class="edit-btn" onclick="openEdit('task',${pendingTasks[j][0]},'${pendingTasks[j][4]}')">✏️</button>
+              </div>`;
+          }
+        }
+
+        // Add task to this goal
+        html += `
+          <div class="inline-row" style="margin-top:10px">
+            <input class="inline-input" style="font-size:13px;padding:10px 12px" type="text"
+              id="goalTask_${goalId}" placeholder="Add a step to this goal...">
+            <button class="inline-btn" style="font-size:12px;padding:10px 12px"
+              onclick="addGoalTask(${goalId})">Add</button>
+          </div>`;
+
+        html += `</div>`;
+      }
+      if (!html) html = `<div class="empty-msg">No goals yet — add one below</div>`;
+      document.getElementById("goalsList").innerHTML = html;
+    }
+
+    async function addGoal() {
+      const goal = document.getElementById("newGoalInput").value.trim();
+      if (!goal) return;
+      try {
+        await fetch(API_URL, {
+          method:"POST", headers:{"Content-Type":"text/plain"},
+          body: JSON.stringify({ action:"saveGoal", userId:2, goal })
+        });
+      } catch(e) {}
+      document.getElementById("newGoalInput").value = "";
+      document.getElementById("aiLoading").style.display = "block";
+      document.getElementById("aiSuggestions").style.display = "none";
+      await refreshData();
+      renderGoals();
+      await getAISuggestions(goal);
+    }
+
+    async function addGoalTask(goalId) {
+      const input = document.getElementById(`goalTask_${goalId}`);
+      const title = input?.value?.trim();
+      if (!title) return;
+      try {
+        await fetch(API_URL, {
+          method:"POST", headers:{"Content-Type":"text/plain"},
+          body: JSON.stringify({ action:"saveTask", userId:2, goalId, milestoneId:"", title })
+        });
+      } catch(e) {}
+      if (input) input.value = "";
+      await refreshData();
+      renderGoals();
+      renderTodayTasks();
+    }
+
+    async function addGoalTaskToToday(taskId, taskTitle, goalId) {
+      // Task already exists, just surface it in today's view by refreshing
+      await refreshData();
+      renderTodayTasks();
+    }
+
+    async function getAISuggestions(goal) {
+      try {
+        const res = await fetch("https://api.anthropic.com/v1/messages", {
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body: JSON.stringify({
+            model:"claude-sonnet-4-20250514",
+            max_tokens:800,
+            messages:[{
+              role:"user",
+              content:`You are a warm encouraging assistant helping Jesse achieve her goals. Jesse has set this goal: "${goal}". Suggest 5 simple, practical, achievable steps. Keep each step short and positive. Number them 1-5. Don't use complex language.`
+            }]
+          })
+        });
+        const data = await res.json();
+        document.getElementById("aiLoading").style.display = "none";
+        document.getElementById("aiSuggestions").style.display = "block";
+        document.getElementById("aiSuggestions").innerHTML =
+          `<strong style='color:#7c6fcd'>✨ Here are some steps to get started:</strong><br><br>` +
+          data.content[0].text.replace(/\n/g,"<br>");
+      } catch(e) {
+        document.getElementById("aiLoading").style.display = "none";
+      }
+    }
+
+    // Edit
+    function openEdit(type, id, currentValue) {
+      editTarget = { type, id, currentValue };
+      document.getElementById("editTitle").innerText = type === "goal" ? "Edit Goal" : "Edit Task";
+      document.getElementById("editInput").value = currentValue;
+      document.getElementById("editOverlay").classList.add("active");
+    }
+
+    function closeEdit() {
+      document.getElementById("editOverlay").classList.remove("active");
+      editTarget = null;
+    }
+
+    async function saveEdit() {
+      if (!editTarget) return;
+      const newValue = document.getElementById("editInput").value.trim();
+      if (!newValue) return;
+      const action = editTarget.type === "goal" ? "editGoal" : "editTask";
+      try {
+        await fetch(API_URL, {
+          method:"POST", headers:{"Content-Type":"text/plain"},
+          body: JSON.stringify({ action, id: editTarget.id, newValue })
+        });
+      } catch(e) {}
+      closeEdit();
+      await refreshData();
+      renderTodayTasks();
+      renderGoals();
+    }
+
+    // Celebration
+    async function showCelebration(type, context) {
+      document.getElementById("celebrationIcon").innerText = type === "goal" ? "🏆" : "🎉";
+      document.getElementById("celebrationTitle").innerText = type === "goal" ? "Goal Completed!" : "Task Done!";
+      document.getElementById("celebrationMsg").innerText = "Getting your message...";
+      document.getElementById("celebrationOverlay").classList.add("active");
+      try {
+        const prompt = type === "goal"
+          ? `Write a warm personal 2-3 sentence celebration for Jesse who just completed her goal: "${context}". Use her name. Be genuine and encouraging.`
+          : `Write a warm personal 1-2 sentence encouragement for Jesse who just completed the task: "${context}". Use her name. Be genuine.`;
+        const res = await fetch("https://api.anthropic.com/v1/messages", {
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body: JSON.stringify({
+            model:"claude-sonnet-4-20250514",
+            max_tokens:200,
+            messages:[{ role:"user", content:prompt }]
+          })
+        });
+        const data = await res.json();
+        document.getElementById("celebrationMsg").innerText = data.content[0].text;
+      } catch(e) {
+        document.getElementById("celebrationMsg").innerText = "Jesse, you did it. Every step you take is proof of your strength. 💜";
+      }
+    }
+
+    function closeCelebration() {
+      document.getElementById("celebrationOverlay").classList.remove("active");
+    }
+
+    async function refreshData() {
+      try {
+        const res = await fetch(API_URL);
+        appData = await res.json();
+      } catch(e) {}
+    }
+  </script>
+</body>
+</html>
