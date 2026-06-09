@@ -105,9 +105,9 @@
       cursor: pointer;
       letter-spacing: 1px;
       box-shadow: 0 4px 12px rgba(204,0,0,0.35);
-      animation: pulse 2s infinite;
+      animation: pulsered 2s infinite;
     }
-    @keyframes pulse {
+    @keyframes pulsered {
       0% { box-shadow: 0 4px 12px rgba(204,0,0,0.35); }
       50% { box-shadow: 0 4px 20px rgba(204,0,0,0.65); }
       100% { box-shadow: 0 4px 12px rgba(204,0,0,0.35); }
@@ -367,7 +367,6 @@
 </head>
 <body>
 
-  <!-- Lock Screen -->
   <div class="lock-screen" id="lockScreen">
     <div class="lock-card">
       <div class="lock-icon">💜</div>
@@ -380,7 +379,6 @@
     </div>
   </div>
 
-  <!-- SOS Overlay -->
   <div class="sos-overlay" id="sosOverlay">
     <div class="sos-card">
       <div id="sosConfirmScreen">
@@ -393,9 +391,7 @@
       <div id="sosSentScreen" style="display:none">
         <div style="font-size:48px;margin-bottom:12px">💜</div>
         <div style="font-size:20px;font-weight:900;color:#3C3489;margin-bottom:8px">Message Sent</div>
-        <div style="font-size:14px;color:#555;margin-bottom:20px;line-height:1.6">
-          Your message has been sent to Dad. He will contact you as soon as possible.
-        </div>
+        <div style="font-size:14px;color:#555;margin-bottom:20px;line-height:1.6">Your message has been sent to Dad. He will contact you as soon as possible.</div>
         <div style="text-align:left;background:#f8f0ff;border-radius:14px;padding:14px;margin-bottom:16px">
           <div style="font-size:12px;font-weight:800;color:#7c6fcd;margin-bottom:8px">WHILE YOU WAIT</div>
           <div style="font-size:14px;color:#555;line-height:1.8">
@@ -410,7 +406,6 @@
     </div>
   </div>
 
-  <!-- Support Type Overlay -->
   <div class="overlay" id="supportTypeOverlay">
     <div class="overlay-card">
       <div class="overlay-icon">🟡</div>
@@ -429,7 +424,6 @@
     </div>
   </div>
 
-  <!-- Help Today Overlay -->
   <div class="overlay" id="helpTodayOverlay">
     <div class="overlay-card">
       <div class="overlay-icon">💜</div>
@@ -448,7 +442,6 @@
     </div>
   </div>
 
-  <!-- App Content -->
   <div class="app-content" id="appContent">
     <div class="top-nav">
       <div class="nav-tab active">✨ Check In</div>
@@ -464,19 +457,16 @@
         <button class="sos-btn" onclick="openSOS()">🆘 SOS</button>
       </div>
 
-      <!-- Greeting -->
       <div class="greeting-box">
         <div class="greeting-text" id="greetingText">Good to see you 💜</div>
         <div class="encouragement" id="encouragementText"></div>
       </div>
 
-      <!-- Dad Response -->
       <div class="dad-response-box" id="dadResponseBox">
         <div class="dr-title">👨 Dad responded</div>
         <div class="dr-message" id="dadResponseText"></div>
       </div>
 
-      <!-- Mood -->
       <div class="card">
         <div class="card-title">Mood</div>
         <div class="btn-grid">
@@ -492,7 +482,6 @@
         </div>
       </div>
 
-      <!-- Energy -->
       <div class="card">
         <div class="card-title">Energy</div>
         <div class="btn-grid">
@@ -508,7 +497,6 @@
         </div>
       </div>
 
-      <!-- Support -->
       <div class="card">
         <div class="card-title">Support</div>
         <button class="sup-btn sup-ok" onclick="sendOkay()">🟢 I'm okay</button>
@@ -516,14 +504,12 @@
         <button class="sup-btn sup-help" onclick="sendHelpToday()">🔴 Dad, I need help today</button>
       </div>
 
-      <!-- Daily Living -->
       <div class="card">
         <div class="card-title">Daily Living</div>
         <div id="streakBadge"></div>
         <div id="dailyLiving">Loading...</div>
       </div>
 
-      <!-- Difficult Thing -->
       <div class="card">
         <div class="card-title">Difficult Thing I Did Today 💪</div>
         <div class="inline-row">
@@ -534,20 +520,19 @@
         <div class="saved-msg" id="difficultSaved">Amazing! You should be proud 💜</div>
       </div>
 
-      <!-- Dad's Corner -->
       <div class="dad-corner-card">
         <div class="dad-corner-title">👨 Dad's Corner</div>
         <div id="dadCornerContent">Loading...</div>
       </div>
 
       <div class="footer">Daily Support App 💜</div>
-
     </div>
   </div>
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzlTd0HcORu-R78042GmDC5buO-69X9XRB6NjPh-Qmtj_5fnA-fSKBAkXCnuufS5LU5/exec";
     const PASSWORD = "Beckett";
+    const TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
 
     const ENCOURAGEMENT = [
       "Every small step forward is still progress. You're doing better than you think. 💜",
@@ -586,19 +571,66 @@
     let selectedEnergy = "";
     let selectedSupportType = "";
     let appData = null;
+    let activityTimer = null;
+
+    // ─── AUTH & TIMEOUT ──────────────────────────────────────
 
     function checkPin() {
       const val = document.getElementById("pinInput").value;
       if (val === PASSWORD) {
+        const now = Date.now();
+        sessionStorage.setItem("auth", "true");
+        sessionStorage.setItem("authTime", now.toString());
         document.getElementById("lockScreen").style.display = "none";
         document.getElementById("appContent").style.display = "block";
-        sessionStorage.setItem("auth", "true");
+        document.getElementById("pinInput").value = "";
+        document.getElementById("pinError").innerText = "";
+        startActivityTimer();
         initApp();
       } else {
         document.getElementById("pinError").innerText = "Incorrect password. Try again.";
         document.getElementById("pinInput").value = "";
       }
     }
+
+    function startActivityTimer() {
+      clearTimeout(activityTimer);
+      activityTimer = setTimeout(lockApp, TIMEOUT_MS);
+    }
+
+    function resetActivityTimer() {
+      clearTimeout(activityTimer);
+      activityTimer = setTimeout(lockApp, TIMEOUT_MS);
+    }
+
+    function lockApp() {
+      sessionStorage.removeItem("auth");
+      sessionStorage.removeItem("authTime");
+      document.getElementById("appContent").style.display = "none";
+      document.getElementById("lockScreen").style.display = "flex";
+      document.getElementById("pinInput").value = "";
+      document.getElementById("pinError").innerText = "";
+    }
+
+    function isAuthed() {
+      const authed = sessionStorage.getItem("auth");
+      const authTime = parseInt(sessionStorage.getItem("authTime") || "0");
+      return authed === "true" && (Date.now() - authTime) < TIMEOUT_MS;
+    }
+
+    window.onload = function() {
+      if (isAuthed()) {
+        document.getElementById("lockScreen").style.display = "none";
+        document.getElementById("appContent").style.display = "block";
+        startActivityTimer();
+        initApp();
+      }
+      // Reset timer on any interaction
+      document.addEventListener("touchstart", resetActivityTimer);
+      document.addEventListener("click", resetActivityTimer);
+    };
+
+    // ─── INIT ────────────────────────────────────────────────
 
     async function initApp() {
       try {
@@ -629,6 +661,8 @@
       }
     }
 
+    // ─── MOOD & ENERGY ───────────────────────────────────────
+
     function selectMood(value) {
       selectedMood = value;
       document.querySelectorAll('.mood-good,.mood-okay,.mood-struggle').forEach(b => b.classList.remove('selected'));
@@ -647,6 +681,8 @@
       document.querySelectorAll('.energy-high,.energy-medium,.energy-low').forEach(b => b.classList.remove('selected'));
       document.getElementById('energy-' + value).classList.add('selected');
     }
+
+    // ─── SUPPORT ─────────────────────────────────────────────
 
     async function sendOkay() {
       await saveCheckIn("I'm okay", "");
@@ -692,13 +728,14 @@
       } catch(e) {}
     }
 
+    // ─── SOS ─────────────────────────────────────────────────
+
     function openSOS() {
       document.getElementById("sosConfirmScreen").style.display = "block";
       document.getElementById("sosSentScreen").style.display = "none";
       document.getElementById("sosOverlay").classList.add("active");
     }
     function closeSOS() { document.getElementById("sosOverlay").classList.remove("active"); }
-
     async function confirmSOS() {
       await saveAlert("SOS", "🆘 Jesse has sent an SOS and needs urgent help right now.", "");
       document.getElementById("sosConfirmScreen").style.display = "none";
@@ -707,6 +744,8 @@
 
     function openOverlay(id) { document.getElementById(id).classList.add("active"); }
     function closeOverlay(id) { document.getElementById(id).classList.remove("active"); }
+
+    // ─── DAILY LIVING ────────────────────────────────────────
 
     function renderDailyLiving() {
       const completed = [];
@@ -757,6 +796,8 @@
       } catch(e) {}
     }
 
+    // ─── DIFFICULT THING ─────────────────────────────────────
+
     async function saveDifficultThing() {
       const desc = document.getElementById("difficultInput").value.trim();
       if (!desc) return;
@@ -771,16 +812,28 @@
       setTimeout(() => document.getElementById("difficultSaved").style.display = "none", 3000);
     }
 
+    // ─── DAD'S CORNER ────────────────────────────────────────
+
     function loadDadCorner() {
-      if (!appData?.dadCorner?.length > 1) {
+      if (!appData?.dadCorner || appData.dadCorner.length <= 1) {
         document.getElementById("dadCornerContent").innerHTML =
           "<p style='color:#b8860b;font-size:13px'>Dad hasn't set a focus this week yet.</p>";
         return;
       }
-      const latest = appData.dadCorner[appData.dadCorner.length - 1];
+      // Find latest active entry — col 2 (index 2) is Status
+      let latest = null;
+      for (let i = appData.dadCorner.length - 1; i >= 1; i--) {
+        if (appData.dadCorner[i][2] !== 'Completed') { latest = appData.dadCorner[i]; break; }
+      }
+      if (!latest) {
+        document.getElementById("dadCornerContent").innerHTML =
+          "<p style='color:#b8860b;font-size:13px'>Dad hasn't set a focus this week yet.</p>";
+        return;
+      }
+      const focus = latest[3]; // col D = FocusName
       const steps = JSON.parse(latest[4] || '[]');
       const completed = JSON.parse(latest[5] || '[]');
-      let html = `<div class="dad-corner-focus">🎯 ${latest[3]}</div>`;
+      let html = `<div class="dad-corner-focus">🎯 ${focus}</div>`;
       steps.forEach(step => {
         const done = completed.includes(step);
         html += `
@@ -793,14 +846,6 @@
       }
       document.getElementById("dadCornerContent").innerHTML = html;
     }
-
-    window.onload = function() {
-      if (sessionStorage.getItem("auth") === "true") {
-        document.getElementById("lockScreen").style.display = "none";
-        document.getElementById("appContent").style.display = "block";
-        initApp();
-      }
-    };
   </script>
 </body>
 </html>
