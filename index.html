@@ -700,7 +700,7 @@
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzlTd0HcORu-R78042GmDC5buO-69X9XRB6NjPh-Qmtj_5fnA-fSKBAkXCnuufS5LU5/exec";
     const PASSWORD = "Beckett";
-    const TIMEOUT_MS = 10 * 60 * 1000;
+    const TIMEOUT_MS = 60 * 60 * 1000;
 
     const ENCOURAGEMENT = [
       "Every small step forward is still progress. You're doing better than you think. 💜",
@@ -747,21 +747,22 @@
 
     // ─── AUTH ────────────────────────────────────────────────
 
-    function checkPin() {
-      const val = document.getElementById("pinInput").value;
-      if (val === PASSWORD) {
-        authed = true;
-        document.getElementById("pinInput").value = "";
-        document.getElementById("pinError").innerText = "";
-        document.getElementById("lockScreen").style.display = "none";
-        document.getElementById("appContent").style.display = "block";
-        resetTimer();
-        initApp();
-      } else {
-        document.getElementById("pinError").innerText = "Incorrect password. Try again.";
-        document.getElementById("pinInput").value = "";
-      }
-    }
+function checkPin() {
+  const val = document.getElementById("pinInput").value;
+  if (val === PASSWORD) {
+    authed = true;
+    sessionStorage.setItem("jessieAuth", Date.now().toString());
+    document.getElementById("pinInput").value = "";
+    document.getElementById("pinError").innerText = "";
+    document.getElementById("lockScreen").style.display = "none";
+    document.getElementById("appContent").style.display = "block";
+    resetTimer();
+    initApp();
+  } else {
+    document.getElementById("pinError").innerText = "Incorrect password. Try again.";
+    document.getElementById("pinInput").value = "";
+  }
+}
 
     function resetTimer() {
       clearTimeout(activityTimer);
@@ -776,10 +777,18 @@
       document.getElementById("pinError").innerText = "";
     }
 
-    window.onload = function() {
-      document.addEventListener("touchstart", resetTimer);
-      document.addEventListener("click", resetTimer);
-    };
+window.onload = function() {
+  const savedAuth = sessionStorage.getItem("jessieAuth");
+  if (savedAuth && (Date.now() - parseInt(savedAuth)) < TIMEOUT_MS) {
+    authed = true;
+    document.getElementById("lockScreen").style.display = "none";
+    document.getElementById("appContent").style.display = "block";
+    resetTimer();
+    initApp();
+  }
+  document.addEventListener("touchstart", resetTimer);
+  document.addEventListener("click", resetTimer);
+};
 
     // ─── NAVIGATION ──────────────────────────────────────────
 
