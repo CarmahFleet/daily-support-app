@@ -173,8 +173,6 @@
     .time-tag { font-size: 12px; color: #bbb; margin-top: 8px; }
     .icon-btn { background: none; border: none; cursor: pointer; font-size: 15px; padding: 2px 4px; opacity: 0.5; transition: opacity 0.15s; flex-shrink: 0; }
     .icon-btn:hover { opacity: 1; }
-
-    /* Dad Corner */
     .dad-corner-section {
       background: linear-gradient(135deg, #fff8e6, #fff0cc);
       border-radius: 22px;
@@ -277,8 +275,6 @@
     .dad-step-row input[type="checkbox"] { width: 18px; height: 18px; accent-color: #f0ad4e; flex-shrink: 0; }
     .dad-step-label { flex: 1; }
     .ai-loading { color: #b8860b; font-size: 13px; font-style: italic; padding: 8px 0; display: none; }
-
-    /* Archive */
     .archive-section {
       background: white;
       border-radius: 22px;
@@ -286,13 +282,7 @@
       box-shadow: 0 4px 16px rgba(83,74,183,0.08);
       overflow: hidden;
     }
-    .archive-header {
-      display: flex;
-      align-items: center;
-      padding: 16px 18px;
-      cursor: pointer;
-      gap: 10px;
-    }
+    .archive-header { display: flex; align-items: center; padding: 16px 18px; cursor: pointer; gap: 10px; }
     .archive-header-text { flex: 1; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #f0ad4e; }
     .archive-body { display: none; padding: 0 18px 16px; }
     .archive-body.open { display: block; }
@@ -311,8 +301,6 @@
     .archive-item:last-child { margin-bottom: 0; }
     .archive-date { font-size: 11px; font-weight: 400; color: #999; margin-left: auto; flex-shrink: 0; }
     .chevron { font-size: 12px; color: #bbb; transition: transform 0.2s; }
-
-    /* Celebration */
     .celebration-overlay {
       display: none;
       position: fixed;
@@ -343,8 +331,6 @@
       font-weight: 800;
       cursor: pointer;
     }
-
-    /* Overlays */
     .overlay {
       display: none;
       position: fixed;
@@ -365,7 +351,6 @@
     .confirm-title { font-size: 18px; font-weight: 900; color: #cc0000; margin-bottom: 8px; text-align: center; }
     .confirm-msg { font-size: 14px; color: #555; margin-bottom: 20px; text-align: center; line-height: 1.5; }
     .confirm-delete-btn { width: 100%; padding: 13px; border-radius: 14px; border: none; background: linear-gradient(90deg, #ff3b3b, #cc0000); color: white; font-size: 14px; font-weight: 800; cursor: pointer; margin-bottom: 8px; }
-
     .footer { text-align: center; color: #bbb; font-size: 12px; margin-top: 24px; }
   </style>
 </head>
@@ -464,11 +449,8 @@
         <div id="recentAlerts"><span style="color:#ccc">No alerts yet</span></div>
       </div>
 
-      <!-- Dad's Corner -->
       <div class="dad-corner-section">
         <div class="dad-corner-title-label">👨 My Corner — This Week's Focus</div>
-
-        <!-- Active view -->
         <div id="dadCornerView" style="display:none">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
             <div style="font-size:15px;font-weight:800;color:#7a5200;flex:1" id="dadFocusLabel"></div>
@@ -481,17 +463,13 @@
             <button class="dad-new-btn" onclick="startNewFocus()">＋ New</button>
           </div>
         </div>
-
-        <!-- Form view -->
         <div id="dadCornerForm">
           <input class="dad-focus-input" type="text" id="dadFocusInput" placeholder="What's your focus this week?">
-          <div id="dadStepInputs">
-            <input class="dad-step-input" type="text" placeholder="Step 1..." id="dadStep1">
-            <input class="dad-step-input" type="text" placeholder="Step 2..." id="dadStep2">
-            <input class="dad-step-input" type="text" placeholder="Step 3..." id="dadStep3">
-            <input class="dad-step-input" type="text" placeholder="Step 4..." id="dadStep4">
-            <input class="dad-step-input" type="text" placeholder="Step 5..." id="dadStep5">
-          </div>
+          <input class="dad-step-input" type="text" placeholder="Step 1..." id="dadStep1">
+          <input class="dad-step-input" type="text" placeholder="Step 2..." id="dadStep2">
+          <input class="dad-step-input" type="text" placeholder="Step 3..." id="dadStep3">
+          <input class="dad-step-input" type="text" placeholder="Step 4..." id="dadStep4">
+          <input class="dad-step-input" type="text" placeholder="Step 5..." id="dadStep5">
           <button class="dad-ai-btn" onclick="getDadAISuggestions()">✨ Get AI suggestions</button>
           <div class="ai-loading" id="dadAiLoading">Getting suggestions...</div>
           <div class="ai-box" id="dadAiBox"></div>
@@ -499,7 +477,6 @@
         </div>
       </div>
 
-      <!-- Archive -->
       <div class="archive-section" id="dadArchiveSection" style="display:none">
         <div class="archive-header" onclick="toggleArchive()">
           <div class="archive-header-text">🏆 My Completed Weekly Focuses</div>
@@ -515,7 +492,7 @@
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzlTd0HcORu-R78042GmDC5buO-69X9XRB6NjPh-Qmtj_5fnA-fSKBAkXCnuufS5LU5/exec";
     const PASSWORD = "Beckett";
-    const TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
+    const TIMEOUT_MS = 10 * 60 * 1000;
 
     let appData = null;
     let latestAlertId = null;
@@ -523,62 +500,46 @@
     let deleteTarget = null;
     let currentDadCorner = null;
     let activityTimer = null;
+    let authed = false;
 
-    // ─── AUTH & TIMEOUT ──────────────────────────────────────
+    // ─── AUTH ────────────────────────────────────────────────
 
     function checkPin() {
       const val = document.getElementById("pinInput").value;
       if (val === PASSWORD) {
-        sessionStorage.setItem("dadAuth", "true");
-        sessionStorage.setItem("dadAuthTime", Date.now().toString());
-        document.getElementById("lockScreen").style.display = "none";
-        document.getElementById("appContent").style.display = "block";
+        authed = true;
         document.getElementById("pinInput").value = "";
         document.getElementById("pinError").innerText = "";
-        startActivityTimer();
-        loadDashboard();
-        setInterval(loadDashboard, 30000);
+        showApp();
       } else {
         document.getElementById("pinError").innerText = "Incorrect password. Try again.";
         document.getElementById("pinInput").value = "";
       }
     }
 
-    function startActivityTimer() {
-      clearTimeout(activityTimer);
-      activityTimer = setTimeout(lockApp, TIMEOUT_MS);
+    function showApp() {
+      document.getElementById("lockScreen").style.display = "none";
+      document.getElementById("appContent").style.display = "block";
+      resetTimer();
+      loadDashboard();
     }
 
-    function resetActivityTimer() {
+    function resetTimer() {
       clearTimeout(activityTimer);
       activityTimer = setTimeout(lockApp, TIMEOUT_MS);
     }
 
     function lockApp() {
-      sessionStorage.removeItem("dadAuth");
-      sessionStorage.removeItem("dadAuthTime");
+      authed = false;
       document.getElementById("appContent").style.display = "none";
       document.getElementById("lockScreen").style.display = "flex";
       document.getElementById("pinInput").value = "";
       document.getElementById("pinError").innerText = "";
     }
 
-    function isAuthed() {
-      const authed = sessionStorage.getItem("dadAuth");
-      const authTime = parseInt(sessionStorage.getItem("dadAuthTime") || "0");
-      return authed === "true" && (Date.now() - authTime) < TIMEOUT_MS;
-    }
-
     window.onload = function() {
-      if (isAuthed()) {
-        document.getElementById("lockScreen").style.display = "none";
-        document.getElementById("appContent").style.display = "block";
-        startActivityTimer();
-        loadDashboard();
-        setInterval(loadDashboard, 30000);
-      }
-      document.addEventListener("touchstart", resetActivityTimer);
-      document.addEventListener("click", resetActivityTimer);
+      document.addEventListener("touchstart", resetTimer);
+      document.addEventListener("click", resetTimer);
     };
 
     // ─── DASHBOARD ───────────────────────────────────────────
@@ -593,8 +554,9 @@
         renderDifficultThing();
         renderDadCorner();
         renderDadArchive();
+        setTimeout(loadDashboard, 30000);
       } catch(e) {
-        document.getElementById("latestAlert").innerHTML = "Unable to load";
+        setTimeout(loadDashboard, 30000);
       }
     }
 
@@ -705,7 +667,6 @@
 
     function renderDadCorner() {
       const dc = appData.dadCorner || [];
-      // Col index: 0=ID, 1=UserID, 2=Status, 3=FocusName, 4=Steps, 5=CompletedSteps, 6=CreatedDate, 7=CompletedDate
       let latest = null;
       for (let i = dc.length - 1; i >= 1; i--) {
         if (dc[i][2] !== 'Completed') { latest = dc[i]; break; }
@@ -774,7 +735,10 @@
         });
       } catch(e) {}
       await showCelebration(currentDadCorner[3]);
-      await loadDashboard();
+      const res = await fetch(API_URL);
+      appData = await res.json();
+      renderDadCorner();
+      renderDadArchive();
     }
 
     function openEditFocus() {
@@ -814,7 +778,9 @@
       }
       closeOverlay("editOverlay");
       editTarget = null;
-      await loadDashboard();
+      const res = await fetch(API_URL);
+      appData = await res.json();
+      renderDadCorner();
     }
 
     function openDeleteStep(idx, step) {
@@ -835,7 +801,9 @@
       });
       closeOverlay("confirmDeleteOverlay");
       deleteTarget = null;
-      await loadDashboard();
+      const res = await fetch(API_URL);
+      appData = await res.json();
+      renderDadCorner();
     }
 
     async function tickDadStep(step, checked) {
@@ -846,7 +814,9 @@
           body: JSON.stringify({ action:"updateDadCornerStep", userId:1, step })
         });
       } catch(e) {}
-      setTimeout(loadDashboard, 1000);
+      const res = await fetch(API_URL);
+      appData = await res.json();
+      renderDadCorner();
     }
 
     async function saveDadCorner() {
@@ -863,7 +833,10 @@
           body: JSON.stringify({ action:"saveDadCorner", userId:1, week: getWeekString(), focus, steps, completedSteps:[] })
         });
       } catch(e) {}
-      await loadDashboard();
+      const res = await fetch(API_URL);
+      appData = await res.json();
+      renderDadCorner();
+      renderDadArchive();
     }
 
     function getWeekString() {
@@ -899,27 +872,23 @@
       }
     }
 
-async function showCelebration(focus) {
-  document.getElementById("celebrationMsg").innerText = "Getting your message...";
-  document.getElementById("celebrationOverlay").classList.add("active");
-  try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain" },
-      body: JSON.stringify({
-        action: "aiCelebrateDad",
-        context: focus
-      })
-    });
-    const data = await res.json();
-    document.getElementById("celebrationMsg").innerText = data.success
-      ? data.message
-      : "You set a goal this week and worked toward it. That matters. Well done. 💜";
-  } catch(e) {
-    document.getElementById("celebrationMsg").innerText =
-      "You set a goal this week and worked toward it. That matters. Well done. 💜";
-  }
-}}
+    async function showCelebration(focus) {
+      document.getElementById("celebrationMsg").innerText = "Getting your message...";
+      document.getElementById("celebrationOverlay").classList.add("active");
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST", headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify({ action: "aiCelebrateDad", context: focus })
+        });
+        const data = await res.json();
+        document.getElementById("celebrationMsg").innerText = data.success
+          ? data.message
+          : "You set a goal this week and worked toward it. That matters. Well done. 💜";
+      } catch(e) {
+        document.getElementById("celebrationMsg").innerText =
+          "You set a goal this week and worked toward it. That matters. Well done. 💜";
+      }
+    }
 
     function closeCelebration() {
       document.getElementById("celebrationOverlay").classList.remove("active");
