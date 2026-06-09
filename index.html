@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Daily Support App</title>
+  <title>Dad Dashboard</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -13,20 +13,55 @@
       color: #333;
       padding: 24px 16px 48px;
     }
-    .app-header {
+    .lock-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .lock-card {
+      background: white;
+      border-radius: 28px;
+      padding: 36px 28px;
+      box-shadow: 0 4px 24px rgba(83,74,183,0.12);
+      width: 100%;
+      max-width: 320px;
       text-align: center;
-      margin-bottom: 20px;
     }
-    .app-header h1 {
-      font-size: 28px;
-      font-weight: 800;
+    .lock-icon { font-size: 48px; margin-bottom: 12px; }
+    .lock-title { font-size: 22px; font-weight: 800; color: #3C3489; margin-bottom: 6px; }
+    .lock-subtitle { font-size: 14px; color: #7c6fcd; margin-bottom: 24px; }
+    .lock-input {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 2.5px solid #e0e0f0;
+      font-size: 16px;
+      text-align: center;
+      outline: none;
       color: #3C3489;
+      margin-bottom: 14px;
+      letter-spacing: 2px;
     }
-    .app-header p {
-      font-size: 15px;
-      color: #7c6fcd;
-      margin-top: 4px;
+    .lock-input:focus { border-color: #7c6fcd; }
+    .lock-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 14px;
+      border: none;
+      background: linear-gradient(90deg, #534AB7, #c054b8);
+      color: white;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
     }
+    .lock-error { color: #e05c5c; font-size: 13px; margin-top: 10px; font-weight: 600; min-height: 20px; }
+    .app-content { display: none; }
+    .app-header { text-align: center; margin-bottom: 20px; }
+    .app-header h1 { font-size: 28px; font-weight: 800; color: #3C3489; }
+    .app-header p { font-size: 15px; color: #7c6fcd; margin-top: 4px; }
     .card {
       background: white;
       border-radius: 22px;
@@ -42,247 +77,166 @@
       letter-spacing: 1px;
       margin-bottom: 12px;
     }
-    .btn-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-    }
-    .sel-btn {
-      border: 2.5px solid #eee;
-      border-radius: 16px;
-      padding: 12px 6px 10px;
-      text-align: center;
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 700;
-      background: #fafafa;
-      color: #bbb;
-      transition: transform 0.1s;
-    }
-    .sel-btn:active { transform: scale(0.96); }
-    .sel-btn .ico {
-      font-size: 28px;
-      display: block;
-      margin-bottom: 5px;
-    }
-    .sel-btn.mood-good { border-color: #5cb85c; background: #f0faf0; color: #2d7a2d; }
-    .sel-btn.mood-okay { border-color: #f0ad4e; background: #fffbf0; color: #8a5c00; }
-    .sel-btn.mood-struggle { border-color: #e05c5c; background: #fff5f5; color: #a02020; }
-    .sel-btn.energy-high { border-color: #378ADD; background: #eef6ff; color: #0C447C; }
-    .sel-btn.energy-medium { border-color: #f0ad4e; background: #fffbf0; color: #8a5c00; }
-    .sel-btn.energy-low { border-color: #e05c5c; background: #fff5f5; color: #a02020; }
-    .sel-btn.selected { box-shadow: 0 0 0 3px rgba(83,74,183,0.25); transform: scale(1.04); }
-    .sup-btn {
-      width: 100%;
-      border: none;
-      border-radius: 16px;
-      padding: 16px 16px;
-      margin-bottom: 10px;
-      font-size: 16px;
+    .status-badge {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 17px;
       font-weight: 800;
-      cursor: pointer;
-      text-align: left;
-      transition: transform 0.1s;
+      margin-bottom: 6px;
     }
-    .sup-btn:last-child { margin-bottom: 0; }
-    .sup-btn:active { transform: scale(0.98); }
-    .sup-ok { background: linear-gradient(90deg, #d4f5d4, #b8edb8); color: #1a6b1a; }
-    .sup-support { background: linear-gradient(90deg, #fff0cc, #ffe8a0); color: #7a5200; }
-    .sup-help { background: linear-gradient(90deg, #ffd6d6, #ffb8b8); color: #8a1a1a; }
-    .task-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 14px 12px;
-      border-radius: 14px;
-      margin-bottom: 8px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .task-item:last-child { margin-bottom: 0; }
-    .task-item:nth-child(1) { background: #eef3ff; color: #3C3489; }
-    .task-item:nth-child(2) { background: #fdf0ff; color: #7a1fa0; }
-    .task-item:nth-child(3) { background: #fff0f5; color: #a01a4a; }
-    .task-item:nth-child(4) { background: #f0faf0; color: #2d7a2d; }
-    .task-item:nth-child(5) { background: #fffbf0; color: #8a5c00; }
-    .task-item input[type="checkbox"] {
-      width: 22px;
-      height: 22px;
-      cursor: pointer;
-      accent-color: #534AB7;
-      flex-shrink: 0;
-    }
-    .footer {
-      text-align: center;
-      color: #bbb;
-      font-size: 12px;
-      margin-top: 24px;
-    }
+    .badge-okay { background: linear-gradient(90deg, #d4f5d4, #b8edb8); color: #1a6b1a; }
+    .badge-support { background: linear-gradient(90deg, #fff0cc, #ffe8a0); color: #7a5200; }
+    .badge-help { background: linear-gradient(90deg, #ffd6d6, #ffb8b8); color: #8a1a1a; }
+    .checkin-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .checkin-box { border-radius: 14px; padding: 14px 8px; text-align: center; }
+    .checkin-box:nth-child(1) { background: #fdf0ff; }
+    .checkin-box:nth-child(2) { background: #eef3ff; }
+    .checkin-box:nth-child(3) { background: #f0faf0; }
+    .checkin-box .label { font-size: 10px; font-weight: 800; color: #bbb; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .checkin-box .value { font-size: 15px; font-weight: 800; color: #3C3489; }
+    .alert-item { padding: 13px 14px; border-radius: 14px; margin-bottom: 8px; font-weight: 700; font-size: 15px; }
+    .alert-item:last-child { margin-bottom: 0; }
+    .alert-okay { background: #f0faf0; color: #1a6b1a; }
+    .alert-support { background: #fffbf0; color: #7a5200; }
+    .alert-help { background: #fff5f5; color: #8a1a1a; }
+    .alert-date { font-size: 11px; font-weight: 400; color: #999; margin-top: 3px; }
+    .time-tag { font-size: 12px; color: #bbb; margin-top: 8px; }
+    .footer { text-align: center; color: #bbb; font-size: 12px; margin-top: 24px; }
   </style>
 </head>
 <body>
 
-  <div class="app-header">
-    <h1>Hi Jesse 💜</h1>
-    <p>How are you feeling?</p>
-  </div>
-
-  <div class="card">
-    <div class="card-title">Mood</div>
-    <div class="btn-grid">
-      <div class="sel-btn mood-good" id="mood-Good" onclick="selectMood('Good')">
-        <span class="ico">😊</span>Good
-      </div>
-      <div class="sel-btn mood-okay" id="mood-Okay" onclick="selectMood('Okay')">
-        <span class="ico">😐</span>Okay
-      </div>
-      <div class="sel-btn mood-struggle" id="mood-Struggling" onclick="selectMood('Struggling')">
-        <span class="ico">😔</span>Struggling
-      </div>
+  <!-- Lock Screen -->
+  <div class="lock-screen" id="lockScreen">
+    <div class="lock-card">
+      <div class="lock-icon">👋</div>
+      <div class="lock-title">Dad Dashboard</div>
+      <div class="lock-subtitle">Enter your password to continue</div>
+      <input class="lock-input" type="password" id="pinInput" placeholder="Password" onkeydown="if(event.key==='Enter') checkPin()">
+      <button class="lock-btn" onclick="checkPin()">Enter</button>
+      <div class="lock-error" id="pinError"></div>
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-title">Energy</div>
-    <div class="btn-grid">
-      <div class="sel-btn energy-high" id="energy-High" onclick="selectEnergy('High')">
-        <span class="ico">⚡</span>High
-      </div>
-      <div class="sel-btn energy-medium" id="energy-Medium" onclick="selectEnergy('Medium')">
-        <span class="ico">🔋</span>Medium
-      </div>
-      <div class="sel-btn energy-low" id="energy-Low" onclick="selectEnergy('Low')">
-        <span class="ico">🪫</span>Low
-      </div>
+  <!-- App Content -->
+  <div class="app-content" id="appContent">
+
+    <div class="app-header">
+      <h1>Hi Dad 👋</h1>
+      <p>Here's how Jesse is doing</p>
     </div>
-  </div>
 
-  <div class="card">
-    <div class="card-title">Support</div>
-    <button class="sup-btn sup-ok" onclick="sendAlert('OKAY')">🟢 I'm okay</button>
-    <button class="sup-btn sup-support" onclick="sendAlert('SUPPORT')">🟡 I could use some support</button>
-    <button class="sup-btn sup-help" onclick="sendAlert('HELP')">🔴 Dad, I need help today</button>
-  </div>
+    <div class="card">
+      <div class="card-title">Latest Support Request</div>
+      <div id="status"><span style="color:#ccc">No alerts yet</span></div>
+      <div id="latestTime" class="time-tag"></div>
+    </div>
 
-  <div class="card">
-    <div class="card-title">Today's Tasks</div>
-    <div id="tasks">Loading tasks...</div>
-  </div>
+    <div class="card">
+      <div class="card-title">Latest Check-In</div>
+      <div class="checkin-grid">
+        <div class="checkin-box">
+          <div class="label">Mood</div>
+          <div class="value" id="mood">—</div>
+        </div>
+        <div class="checkin-box">
+          <div class="label">Energy</div>
+          <div class="value" id="energy">—</div>
+        </div>
+        <div class="checkin-box">
+          <div class="label">Need</div>
+          <div class="value" id="needToday">—</div>
+        </div>
+      </div>
+      <div id="checkinTime" class="time-tag"></div>
+    </div>
 
-  <div class="footer">Daily Support App 💜</div>
+    <div class="card">
+      <div class="card-title">Recent Alerts</div>
+      <div id="alerts"><span style="color:#ccc">No alerts yet</span></div>
+    </div>
+
+    <div class="footer">Dad Dashboard 💜 · Refreshes every 30 seconds</div>
+
+  </div>
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzlTd0HcORu-R78042GmDC5buO-69X9XRB6NjPh-Qmtj_5fnA-fSKBAkXCnuufS5LU5/exec";
+    const PASSWORD = "Beckett";
 
-    let selectedMood = "";
-    let selectedEnergy = "";
-
-    function selectMood(value) {
-      selectedMood = value;
-      document.querySelectorAll('.mood-good, .mood-okay, .mood-struggle').forEach(btn => {
-        btn.classList.remove('selected');
-      });
-      document.getElementById('mood-' + value).classList.add('selected');
-    }
-
-    function selectEnergy(value) {
-      selectedEnergy = value;
-      document.querySelectorAll('.energy-high, .energy-medium, .energy-low').forEach(btn => {
-        btn.classList.remove('selected');
-      });
-      document.getElementById('energy-' + value).classList.add('selected');
-    }
-
-    async function sendAlert(alertType) {
-      let needToday = "";
-      switch(alertType) {
-        case "OKAY": needToday = "I'm okay"; break;
-        case "SUPPORT": needToday = "I could use some support"; break;
-        case "HELP": needToday = "Dad, I need help today"; break;
+    function checkPin() {
+      const val = document.getElementById("pinInput").value;
+      if (val === PASSWORD) {
+        document.getElementById("lockScreen").style.display = "none";
+        document.getElementById("appContent").style.display = "block";
+        loadDashboard();
+        setInterval(loadDashboard, 30000);
+      } else {
+        document.getElementById("pinError").innerText = "Incorrect password. Try again.";
+        document.getElementById("pinInput").value = "";
       }
-
-      try {
-        await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain" },
-          body: JSON.stringify({
-            action: "checkIn",
-            userId: 2,
-            mood: selectedMood || "Not set",
-            energy: selectedEnergy || "Not set",
-            needToday: needToday
-          })
-        });
-      } catch(e) {}
-
-      try {
-        await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain" },
-          body: JSON.stringify({
-            userId: 2,
-            alertType: alertType,
-            message: needToday
-          })
-        });
-      } catch(e) {}
-
-      alert("Thanks Jesse 💜");
     }
 
-    async function completeTask(taskId) {
-      try {
-        await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain" },
-          body: JSON.stringify({ action: "completeTask", taskId: taskId })
-        });
-      } catch(e) {}
-      setTimeout(loadTasks, 1500);
+    function getAlertLabel(type) {
+      if (type === "OKAY") return "🟢 I'm okay";
+      if (type === "SUPPORT") return "🟡 I could use some support";
+      if (type === "HELP") return "🔴 Dad, I need help today";
+      return type;
     }
 
-    async function loadTasks() {
+    function getBadgeClass(type) {
+      if (type === "OKAY") return "badge-okay";
+      if (type === "SUPPORT") return "badge-support";
+      if (type === "HELP") return "badge-help";
+      return "";
+    }
+
+    function getAlertItemClass(type) {
+      if (type === "OKAY") return "alert-okay";
+      if (type === "SUPPORT") return "alert-support";
+      if (type === "HELP") return "alert-help";
+      return "";
+    }
+
+    async function loadDashboard() {
       try {
         const response = await fetch(API_URL);
         const data = await response.json();
-        const tasks = data.tasks;
-        const colors = [
-          { bg: "#eef3ff", color: "#3C3489" },
-          { bg: "#fdf0ff", color: "#7a1fa0" },
-          { bg: "#fff0f5", color: "#a01a4a" },
-          { bg: "#f0faf0", color: "#2d7a2d" },
-          { bg: "#fffbf0", color: "#8a5c00" }
-        ];
-        let html = "";
-        let count = 0;
-        for (let i = 1; i < tasks.length; i++) {
-          const row = tasks[i];
-          const taskId = row[0];
-          const userId = row[1];
-          const taskTitle = row[4];
-          const status = row[6];
-          if (userId == 2 && status !== "Completed") {
-            const c = colors[count % colors.length];
+        const alerts = data.supportAlerts || [];
+        const checkIns = data.checkIns || [];
+
+        if (alerts.length > 1) {
+          const latest = alerts[alerts.length - 1];
+          document.getElementById("status").innerHTML =
+            `<span class="status-badge ${getBadgeClass(latest[3])}">${getAlertLabel(latest[3])}</span>`;
+          document.getElementById("latestTime").innerHTML = "Received: " + latest[2];
+
+          let html = "";
+          const start = Math.max(1, alerts.length - 5);
+          for (let i = alerts.length - 1; i >= start; i--) {
             html += `
-              <div class="task-item" style="background:${c.bg}; color:${c.color}">
-                <input type="checkbox" onchange="completeTask(${taskId})">
-                ${taskTitle}
+              <div class="alert-item ${getAlertItemClass(alerts[i][3])}">
+                ${getAlertLabel(alerts[i][3])}
+                <div class="alert-date">${alerts[i][2]}</div>
               </div>
             `;
-            count++;
           }
+          document.getElementById("alerts").innerHTML = html;
         }
-        if (html === "") {
-          html = "<p style='text-align:center; color:#5cb85c; font-weight:800; padding:12px'>🎉 All tasks completed!</p>";
+
+        if (checkIns.length > 1) {
+          const latest = checkIns[checkIns.length - 1];
+          document.getElementById("mood").innerHTML = latest[3] || "—";
+          document.getElementById("energy").innerHTML = latest[4] || "—";
+          document.getElementById("needToday").innerHTML = latest[5] || "—";
+          document.getElementById("checkinTime").innerHTML = "Updated: " + latest[2];
         }
-        document.getElementById("tasks").innerHTML = html;
+
       } catch(error) {
-        document.getElementById("tasks").innerHTML = "Unable to load tasks";
+        document.getElementById("status").innerHTML = "Unable to load";
       }
     }
-
-    loadTasks();
   </script>
 </body>
 </html>
