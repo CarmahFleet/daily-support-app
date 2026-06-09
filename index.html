@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dad Dashboard</title>
+  <title>Daily Support App</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -59,9 +59,93 @@
     }
     .lock-error { color: #e05c5c; font-size: 13px; margin-top: 10px; font-weight: 600; min-height: 20px; }
     .app-content { display: none; }
-    .app-header { text-align: center; margin-bottom: 20px; }
-    .app-header h1 { font-size: 28px; font-weight: 800; color: #3C3489; }
-    .app-header p { font-size: 15px; color: #7c6fcd; margin-top: 4px; }
+
+    /* Header with SOS */
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      margin-bottom: 20px;
+    }
+    .header-text { text-align: center; }
+    .header-text h1 { font-size: 28px; font-weight: 800; color: #3C3489; }
+    .header-text p { font-size: 15px; color: #7c6fcd; margin-top: 4px; }
+    .sos-btn {
+      position: absolute;
+      right: 0;
+      top: 0;
+      background: linear-gradient(135deg, #ff3b3b, #cc0000);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 900;
+      cursor: pointer;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 12px rgba(204,0,0,0.35);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0% { box-shadow: 0 4px 12px rgba(204,0,0,0.35); }
+      50% { box-shadow: 0 4px 20px rgba(204,0,0,0.6); }
+      100% { box-shadow: 0 4px 12px rgba(204,0,0,0.35); }
+    }
+
+    /* SOS Confirm Overlay */
+    .sos-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .sos-overlay.active { display: flex; }
+    .sos-card {
+      background: white;
+      border-radius: 28px;
+      padding: 32px 24px;
+      max-width: 320px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    }
+    .sos-icon { font-size: 52px; margin-bottom: 12px; }
+    .sos-title { font-size: 22px; font-weight: 900; color: #cc0000; margin-bottom: 8px; }
+    .sos-message { font-size: 15px; color: #555; margin-bottom: 24px; line-height: 1.5; }
+    .sos-confirm-btn {
+      width: 100%;
+      padding: 16px;
+      border-radius: 14px;
+      border: none;
+      background: linear-gradient(135deg, #ff3b3b, #cc0000);
+      color: white;
+      font-size: 17px;
+      font-weight: 900;
+      cursor: pointer;
+      margin-bottom: 10px;
+      letter-spacing: 0.5px;
+    }
+    .sos-cancel-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 14px;
+      border: 2px solid #eee;
+      background: white;
+      color: #888;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* SOS Sent screen */
+    .sos-sent { display: none; }
+    .sos-sent.active { display: block; }
+
     .card {
       background: white;
       border-radius: 22px;
@@ -77,31 +161,63 @@
       letter-spacing: 1px;
       margin-bottom: 12px;
     }
-    .status-badge {
-      display: inline-block;
-      padding: 10px 20px;
-      border-radius: 20px;
-      font-size: 17px;
-      font-weight: 800;
-      margin-bottom: 6px;
+    .btn-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .sel-btn {
+      border: 2.5px solid #eee;
+      border-radius: 16px;
+      padding: 12px 6px 10px;
+      text-align: center;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+      background: #fafafa;
+      color: #bbb;
+      transition: transform 0.1s;
     }
-    .badge-okay { background: linear-gradient(90deg, #d4f5d4, #b8edb8); color: #1a6b1a; }
-    .badge-support { background: linear-gradient(90deg, #fff0cc, #ffe8a0); color: #7a5200; }
-    .badge-help { background: linear-gradient(90deg, #ffd6d6, #ffb8b8); color: #8a1a1a; }
-    .checkin-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-    .checkin-box { border-radius: 14px; padding: 14px 8px; text-align: center; }
-    .checkin-box:nth-child(1) { background: #fdf0ff; }
-    .checkin-box:nth-child(2) { background: #eef3ff; }
-    .checkin-box:nth-child(3) { background: #f0faf0; }
-    .checkin-box .label { font-size: 10px; font-weight: 800; color: #bbb; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
-    .checkin-box .value { font-size: 15px; font-weight: 800; color: #3C3489; }
-    .alert-item { padding: 13px 14px; border-radius: 14px; margin-bottom: 8px; font-weight: 700; font-size: 15px; }
-    .alert-item:last-child { margin-bottom: 0; }
-    .alert-okay { background: #f0faf0; color: #1a6b1a; }
-    .alert-support { background: #fffbf0; color: #7a5200; }
-    .alert-help { background: #fff5f5; color: #8a1a1a; }
-    .alert-date { font-size: 11px; font-weight: 400; color: #999; margin-top: 3px; }
-    .time-tag { font-size: 12px; color: #bbb; margin-top: 8px; }
+    .sel-btn:active { transform: scale(0.96); }
+    .sel-btn .ico { font-size: 28px; display: block; margin-bottom: 5px; }
+    .sel-btn.mood-good { border-color: #5cb85c; background: #f0faf0; color: #2d7a2d; }
+    .sel-btn.mood-okay { border-color: #f0ad4e; background: #fffbf0; color: #8a5c00; }
+    .sel-btn.mood-struggle { border-color: #e05c5c; background: #fff5f5; color: #a02020; }
+    .sel-btn.energy-high { border-color: #378ADD; background: #eef6ff; color: #0C447C; }
+    .sel-btn.energy-medium { border-color: #f0ad4e; background: #fffbf0; color: #8a5c00; }
+    .sel-btn.energy-low { border-color: #e05c5c; background: #fff5f5; color: #a02020; }
+    .sel-btn.selected { box-shadow: 0 0 0 3px rgba(83,74,183,0.25); transform: scale(1.04); }
+    .sup-btn {
+      width: 100%;
+      border: none;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 10px;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      text-align: left;
+      transition: transform 0.1s;
+    }
+    .sup-btn:last-child { margin-bottom: 0; }
+    .sup-btn:active { transform: scale(0.98); }
+    .sup-ok { background: linear-gradient(90deg, #d4f5d4, #b8edb8); color: #1a6b1a; }
+    .sup-support { background: linear-gradient(90deg, #fff0cc, #ffe8a0); color: #7a5200; }
+    .sup-help { background: linear-gradient(90deg, #ffd6d6, #ffb8b8); color: #8a1a1a; }
+    .task-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 12px;
+      border-radius: 14px;
+      margin-bottom: 8px;
+      font-size: 15px;
+      font-weight: 600;
+    }
+    .task-item:last-child { margin-bottom: 0; }
+    .task-item input[type="checkbox"] {
+      width: 22px;
+      height: 22px;
+      cursor: pointer;
+      accent-color: #534AB7;
+      flex-shrink: 0;
+    }
     .footer { text-align: center; color: #bbb; font-size: 12px; margin-top: 24px; }
   </style>
 </head>
@@ -110,8 +226,8 @@
   <!-- Lock Screen -->
   <div class="lock-screen" id="lockScreen">
     <div class="lock-card">
-      <div class="lock-icon">👋</div>
-      <div class="lock-title">Dad Dashboard</div>
+      <div class="lock-icon">💜</div>
+      <div class="lock-title">Daily Support App</div>
       <div class="lock-subtitle">Enter your password to continue</div>
       <input class="lock-input" type="password" id="pinInput" placeholder="Password" onkeydown="if(event.key==='Enter') checkPin()">
       <button class="lock-btn" onclick="checkPin()">Enter</button>
@@ -119,45 +235,79 @@
     </div>
   </div>
 
+  <!-- SOS Confirmation Overlay -->
+  <div class="sos-overlay" id="sosOverlay">
+    <div class="sos-card">
+      <div id="sosConfirmScreen">
+        <div class="sos-icon">🆘</div>
+        <div class="sos-title">Send SOS Alert?</div>
+        <div class="sos-message">This will notify your family that you need urgent help right now. They will come to you.</div>
+        <button class="sos-confirm-btn" onclick="confirmSOS()">Yes, send alert now</button>
+        <button class="sos-cancel-btn" onclick="closeSOS()">Cancel — I'm okay</button>
+      </div>
+      <div class="sos-sent" id="sosSentScreen">
+        <div class="sos-icon">💜</div>
+        <div class="sos-title" style="color:#3C3489">Alert Sent</div>
+        <div class="sos-message">Your family has been notified. You are not alone. Someone will be with you soon.</div>
+        <button class="sos-cancel-btn" onclick="closeSOS()">Close</button>
+      </div>
+    </div>
+  </div>
+
   <!-- App Content -->
   <div class="app-content" id="appContent">
 
     <div class="app-header">
-      <h1>Hi Dad 👋</h1>
-      <p>Here's how Jesse is doing</p>
+      <div class="header-text">
+        <h1>Hi Jesse 💜</h1>
+        <p>How are you feeling?</p>
+      </div>
+      <button class="sos-btn" onclick="openSOS()">🆘 SOS</button>
     </div>
 
     <div class="card">
-      <div class="card-title">Latest Support Request</div>
-      <div id="status"><span style="color:#ccc">No alerts yet</span></div>
-      <div id="latestTime" class="time-tag"></div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Latest Check-In</div>
-      <div class="checkin-grid">
-        <div class="checkin-box">
-          <div class="label">Mood</div>
-          <div class="value" id="mood">—</div>
+      <div class="card-title">Mood</div>
+      <div class="btn-grid">
+        <div class="sel-btn mood-good" id="mood-Good" onclick="selectMood('Good')">
+          <span class="ico">😊</span>Good
         </div>
-        <div class="checkin-box">
-          <div class="label">Energy</div>
-          <div class="value" id="energy">—</div>
+        <div class="sel-btn mood-okay" id="mood-Okay" onclick="selectMood('Okay')">
+          <span class="ico">😐</span>Okay
         </div>
-        <div class="checkin-box">
-          <div class="label">Need</div>
-          <div class="value" id="needToday">—</div>
+        <div class="sel-btn mood-struggle" id="mood-Struggling" onclick="selectMood('Struggling')">
+          <span class="ico">😔</span>Struggling
         </div>
       </div>
-      <div id="checkinTime" class="time-tag"></div>
     </div>
 
     <div class="card">
-      <div class="card-title">Recent Alerts</div>
-      <div id="alerts"><span style="color:#ccc">No alerts yet</span></div>
+      <div class="card-title">Energy</div>
+      <div class="btn-grid">
+        <div class="sel-btn energy-high" id="energy-High" onclick="selectEnergy('High')">
+          <span class="ico">⚡</span>High
+        </div>
+        <div class="sel-btn energy-medium" id="energy-Medium" onclick="selectEnergy('Medium')">
+          <span class="ico">🔋</span>Medium
+        </div>
+        <div class="sel-btn energy-low" id="energy-Low" onclick="selectEnergy('Low')">
+          <span class="ico">🪫</span>Low
+        </div>
+      </div>
     </div>
 
-    <div class="footer">Dad Dashboard 💜 · Refreshes every 30 seconds</div>
+    <div class="card">
+      <div class="card-title">Support</div>
+      <button class="sup-btn sup-ok" onclick="sendAlert('OKAY')">🟢 I'm okay</button>
+      <button class="sup-btn sup-support" onclick="sendAlert('SUPPORT')">🟡 I could use some support</button>
+      <button class="sup-btn sup-help" onclick="sendAlert('HELP')">🔴 Dad, I need help today</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Today's Tasks</div>
+      <div id="tasks">Loading tasks...</div>
+    </div>
+
+    <div class="footer">Daily Support App 💜</div>
 
   </div>
 
@@ -170,71 +320,144 @@
       if (val === PASSWORD) {
         document.getElementById("lockScreen").style.display = "none";
         document.getElementById("appContent").style.display = "block";
-        loadDashboard();
-        setInterval(loadDashboard, 30000);
+        loadTasks();
       } else {
         document.getElementById("pinError").innerText = "Incorrect password. Try again.";
         document.getElementById("pinInput").value = "";
       }
     }
 
-    function getAlertLabel(type) {
-      if (type === "OKAY") return "🟢 I'm okay";
-      if (type === "SUPPORT") return "🟡 I could use some support";
-      if (type === "HELP") return "🔴 Dad, I need help today";
-      return type;
+    function openSOS() {
+      document.getElementById("sosConfirmScreen").style.display = "block";
+      document.getElementById("sosSentScreen").classList.remove("active");
+      document.getElementById("sosOverlay").classList.add("active");
     }
 
-    function getBadgeClass(type) {
-      if (type === "OKAY") return "badge-okay";
-      if (type === "SUPPORT") return "badge-support";
-      if (type === "HELP") return "badge-help";
-      return "";
+    function closeSOS() {
+      document.getElementById("sosOverlay").classList.remove("active");
     }
 
-    function getAlertItemClass(type) {
-      if (type === "OKAY") return "alert-okay";
-      if (type === "SUPPORT") return "alert-support";
-      if (type === "HELP") return "alert-help";
-      return "";
+    async function confirmSOS() {
+      try {
+        await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify({
+            userId: 2,
+            alertType: "SOS",
+            message: "🆘 Jesse has sent an SOS alert and needs urgent help right now."
+          })
+        });
+      } catch(e) {}
+
+      document.getElementById("sosConfirmScreen").style.display = "none";
+      document.getElementById("sosSentScreen").classList.add("active");
     }
 
-    async function loadDashboard() {
+    let selectedMood = "";
+    let selectedEnergy = "";
+
+    function selectMood(value) {
+      selectedMood = value;
+      document.querySelectorAll('.mood-good, .mood-okay, .mood-struggle').forEach(btn => {
+        btn.classList.remove('selected');
+      });
+      document.getElementById('mood-' + value).classList.add('selected');
+    }
+
+    function selectEnergy(value) {
+      selectedEnergy = value;
+      document.querySelectorAll('.energy-high, .energy-medium, .energy-low').forEach(btn => {
+        btn.classList.remove('selected');
+      });
+      document.getElementById('energy-' + value).classList.add('selected');
+    }
+
+    async function sendAlert(alertType) {
+      let needToday = "";
+      switch(alertType) {
+        case "OKAY": needToday = "I'm okay"; break;
+        case "SUPPORT": needToday = "I could use some support"; break;
+        case "HELP": needToday = "Dad, I need help today"; break;
+      }
+
+      try {
+        await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify({
+            action: "checkIn",
+            userId: 2,
+            mood: selectedMood || "Not set",
+            energy: selectedEnergy || "Not set",
+            needToday: needToday
+          })
+        });
+      } catch(e) {}
+
+      try {
+        await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify({
+            userId: 2,
+            alertType: alertType,
+            message: needToday
+          })
+        });
+      } catch(e) {}
+
+      alert("Thanks Jesse 💜");
+    }
+
+    async function completeTask(taskId) {
+      try {
+        await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify({ action: "completeTask", taskId: taskId })
+        });
+      } catch(e) {}
+      setTimeout(loadTasks, 1500);
+    }
+
+    async function loadTasks() {
       try {
         const response = await fetch(API_URL);
         const data = await response.json();
-        const alerts = data.supportAlerts || [];
-        const checkIns = data.checkIns || [];
-
-        if (alerts.length > 1) {
-          const latest = alerts[alerts.length - 1];
-          document.getElementById("status").innerHTML =
-            `<span class="status-badge ${getBadgeClass(latest[3])}">${getAlertLabel(latest[3])}</span>`;
-          document.getElementById("latestTime").innerHTML = "Received: " + latest[2];
-
-          let html = "";
-          const start = Math.max(1, alerts.length - 5);
-          for (let i = alerts.length - 1; i >= start; i--) {
+        const tasks = data.tasks;
+        const colors = [
+          { bg: "#eef3ff", color: "#3C3489" },
+          { bg: "#fdf0ff", color: "#7a1fa0" },
+          { bg: "#fff0f5", color: "#a01a4a" },
+          { bg: "#f0faf0", color: "#2d7a2d" },
+          { bg: "#fffbf0", color: "#8a5c00" }
+        ];
+        let html = "";
+        let count = 0;
+        for (let i = 1; i < tasks.length; i++) {
+          const row = tasks[i];
+          const taskId = row[0];
+          const userId = row[1];
+          const taskTitle = row[4];
+          const status = row[6];
+          if (userId == 2 && status !== "Completed") {
+            const c = colors[count % colors.length];
             html += `
-              <div class="alert-item ${getAlertItemClass(alerts[i][3])}">
-                ${getAlertLabel(alerts[i][3])}
-                <div class="alert-date">${alerts[i][2]}</div>
+              <div class="task-item" style="background:${c.bg}; color:${c.color}">
+                <input type="checkbox" onchange="completeTask(${taskId})">
+                ${taskTitle}
               </div>
             `;
+            count++;
           }
-          document.getElementById("alerts").innerHTML = html;
         }
-
-        if (checkIns.length > 1) {
-          const latest = checkIns[checkIns.length - 1];
-          document.getElementById("mood").innerHTML = latest[3] || "—";
-          document.getElementById("energy").innerHTML = latest[4] || "—";
-          document.getElementById("needToday").innerHTML = latest[5] || "—";
-          document.getElementById("checkinTime").innerHTML = "Updated: " + latest[2];
+        if (html === "") {
+          html = "<p style='text-align:center; color:#5cb85c; font-weight:800; padding:12px'>🎉 All tasks completed!</p>";
         }
-
+        document.getElementById("tasks").innerHTML = html;
       } catch(error) {
-        document.getElementById("status").innerHTML = "Unable to load";
+        document.getElementById("tasks").innerHTML = "Unable to load tasks";
       }
     }
   </script>
