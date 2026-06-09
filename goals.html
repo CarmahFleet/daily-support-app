@@ -335,22 +335,32 @@
       document.getElementById("todayTasksList").innerHTML = html;
     }
 
-    async function addManualTask() {
-      const title = document.getElementById("manualTaskInput").value.trim();
-      if (!title) return;
-      await post({ action:"saveTask", userId:2, goalId:"", milestoneId:"", title });
-      document.getElementById("manualTaskInput").value = "";
-      showSaved("taskSaved");
-      await refreshData();
-      renderAll();
-    }
+async function addManualTask() {
+  const title = document.getElementById("manualTaskInput").value.trim();
+  if (!title) return;
+  document.getElementById("manualTaskInput").value = "";
+  showSaved("taskSaved");
+  // Save in background then refresh
+  await post({ action:"saveTask", userId:2, goalId:"", milestoneId:"", title });
+  await refreshData();
+  renderAll();
+}
 
-    async function completeTask(taskId, taskTitle) {
-      await post({ action:"completeTask", taskId });
-      await showCelebration("task", taskTitle);
-      await refreshData();
-      renderAll();
-    }
+async function completeTask(taskId, taskTitle) {
+  // Update screen instantly
+  if (appData?.tasks) {
+    appData.tasks.forEach(row => {
+      if (String(row[0]) === String(taskId)) row[6] = 'Completed';
+    });
+  }
+  renderTodayTasks();
+  renderGoals();
+  // Save in background then show celebration
+  post({ action:"completeTask", taskId });
+  await showCelebration("task", taskTitle);
+  await refreshData();
+  renderAll();
+}   }
 
     // ─── GOALS ───────────────────────────────────────────────
 
