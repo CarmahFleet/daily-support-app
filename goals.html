@@ -13,7 +13,7 @@
       color: #333;
     }
 
-    /* Auth check */
+    /* Auth screen */
     .auth-screen {
       display: none;
       flex-direction: column;
@@ -34,6 +34,7 @@
       font-weight: 800;
       cursor: pointer;
       text-decoration: none;
+      display: inline-block;
     }
 
     .app-content { display: none; padding: 0 0 48px; }
@@ -58,6 +59,7 @@
       cursor: pointer;
       border-bottom: 3px solid transparent;
       text-decoration: none;
+      display: block;
     }
     .nav-tab.active { color: #534AB7; border-bottom-color: #534AB7; }
 
@@ -67,6 +69,7 @@
     .page-header h1 { font-size: 26px; font-weight: 800; color: #3C3489; }
     .page-header p { font-size: 14px; color: #7c6fcd; margin-top: 4px; }
 
+    /* Cards */
     .card {
       background: white;
       border-radius: 22px;
@@ -84,7 +87,7 @@
     }
 
     /* Inline row */
-    .inline-row { display: flex; gap: 8px; align-items: center; }
+    .inline-row { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
     .inline-input {
       flex: 1;
       padding: 12px 14px;
@@ -93,6 +96,7 @@
       font-size: 14px;
       outline: none;
       color: #333;
+      background: white;
     }
     .inline-input:focus { border-color: #7c6fcd; }
     .inline-btn {
@@ -108,7 +112,7 @@
       flex-shrink: 0;
     }
 
-    /* Task items */
+    /* Today's task items */
     .task-item {
       display: flex;
       align-items: center;
@@ -120,7 +124,12 @@
       font-weight: 600;
     }
     .task-item:last-child { margin-bottom: 0; }
-    .task-item input[type="checkbox"] { width: 22px; height: 22px; cursor: pointer; accent-color: #534AB7; flex-shrink: 0; }
+    .task-item input[type="checkbox"] {
+      width: 22px; height: 22px;
+      cursor: pointer;
+      accent-color: #534AB7;
+      flex-shrink: 0;
+    }
     .task-label { flex: 1; }
     .task-tag {
       font-size: 10px;
@@ -131,86 +140,304 @@
       color: #534AB7;
       flex-shrink: 0;
     }
-    .edit-btn {
+    .icon-btn {
       background: none;
       border: none;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 15px;
       padding: 2px 4px;
       flex-shrink: 0;
       opacity: 0.5;
+      transition: opacity 0.15s;
     }
-    .edit-btn:hover { opacity: 1; }
+    .icon-btn:hover { opacity: 1; }
 
-    /* Goal section */
-    .goal-section {
-      background: #f8f9ff;
-      border-radius: 16px;
-      padding: 14px;
+    /* Goal cards */
+    .goal-card {
+      background: white;
+      border-radius: 20px;
       margin-bottom: 12px;
-      border: 2px solid #e8e4ff;
+      box-shadow: 0 4px 16px rgba(83,74,183,0.07);
+      overflow: hidden;
     }
     .goal-header {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
-    }
-    .goal-name { font-size: 15px; font-weight: 800; color: #3C3489; flex: 1; }
-    .goal-edit-btn {
-      background: none;
-      border: none;
+      padding: 16px;
       cursor: pointer;
-      font-size: 14px;
-      opacity: 0.5;
-      padding: 2px 4px;
+      gap: 10px;
+      background: linear-gradient(90deg, #f0f4ff, #fdf0ff);
     }
-    .goal-task-item {
+    .goal-name {
+      flex: 1;
+      font-size: 15px;
+      font-weight: 800;
+      color: #3C3489;
+    }
+    .goal-chevron {
+      font-size: 12px;
+      color: #bbb;
+      transition: transform 0.2s;
+      flex-shrink: 0;
+    }
+    .goal-chevron.open { transform: rotate(180deg); }
+    .goal-body {
+      display: none;
+      padding: 0 16px 16px;
+    }
+    .goal-body.open { display: block; }
+
+    /* Goal task rows */
+    .goal-task-row {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 10px 12px;
+      gap: 8px;
+      padding: 11px 12px;
       border-radius: 12px;
       margin-bottom: 6px;
       font-size: 13px;
       font-weight: 600;
-      background: white;
-      color: #534AB7;
+      background: #f8f9ff;
+      color: #3C3489;
     }
-    .goal-task-item.pending { opacity: 0.5; }
-    .goal-task-item input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; accent-color: #534AB7; flex-shrink: 0; }
-    .add-task-to-today {
-      font-size: 11px;
-      background: #eef3ff;
-      border: none;
-      border-radius: 8px;
-      padding: 4px 8px;
-      color: #534AB7;
-      font-weight: 700;
+    .goal-task-row.completed-task {
+      opacity: 0.4;
+      text-decoration: line-through;
+      background: #f0f0f0;
+    }
+    .goal-task-row.queued {
+      opacity: 0.55;
+      background: #f5f5f5;
+      color: #888;
+    }
+    .goal-task-row input[type="checkbox"] {
+      width: 20px; height: 20px;
       cursor: pointer;
+      accent-color: #534AB7;
       flex-shrink: 0;
     }
+    .gt-label { flex: 1; }
 
-    /* AI box */
-    .ai-box {
+    /* AI suggestions */
+    .ai-btn {
+      width: 100%;
+      padding: 11px;
+      border-radius: 14px;
+      border: 2px solid #e0c0ff;
+      background: #f8f0ff;
+      color: #7c6fcd;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .ai-loading {
+      color: #7c6fcd;
+      font-size: 13px;
+      font-style: italic;
+      padding: 8px 0;
+      display: none;
+    }
+    .ai-suggestions-box {
       background: #f8f0ff;
       border-radius: 14px;
       padding: 14px;
       margin-top: 10px;
       border: 2px solid #e0c0ff;
-      font-size: 13px;
-      color: #555;
-      line-height: 1.6;
       display: none;
     }
-    .ai-loading { color: #7c6fcd; font-size: 13px; font-style: italic; padding: 8px 0; display: none; }
+    .ai-suggestion-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 10px 0;
+      border-bottom: 1px solid #edd8ff;
+      font-size: 13px;
+      color: #444;
+      line-height: 1.4;
+    }
+    .ai-suggestion-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .ai-suggestion-text { flex: 1; }
+    .ai-add-btns { display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; }
+    .ai-add-btn {
+      padding: 5px 8px;
+      border-radius: 8px;
+      border: none;
+      font-size: 10px;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .ai-add-goal { background: #eef3ff; color: #3C3489; }
+    .ai-add-today { background: #534AB7; color: white; }
 
-    /* Celebration */
+    /* Goal action buttons */
+    .goal-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .complete-goal-btn {
+      flex: 1;
+      padding: 11px;
+      border-radius: 14px;
+      border: none;
+      background: linear-gradient(90deg, #5cb85c, #3d9a3d);
+      color: white;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .delete-goal-btn {
+      padding: 11px 14px;
+      border-radius: 14px;
+      border: 2px solid #ffb8b8;
+      background: white;
+      color: #cc0000;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    /* Completed goals section */
+    .completed-section {
+      background: white;
+      border-radius: 22px;
+      margin-bottom: 14px;
+      box-shadow: 0 4px 16px rgba(83,74,183,0.08);
+      overflow: hidden;
+    }
+    .completed-header {
+      display: flex;
+      align-items: center;
+      padding: 16px 18px;
+      cursor: pointer;
+      gap: 10px;
+    }
+    .completed-header-text {
+      flex: 1;
+      font-size: 11px;
+      font-weight: 800;
+      color: #5cb85c;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .completed-body { display: none; padding: 0 18px 16px; }
+    .completed-body.open { display: block; }
+    .completed-goal-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      background: #f0faf0;
+      border-radius: 12px;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #2d7a2d;
+    }
+    .completed-goal-item:last-child { margin-bottom: 0; }
+    .completed-date {
+      font-size: 11px;
+      font-weight: 400;
+      color: #999;
+      margin-left: auto;
+    }
+
+    /* Overlays */
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .overlay.active { display: flex; }
+    .overlay-card {
+      background: white;
+      border-radius: 28px;
+      padding: 28px 24px;
+      max-width: 320px;
+      width: 100%;
+    }
+    .overlay-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: #3C3489;
+      margin-bottom: 12px;
+    }
+    .overlay-input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 2px solid #e0e0f0;
+      font-size: 14px;
+      outline: none;
+      color: #333;
+      margin-bottom: 10px;
+    }
+    .overlay-input:focus { border-color: #7c6fcd; }
+    .overlay-save-btn {
+      width: 100%;
+      padding: 13px;
+      border-radius: 14px;
+      border: none;
+      background: linear-gradient(90deg, #534AB7, #c054b8);
+      color: white;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      margin-bottom: 8px;
+    }
+    .overlay-cancel-btn {
+      width: 100%;
+      padding: 12px;
+      border-radius: 14px;
+      border: 2px solid #eee;
+      background: white;
+      color: #888;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* Confirm delete overlay */
+    .confirm-title {
+      font-size: 18px;
+      font-weight: 900;
+      color: #cc0000;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+    .confirm-msg {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 20px;
+      text-align: center;
+      line-height: 1.5;
+    }
+    .confirm-delete-btn {
+      width: 100%;
+      padding: 13px;
+      border-radius: 14px;
+      border: none;
+      background: linear-gradient(90deg, #ff3b3b, #cc0000);
+      color: white;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      margin-bottom: 8px;
+    }
+
+    /* Celebration overlay */
     .celebration-overlay {
       display: none;
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(83,74,183,0.85);
+      background: rgba(83,74,183,0.88);
       z-index: 150;
       align-items: center;
       justify-content: center;
@@ -237,71 +464,21 @@
       cursor: pointer;
     }
 
-    /* Edit overlay */
-    .edit-overlay {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.6);
-      z-index: 100;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-    .edit-overlay.active { display: flex; }
-    .edit-card {
-      background: white;
-      border-radius: 28px;
-      padding: 28px 24px;
-      max-width: 320px;
-      width: 100%;
-    }
-    .edit-title { font-size: 16px; font-weight: 800; color: #3C3489; margin-bottom: 12px; }
-    .edit-input {
-      width: 100%;
-      padding: 12px 14px;
-      border-radius: 14px;
-      border: 2px solid #e0e0f0;
-      font-size: 14px;
-      outline: none;
-      color: #333;
-      margin-bottom: 10px;
-    }
-    .edit-input:focus { border-color: #7c6fcd; }
-    .edit-save-btn {
-      width: 100%;
-      padding: 13px;
-      border-radius: 14px;
-      border: none;
-      background: linear-gradient(90deg, #534AB7, #c054b8);
-      color: white;
-      font-size: 14px;
+    .saved-msg {
+      text-align: center;
+      color: #5cb85c;
       font-weight: 800;
-      cursor: pointer;
-      margin-bottom: 8px;
-    }
-    .edit-cancel-btn {
-      width: 100%;
-      padding: 12px;
-      border-radius: 14px;
-      border: 2px solid #eee;
-      background: white;
-      color: #888;
+      padding: 8px;
       font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
+      display: none;
     }
-
-    .saved-msg { text-align: center; color: #5cb85c; font-weight: 800; padding: 8px; font-size: 13px; display: none; }
     .empty-msg { color: #bbb; font-size: 13px; text-align: center; padding: 8px 0; }
     .footer { text-align: center; color: #bbb; font-size: 12px; margin-top: 24px; }
-
-    .COLORS { display: none; }
   </style>
 </head>
 <body>
 
-  <!-- Auth check screen -->
+  <!-- Auth screen -->
   <div class="auth-screen" id="authScreen">
     <p>Please log in from the main app first.</p>
     <a class="auth-btn" href="index.html">Go to Login</a>
@@ -318,19 +495,28 @@
   </div>
 
   <!-- Edit Overlay -->
-  <div class="edit-overlay" id="editOverlay">
-    <div class="edit-card">
-      <div class="edit-title" id="editTitle">Edit</div>
-      <input class="edit-input" type="text" id="editInput">
-      <button class="edit-save-btn" onclick="saveEdit()">Save changes</button>
-      <button class="edit-cancel-btn" onclick="closeEdit()">Cancel</button>
+  <div class="overlay" id="editOverlay">
+    <div class="overlay-card">
+      <div class="overlay-title" id="editOverlayTitle">Edit</div>
+      <input class="overlay-input" type="text" id="editInput">
+      <button class="overlay-save-btn" onclick="saveEdit()">Save changes</button>
+      <button class="overlay-cancel-btn" onclick="closeOverlay('editOverlay')">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Confirm Delete Overlay -->
+  <div class="overlay" id="confirmDeleteOverlay">
+    <div class="overlay-card">
+      <div class="confirm-title">Delete?</div>
+      <div class="confirm-msg" id="confirmDeleteMsg">Are you sure?</div>
+      <button class="confirm-delete-btn" onclick="confirmDelete()">Yes, delete</button>
+      <button class="overlay-cancel-btn" onclick="closeOverlay('confirmDeleteOverlay')">Cancel</button>
     </div>
   </div>
 
   <!-- App Content -->
   <div class="app-content" id="appContent">
 
-    <!-- Top Nav -->
     <div class="top-nav">
       <a class="nav-tab" href="index.html">✨ Check In</a>
       <div class="nav-tab active">🎯 Goals & Tasks</div>
@@ -346,28 +532,34 @@
       <!-- Today's Tasks -->
       <div class="card">
         <div class="card-title">Today's Tasks</div>
-        <div id="todayTasks"><div class="empty-msg">No tasks yet — add one below or from a goal</div></div>
-        <div style="margin-top:12px">
-          <div class="inline-row">
-            <input class="inline-input" type="text" id="manualTaskInput" placeholder="Add a task for today...">
-            <button class="inline-btn" onclick="addManualTask()">Add task</button>
-          </div>
-          <div class="saved-msg" id="taskSaved">Task added 💜</div>
+        <div id="todayTasksList"></div>
+        <div class="inline-row">
+          <input class="inline-input" type="text" id="manualTaskInput"
+            placeholder="Add a task for today...">
+          <button class="inline-btn" onclick="addManualTask()">Add task</button>
         </div>
+        <div class="saved-msg" id="taskSaved">Task added 💜</div>
       </div>
 
       <!-- Goals -->
       <div class="card">
         <div class="card-title">My Goals</div>
-        <div id="goalsList"><div class="empty-msg">No goals yet — add one below</div></div>
-        <div style="margin-top:12px">
-          <div class="inline-row">
-            <input class="inline-input" type="text" id="newGoalInput" placeholder="Add a new goal...">
-            <button class="inline-btn" onclick="addGoal()">Add goal</button>
-          </div>
-          <div class="ai-loading" id="aiLoading">✨ Getting AI suggestions...</div>
-          <div class="ai-box" id="aiSuggestions"></div>
+        <div id="goalsList"></div>
+        <div class="inline-row">
+          <input class="inline-input" type="text" id="newGoalInput"
+            placeholder="Add a new goal...">
+          <button class="inline-btn" onclick="addGoal()">Add goal</button>
         </div>
+        <div class="saved-msg" id="goalSaved">Goal added 💜</div>
+      </div>
+
+      <!-- Completed Goals -->
+      <div class="completed-section" id="completedSection" style="display:none">
+        <div class="completed-header" onclick="toggleCompleted()">
+          <div class="completed-header-text">🏆 Completed Goals</div>
+          <div class="goal-chevron" id="completedChevron">▼</div>
+        </div>
+        <div class="completed-body" id="completedBody"></div>
       </div>
 
       <div class="footer">Daily Support App 💜</div>
@@ -387,7 +579,9 @@
     ];
 
     let appData = null;
-    let editTarget = null; // { type: 'task'|'goal', id, currentValue }
+    let editTarget = null;
+    let deleteTarget = null;
+    let expandedGoals = {};
 
     // Auth check
     window.onload = function() {
@@ -400,180 +594,211 @@
     };
 
     async function initApp() {
+      await refreshData();
+      renderAll();
+    }
+
+    async function refreshData() {
       try {
         const res = await fetch(API_URL);
         appData = await res.json();
-        renderTodayTasks();
-        renderGoals();
       } catch(e) { console.error(e); }
     }
 
-    // Today's Tasks
+    function renderAll() {
+      renderTodayTasks();
+      renderGoals();
+      renderCompletedGoals();
+    }
+
+    // ─── TODAY'S TASKS ───────────────────────────────────────
+
     function renderTodayTasks() {
       const tasks = appData?.tasks || [];
-      const today = new Date().toDateString();
       let html = "";
       let count = 0;
-
       for (let i = 1; i < tasks.length; i++) {
         const row = tasks[i];
         if (row[1] == 2 && row[6] !== "Completed") {
           const c = COLORS[count % COLORS.length];
-          const isGoalTask = row[2] !== "" && row[2] !== null;
+          const isGoalTask = row[2] !== "" && row[2] !== null && row[2] !== undefined;
           html += `
             <div class="task-item" style="background:${c.bg};color:${c.color}">
-              <input type="checkbox" onchange="completeTask(${row[0]},'${row[4]}')">
+              <input type="checkbox" onchange="completeTask(${row[0]},'${escStr(row[4])}','task')">
               <span class="task-label">${row[4]}</span>
               ${isGoalTask ? `<span class="task-tag">Goal</span>` : ''}
-              <button class="edit-btn" onclick="openEdit('task',${row[0]},'${row[4]}')">✏️</button>
+              <button class="icon-btn" onclick="openEdit('task',${row[0]},'${escStr(row[4])}')">✏️</button>
+              <button class="icon-btn" onclick="openDeleteTask(${row[0]},'${escStr(row[4])}')">🗑️</button>
             </div>`;
           count++;
         }
       }
-      if (!html) html = `<div class="empty-msg">No tasks yet — add one below or from a goal</div>`;
-      document.getElementById("todayTasks").innerHTML = html;
+      if (!html) html = `<div class="empty-msg">No tasks yet — add one below or from a goal ✨</div>`;
+      document.getElementById("todayTasksList").innerHTML = html;
     }
 
     async function addManualTask() {
       const title = document.getElementById("manualTaskInput").value.trim();
       if (!title) return;
-      try {
-        await fetch(API_URL, {
-          method:"POST", headers:{"Content-Type":"text/plain"},
-          body: JSON.stringify({ action:"saveTask", userId:2, goalId:"", milestoneId:"", title })
-        });
-      } catch(e) {}
+      await post({ action:"saveTask", userId:2, goalId:"", milestoneId:"", title });
       document.getElementById("manualTaskInput").value = "";
-      document.getElementById("taskSaved").style.display = "block";
-      setTimeout(() => document.getElementById("taskSaved").style.display = "none", 2000);
+      showSaved("taskSaved");
       await refreshData();
-      renderTodayTasks();
+      renderAll();
     }
 
-    async function completeTask(taskId, taskTitle) {
-      try {
-        await fetch(API_URL, {
-          method:"POST", headers:{"Content-Type":"text/plain"},
-          body: JSON.stringify({ action:"completeTask", taskId })
-        });
-      } catch(e) {}
+    async function completeTask(taskId, taskTitle, type) {
+      await post({ action:"completeTask", taskId });
       await showCelebration("task", taskTitle);
       await refreshData();
-      renderTodayTasks();
-      renderGoals();
+      renderAll();
     }
 
-    // Goals
+    // ─── GOALS ───────────────────────────────────────────────
+
     function renderGoals() {
       const goals = appData?.goals || [];
       const tasks = appData?.tasks || [];
-      if (goals.length <= 1) {
-        document.getElementById("goalsList").innerHTML = `<div class="empty-msg">No goals yet — add one below</div>`;
-        return;
-      }
       let html = "";
+      let hasActive = false;
+
       for (let i = 1; i < goals.length; i++) {
         const goal = goals[i];
-        if (!goal[2]) continue;
+        if (!goal[2] || goal[3] === "Completed" || goal[3] === "Deleted") continue;
+        hasActive = true;
         const goalId = goal[0];
         const goalName = goal[2];
-        const goalTasks = tasks.filter(t => String(t[2]) === String(goalId) && t[0] !== "TaskID");
+        const isOpen = expandedGoals[goalId] || false;
+        const goalTasks = tasks.filter(t =>
+          String(t[2]) === String(goalId) && t[0] !== "TaskID" && t[6] !== "Deleted"
+        );
         const completedTasks = goalTasks.filter(t => t[6] === "Completed");
         const pendingTasks = goalTasks.filter(t => t[6] !== "Completed");
-        const isGoalDone = goalTasks.length > 0 && pendingTasks.length === 0;
+        const taskCount = goalTasks.length;
+        const doneCount = completedTasks.length;
 
         html += `
-          <div class="goal-section">
-            <div class="goal-header">
-              <div class="goal-name">🎯 ${goalName} ${isGoalDone ? '✅' : ''}</div>
-              <button class="goal-edit-btn" onclick="openEdit('goal',${goalId},'${goalName}')">✏️</button>
-            </div>`;
+          <div class="goal-card" id="goalCard_${goalId}">
+            <div class="goal-header" onclick="toggleGoal(${goalId})">
+              <div class="goal-name">🎯 ${goalName}</div>
+              ${taskCount > 0 ? `<span style="font-size:11px;color:#7c6fcd;font-weight:700">${doneCount}/${taskCount}</span>` : ''}
+              <div class="goal-chevron ${isOpen?'open':''}" id="chevron_${goalId}">▼</div>
+            </div>
+            <div class="goal-body ${isOpen?'open':''}" id="goalBody_${goalId}">`;
 
-        // Show completed tasks (greyed)
+        // Completed tasks (greyed out)
         completedTasks.forEach(t => {
           html += `
-            <div class="goal-task-item" style="opacity:0.4;text-decoration:line-through">
+            <div class="goal-task-row completed-task">
               <input type="checkbox" checked disabled>
-              <span style="flex:1">${t[4]}</span>
+              <span class="gt-label">${t[4]}</span>
             </div>`;
         });
 
-        // Show next pending task only (auto-queue)
+        // Next active task
         if (pendingTasks.length > 0) {
           const next = pendingTasks[0];
           html += `
-            <div class="goal-task-item">
-              <input type="checkbox" onchange="completeTask(${next[0]},'${next[4]}')">
-              <span style="flex:1">${next[4]}</span>
-              <button class="add-task-to-today" onclick="addGoalTaskToToday(${next[0]},'${next[4]}',${goalId})">+ Today</button>
+            <div class="goal-task-row">
+              <input type="checkbox" onchange="completeTask(${next[0]},'${escStr(next[4])}','task')">
+              <span class="gt-label">${next[4]}</span>
+              <button class="icon-btn" onclick="openEdit('task',${next[0]},'${escStr(next[4])}')">✏️</button>
+              <button class="icon-btn" onclick="openDeleteTask(${next[0]},'${escStr(next[4])}')">🗑️</button>
             </div>`;
 
-          // Show remaining queued tasks
+          // Queued tasks
           for (let j = 1; j < pendingTasks.length; j++) {
+            const qt = pendingTasks[j];
             html += `
-              <div class="goal-task-item pending">
-                <span style="width:20px;flex-shrink:0;text-align:center;color:#bbb">○</span>
-                <span style="flex:1">${pendingTasks[j][4]}</span>
-                <button class="edit-btn" onclick="openEdit('task',${pendingTasks[j][0]},'${pendingTasks[j][4]}')">✏️</button>
+              <div class="goal-task-row queued">
+                <span style="width:20px;text-align:center;color:#ccc;flex-shrink:0">○</span>
+                <span class="gt-label">${qt[4]}</span>
+                <button class="icon-btn" onclick="openEdit('task',${qt[0]},'${escStr(qt[4])}')">✏️</button>
+                <button class="icon-btn" onclick="openDeleteTask(${qt[0]},'${escStr(qt[4])}')">🗑️</button>
               </div>`;
           }
         }
 
-        // Add task to this goal
+        // Add step input
         html += `
           <div class="inline-row" style="margin-top:10px">
             <input class="inline-input" style="font-size:13px;padding:10px 12px" type="text"
               id="goalTask_${goalId}" placeholder="Add a step to this goal...">
             <button class="inline-btn" style="font-size:12px;padding:10px 12px"
               onclick="addGoalTask(${goalId})">Add</button>
-          </div>`;
+          </div>
 
-        html += `</div>`;
+          <button class="ai-btn" onclick="getAISuggestions(${goalId},'${escStr(goalName)}')">
+            ✨ Get AI suggestions for this goal
+          </button>
+          <div class="ai-loading" id="aiLoading_${goalId}">Getting suggestions...</div>
+          <div class="ai-suggestions-box" id="aiBox_${goalId}"></div>
+
+          <div class="goal-actions">
+            <button class="complete-goal-btn" onclick="completeGoal(${goalId},'${escStr(goalName)}')">
+              ✅ Mark goal as complete
+            </button>
+            <button class="delete-goal-btn" onclick="openDeleteGoal(${goalId},'${escStr(goalName)}')">
+              🗑️
+            </button>
+          </div>
+        </div>
+        </div>`;
       }
-      if (!html) html = `<div class="empty-msg">No goals yet — add one below</div>`;
+
+      if (!hasActive) html = `<div class="empty-msg">No active goals — add one below ✨</div>`;
       document.getElementById("goalsList").innerHTML = html;
+    }
+
+    function toggleGoal(goalId) {
+      expandedGoals[goalId] = !expandedGoals[goalId];
+      const body = document.getElementById(`goalBody_${goalId}`);
+      const chevron = document.getElementById(`chevron_${goalId}`);
+      if (body) body.classList.toggle("open", expandedGoals[goalId]);
+      if (chevron) chevron.classList.toggle("open", expandedGoals[goalId]);
     }
 
     async function addGoal() {
       const goal = document.getElementById("newGoalInput").value.trim();
       if (!goal) return;
-      try {
-        await fetch(API_URL, {
-          method:"POST", headers:{"Content-Type":"text/plain"},
-          body: JSON.stringify({ action:"saveGoal", userId:2, goal })
-        });
-      } catch(e) {}
+      await post({ action:"saveGoal", userId:2, goal });
       document.getElementById("newGoalInput").value = "";
-      document.getElementById("aiLoading").style.display = "block";
-      document.getElementById("aiSuggestions").style.display = "none";
+      showSaved("goalSaved");
       await refreshData();
-      renderGoals();
-      await getAISuggestions(goal);
+      renderAll();
     }
 
-    async function addGoalTask(goalId) {
+    async function addGoalTask(goalId, addToToday) {
       const input = document.getElementById(`goalTask_${goalId}`);
       const title = input?.value?.trim();
       if (!title) return;
-      try {
-        await fetch(API_URL, {
-          method:"POST", headers:{"Content-Type":"text/plain"},
-          body: JSON.stringify({ action:"saveTask", userId:2, goalId, milestoneId:"", title })
-        });
-      } catch(e) {}
+      await post({ action:"saveTask", userId:2, goalId, milestoneId:"", title });
       if (input) input.value = "";
       await refreshData();
-      renderGoals();
-      renderTodayTasks();
+      renderAll();
     }
 
-    async function addGoalTaskToToday(taskId, taskTitle, goalId) {
-      // Task already exists, just surface it in today's view by refreshing
+    async function addAISuggestionTask(goalId, title, addToToday) {
+      await post({ action:"saveTask", userId:2, goalId, milestoneId:"", title });
       await refreshData();
-      renderTodayTasks();
+      renderAll();
     }
 
-    async function getAISuggestions(goal) {
+    async function completeGoal(goalId, goalName) {
+      await post({ action:"completeGoal", goalId });
+      await showCelebration("goal", goalName);
+      await refreshData();
+      renderAll();
+    }
+
+    // ─── AI SUGGESTIONS ──────────────────────────────────────
+
+    async function getAISuggestions(goalId, goalName) {
+      const loadingEl = document.getElementById(`aiLoading_${goalId}`);
+      const boxEl = document.getElementById(`aiBox_${goalId}`);
+      if (!loadingEl || !boxEl) return;
+      loadingEl.style.display = "block";
+      boxEl.style.display = "none";
       try {
         const res = await fetch("https://api.anthropic.com/v1/messages", {
           method:"POST",
@@ -583,32 +808,82 @@
             max_tokens:800,
             messages:[{
               role:"user",
-              content:`You are a warm encouraging assistant helping Jesse achieve her goals. Jesse has set this goal: "${goal}". Suggest 5 simple, practical, achievable steps. Keep each step short and positive. Number them 1-5. Don't use complex language.`
+              content:`You are a warm encouraging assistant helping Jesse achieve her goals. Jesse wants to: "${goalName}". Suggest exactly 5 simple practical steps she could take. Return ONLY a JSON array of 5 strings, nothing else. Example: ["Step one","Step two","Step three","Step four","Step five"]`
             }]
           })
         });
         const data = await res.json();
-        document.getElementById("aiLoading").style.display = "none";
-        document.getElementById("aiSuggestions").style.display = "block";
-        document.getElementById("aiSuggestions").innerHTML =
-          `<strong style='color:#7c6fcd'>✨ Here are some steps to get started:</strong><br><br>` +
-          data.content[0].text.replace(/\n/g,"<br>");
-      } catch(e) {
-        document.getElementById("aiLoading").style.display = "none";
+        let text = data.content[0].text.trim();
+        text = text.replace(/```json|```/g,"").trim();
+        const steps = JSON.parse(text);
+        loadingEl.style.display = "none";
+        boxEl.style.display = "block";
+        let html = `<div style="font-size:12px;font-weight:800;color:#7c6fcd;margin-bottom:10px">✨ Suggested steps — tap to add:</div>`;
+        steps.forEach((step, idx) => {
+          html += `
+            <div class="ai-suggestion-item">
+              <div class="ai-suggestion-text">${idx+1}. ${step}</div>
+              <div class="ai-add-btns">
+                <button class="ai-add-btn ai-add-goal"
+                  onclick="addAISuggestionTask(${goalId},'${escStr(step)}',false)">
+                  + Add to goal
+                </button>
+                <button class="ai-add-btn ai-add-today"
+                  onclick="addAISuggestionTask(${goalId},'${escStr(step)}',true)">
+                  + Add to goal & today's task
+                </button>
+              </div>
+            </div>`;
+        });
+        boxEl.innerHTML = html;
+      } catch(err) {
+        loadingEl.style.display = "none";
+        boxEl.style.display = "block";
+        boxEl.innerHTML = `<div style="color:#e05c5c;font-size:13px">Couldn't load suggestions. Please try again.</div>`;
       }
     }
 
-    // Edit
-    function openEdit(type, id, currentValue) {
-      editTarget = { type, id, currentValue };
-      document.getElementById("editTitle").innerText = type === "goal" ? "Edit Goal" : "Edit Task";
-      document.getElementById("editInput").value = currentValue;
-      document.getElementById("editOverlay").classList.add("active");
+    // ─── COMPLETED GOALS ─────────────────────────────────────
+
+    function renderCompletedGoals() {
+      const goals = appData?.goals || [];
+      const completed = [];
+      for (let i = 1; i < goals.length; i++) {
+        if (goals[i][3] === "Completed") completed.push(goals[i]);
+      }
+      const section = document.getElementById("completedSection");
+      const body = document.getElementById("completedBody");
+      if (completed.length === 0) {
+        section.style.display = "none";
+        return;
+      }
+      section.style.display = "block";
+      let html = "";
+      completed.forEach(g => {
+        html += `
+          <div class="completed-goal-item">
+            🏆 ${g[2]}
+            <span class="completed-date">${formatDate(g[4])}</span>
+          </div>`;
+      });
+      body.innerHTML = html;
     }
 
-    function closeEdit() {
-      document.getElementById("editOverlay").classList.remove("active");
-      editTarget = null;
+    function toggleCompleted() {
+      const body = document.getElementById("completedBody");
+      const chevron = document.getElementById("completedChevron");
+      const isOpen = body.classList.contains("open");
+      body.classList.toggle("open", !isOpen);
+      chevron.style.transform = isOpen ? "" : "rotate(180deg)";
+    }
+
+    // ─── EDIT ────────────────────────────────────────────────
+
+    function openEdit(type, id, currentValue) {
+      editTarget = { type, id };
+      document.getElementById("editOverlayTitle").innerText = type === "goal" ? "Edit Goal" : "Edit Task";
+      document.getElementById("editInput").value = currentValue;
+      document.getElementById("editOverlay").classList.add("active");
     }
 
     async function saveEdit() {
@@ -616,28 +891,53 @@
       const newValue = document.getElementById("editInput").value.trim();
       if (!newValue) return;
       const action = editTarget.type === "goal" ? "editGoal" : "editTask";
-      try {
-        await fetch(API_URL, {
-          method:"POST", headers:{"Content-Type":"text/plain"},
-          body: JSON.stringify({ action, id: editTarget.id, newValue })
-        });
-      } catch(e) {}
-      closeEdit();
+      await post({ action, id: editTarget.id, newValue });
+      closeOverlay("editOverlay");
+      editTarget = null;
       await refreshData();
-      renderTodayTasks();
-      renderGoals();
+      renderAll();
     }
 
-    // Celebration
+    // ─── DELETE ──────────────────────────────────────────────
+
+    function openDeleteTask(taskId, taskTitle) {
+      deleteTarget = { type:"task", id:taskId };
+      document.getElementById("confirmDeleteMsg").innerHTML =
+        `Delete task "<strong>${taskTitle}</strong>"? This cannot be undone.`;
+      document.getElementById("confirmDeleteOverlay").classList.add("active");
+    }
+
+    function openDeleteGoal(goalId, goalName) {
+      deleteTarget = { type:"goal", id:goalId };
+      document.getElementById("confirmDeleteMsg").innerHTML =
+        `Delete goal "<strong>${goalName}</strong>" and all its tasks? This cannot be undone.`;
+      document.getElementById("confirmDeleteOverlay").classList.add("active");
+    }
+
+    async function confirmDelete() {
+      if (!deleteTarget) return;
+      if (deleteTarget.type === "task") {
+        await post({ action:"deleteTask", taskId: deleteTarget.id });
+      } else {
+        await post({ action:"deleteGoal", goalId: deleteTarget.id });
+      }
+      closeOverlay("confirmDeleteOverlay");
+      deleteTarget = null;
+      await refreshData();
+      renderAll();
+    }
+
+    // ─── CELEBRATION ─────────────────────────────────────────
+
     async function showCelebration(type, context) {
       document.getElementById("celebrationIcon").innerText = type === "goal" ? "🏆" : "🎉";
-      document.getElementById("celebrationTitle").innerText = type === "goal" ? "Goal Completed!" : "Task Done!";
+      document.getElementById("celebrationTitle").innerText = type === "goal" ? "Goal Complete!" : "Task Done!";
       document.getElementById("celebrationMsg").innerText = "Getting your message...";
       document.getElementById("celebrationOverlay").classList.add("active");
       try {
         const prompt = type === "goal"
-          ? `Write a warm personal 2-3 sentence celebration for Jesse who just completed her goal: "${context}". Use her name. Be genuine and encouraging.`
-          : `Write a warm personal 1-2 sentence encouragement for Jesse who just completed the task: "${context}". Use her name. Be genuine.`;
+          ? `Write a warm personal 2-3 sentence celebration for Jesse who just completed her goal: "${context}". Use her name. Be genuine and encouraging. No markdown.`
+          : `Write a warm personal 1-2 sentence encouragement for Jesse who just completed the task: "${context}". Use her name. Be genuine. No markdown.`;
         const res = await fetch("https://api.anthropic.com/v1/messages", {
           method:"POST",
           headers:{"Content-Type":"application/json"},
@@ -650,7 +950,8 @@
         const data = await res.json();
         document.getElementById("celebrationMsg").innerText = data.content[0].text;
       } catch(e) {
-        document.getElementById("celebrationMsg").innerText = "Jesse, you did it. Every step you take is proof of your strength. 💜";
+        document.getElementById("celebrationMsg").innerText =
+          "Jesse, you did it. Every step you take is proof of your strength. 💜";
       }
     }
 
@@ -658,11 +959,38 @@
       document.getElementById("celebrationOverlay").classList.remove("active");
     }
 
-    async function refreshData() {
+    // ─── HELPERS ─────────────────────────────────────────────
+
+    function closeOverlay(id) {
+      document.getElementById(id).classList.remove("active");
+    }
+
+    async function post(body) {
       try {
-        const res = await fetch(API_URL);
-        appData = await res.json();
+        await fetch(API_URL, {
+          method:"POST",
+          headers:{"Content-Type":"text/plain"},
+          body: JSON.stringify(body)
+        });
       } catch(e) {}
+    }
+
+    function showSaved(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.style.display = "block";
+      setTimeout(() => el.style.display = "none", 2500);
+    }
+
+    function escStr(str) {
+      return String(str).replace(/'/g,"\\'").replace(/"/g,"&quot;");
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return "";
+      try {
+        return new Date(dateStr).toLocaleDateString('en-AU', { day:'numeric', month:'short', year:'numeric' });
+      } catch(e) { return ""; }
     }
   </script>
 </body>
