@@ -1,26 +1,632 @@
-async function getDadAISuggestions() {
-  const focus = document.getElementById("dadFocusInput").value.trim();
-  if (!focus) { alert("Please enter your weekly focus first"); return; }
-  document.getElementById("dadAiLoading").style.display = "block";
-  document.getElementById("dadAiBox").style.display = "none";
-  try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain" },
-      body: JSON.stringify({ action: "aiDadSuggest", goal: focus })
-    });
-    const data = await res.json();
-    document.getElementById("dadAiLoading").style.display = "none";
-    if (!data.success || !data.steps) {
-      document.getElementById("dadAiBox").style.display = "block";
-      document.getElementById("dadAiBox").innerHTML = "Couldn't load suggestions. Please try again.";
-      return;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dad Dashboard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(160deg, #f0f4ff 0%, #fdf0ff 100%);
+      min-height: 100vh;
+      color: #333;
     }
-    document.getElementById("dadAiBox").style.display = "block";
-    document.getElementById("dadAiBox").innerHTML =
-      "<strong>✨ Suggested steps:</strong><br><br>" +
-      data.steps.map((s, i) => `${i+1}. ${s}`).join("<br>");
-  } catch(e) {
-    document.getElementById("dadAiLoading").style.display = "none";
-  }
-}
+    .lock-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .lock-card {
+      background: white;
+      border-radius: 28px;
+      padding: 36px 28px;
+      box-shadow: 0 4px 24px rgba(83,74,183,0.12);
+      width: 100%;
+      max-width: 320px;
+      text-align: center;
+    }
+    .lock-icon { font-size: 48px; margin-bottom: 12px; }
+    .lock-title { font-size: 22px; font-weight: 800; color: #3C3489; margin-bottom: 6px; }
+    .lock-subtitle { font-size: 14px; color: #7c6fcd; margin-bottom: 24px; }
+    .lock-input {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 2.5px solid #e0e0f0;
+      font-size: 16px;
+      text-align: center;
+      outline: none;
+      color: #3C3489;
+      margin-bottom: 14px;
+      letter-spacing: 2px;
+    }
+    .lock-input:focus { border-color: #7c6fcd; }
+    .lock-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 14px;
+      border: none;
+      background: linear-gradient(90deg, #534AB7, #c054b8);
+      color: white;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .lock-error { color: #e05c5c; font-size: 13px; margin-top: 10px; font-weight: 600; min-height: 20px; }
+    .app-content { display: none; padding: 0 0 48px; }
+    .page-body { padding: 20px 16px 48px; }
+    .app-header { text-align: center; margin-bottom: 20px; }
+    .app-header h1 { font-size: 28px; font-weight: 800; color: #3C3489; }
+    .app-header p { font-size: 15px; color: #7c6fcd; margin-top: 4px; }
+    .card {
+      background: white;
+      border-radius: 22px;
+      padding: 18px;
+      margin-bottom: 14px;
+      box-shadow: 0 4px 16px rgba(83,74,183,0.08);
+    }
+    .card-title {
+      font-size: 11px;
+      font-weight: 800;
+      color: #bbb;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+    .sos-banner {
+      background: linear-gradient(135deg, #ff3b3b, #cc0000);
+      border-radius: 22px;
+      padding: 18px;
+      margin-bottom: 14px;
+      color: white;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(204,0,0,0.4);
+      animation: pulse 1.5s infinite;
+      display: none;
+    }
+    .sos-banner h2 { font-size: 22px; font-weight: 900; margin-bottom: 6px; }
+    .sos-banner p { font-size: 14px; opacity: 0.9; }
+    @keyframes pulse {
+      0% { box-shadow: 0 4px 20px rgba(204,0,0,0.4); }
+      50% { box-shadow: 0 4px 32px rgba(204,0,0,0.7); }
+      100% { box-shadow: 0 4px 20px rgba(204,0,0,0.4); }
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 17px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+    .badge-okay { background: linear-gradient(90deg, #d4f5d4, #b8edb8); color: #1a6b1a; }
+    .badge-support { background: linear-gradient(90deg, #fff0cc, #ffe8a0); color: #7a5200; }
+    .badge-help { background: linear-gradient(90deg, #ffd6d6, #ffb8b8); color: #8a1a1a; }
+    .badge-sos { background: linear-gradient(90deg, #ff3b3b, #cc0000); color: white; }
+    .support-type-tag {
+      display: inline-block;
+      background: #eef3ff;
+      color: #3C3489;
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-top: 6px;
+    }
+    .checkin-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .checkin-box { border-radius: 14px; padding: 14px 8px; text-align: center; }
+    .checkin-box:nth-child(1) { background: #fdf0ff; }
+    .checkin-box:nth-child(2) { background: #eef3ff; }
+    .checkin-box:nth-child(3) { background: #f0faf0; }
+    .checkin-box .label { font-size: 10px; font-weight: 800; color: #bbb; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .checkin-box .value { font-size: 15px; font-weight: 800; color: #3C3489; }
+    .response-btn {
+      width: 100%;
+      padding: 13px 14px;
+      border-radius: 14px;
+      border: 2px solid #e0e0f0;
+      background: white;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: left;
+      margin-bottom: 8px;
+      color: #3C3489;
+      transition: all 0.15s;
+    }
+    .response-btn:hover { background: #eef3ff; border-color: #7c6fcd; }
+    .response-btn:last-child { margin-bottom: 0; }
+    .response-sent { text-align: center; color: #5cb85c; font-weight: 800; padding: 8px; display: none; }
+    .dl-summary-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin-bottom: 6px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .dl-done { background: #f0faf0; color: #2d7a2d; }
+    .dl-not-done { background: #fff5f5; color: #a02020; }
+    .difficult-item {
+      background: #fdf0ff;
+      border-radius: 14px;
+      padding: 13px 14px;
+      margin-bottom: 8px;
+      font-size: 14px;
+      color: #7a1fa0;
+      font-weight: 600;
+    }
+    .difficult-item:last-child { margin-bottom: 0; }
+    .alert-item { padding: 13px 14px; border-radius: 14px; margin-bottom: 8px; font-weight: 700; font-size: 15px; }
+    .alert-item:last-child { margin-bottom: 0; }
+    .alert-okay { background: #f0faf0; color: #1a6b1a; }
+    .alert-support { background: #fffbf0; color: #7a5200; }
+    .alert-help { background: #fff5f5; color: #8a1a1a; }
+    .alert-sos { background: #fff0f0; color: #cc0000; border: 2px solid #ffb8b8; }
+    .alert-date { font-size: 11px; font-weight: 400; color: #999; margin-top: 3px; }
+    .time-tag { font-size: 12px; color: #bbb; margin-top: 8px; }
+
+    /* Dad Corner */
+    .dad-corner-section {
+      background: linear-gradient(135deg, #fff8e6, #fff0cc);
+      border-radius: 22px;
+      padding: 18px;
+      margin-bottom: 14px;
+      border: 2px solid #ffe8a0;
+    }
+    .dad-corner-title-label { font-size: 11px; font-weight: 800; color: #b8860b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+    .dad-focus-input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 2px solid #ffe8a0;
+      font-size: 14px;
+      outline: none;
+      color: #333;
+      margin-bottom: 10px;
+      background: white;
+    }
+    .dad-step-input {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 2px solid #ffe8a0;
+      font-size: 13px;
+      outline: none;
+      color: #333;
+      margin-bottom: 8px;
+      background: white;
+    }
+    .dad-submit-btn {
+      width: 100%;
+      padding: 13px;
+      border-radius: 14px;
+      border: none;
+      background: linear-gradient(90deg, #f0ad4e, #e8920a);
+      color: white;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      margin-bottom: 8px;
+    }
+    .dad-ai-btn {
+      width: 100%;
+      padding: 11px;
+      border-radius: 14px;
+      border: 2px solid #ffe8a0;
+      background: white;
+      color: #b8860b;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+    .ai-box {
+      background: #fff8e6;
+      border-radius: 14px;
+      padding: 14px;
+      margin-top: 10px;
+      border: 2px solid #ffe8a0;
+      font-size: 13px;
+      color: #555;
+      line-height: 1.6;
+      display: none;
+    }
+    .dad-step-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: white;
+      border-radius: 12px;
+      margin-bottom: 6px;
+      font-size: 13px;
+      color: #555;
+    }
+    .dad-step-item.done { opacity: 0.5; text-decoration: line-through; }
+    .dad-step-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: #f0ad4e; }
+    .ai-loading { color: #b8860b; font-size: 13px; font-style: italic; padding: 8px 0; display: none; }
+    .footer { text-align: center; color: #bbb; font-size: 12px; margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+  <!-- Lock Screen -->
+  <div class="lock-screen" id="lockScreen">
+    <div class="lock-card">
+      <div class="lock-icon">👋</div>
+      <div class="lock-title">Dad Dashboard</div>
+      <div class="lock-subtitle">Enter your password to continue</div>
+      <input class="lock-input" type="password" id="pinInput" placeholder="Password"
+        onkeydown="if(event.key==='Enter') checkPin()">
+      <button class="lock-btn" onclick="checkPin()">Enter</button>
+      <div class="lock-error" id="pinError"></div>
+    </div>
+  </div>
+
+  <!-- App Content -->
+  <div class="app-content" id="appContent">
+    <div class="page-body">
+
+      <div class="app-header">
+        <h1>Hi Dad 👋</h1>
+        <p>Here's how Jesse is doing</p>
+      </div>
+
+      <!-- SOS Banner -->
+      <div class="sos-banner" id="sosBanner">
+        <h2>🆘 SOS ALERT</h2>
+        <p>Jesse needs urgent help right now. Contact her immediately.</p>
+      </div>
+
+      <!-- Latest Alert -->
+      <div class="card">
+        <div class="card-title">Latest Support Request</div>
+        <div id="latestAlert"><span style="color:#ccc">No alerts yet</span></div>
+        <div id="latestAlertTime" class="time-tag"></div>
+        <div id="latestSupportType"></div>
+      </div>
+
+      <!-- Respond to Jesse -->
+      <div class="card" id="respondCard" style="display:none">
+        <div class="card-title">Respond to Jesse</div>
+        <button class="response-btn" onclick="sendResponse('💜 I\'ve seen this. I love you.')">💜 I've seen this. I love you.</button>
+        <button class="response-btn" onclick="sendResponse('📞 I\'ll call you on WhatsApp now')">📞 I'll call you on WhatsApp now</button>
+        <button class="response-btn" onclick="sendResponse('📞 I\'ll call you soon — give me a little while')">📞 I'll call you soon — give me a little while</button>
+        <button class="response-btn" onclick="sendResponse('🚗 I\'m on my way to you')">🚗 I'm on my way to you</button>
+        <div class="response-sent" id="responseSent">Response sent to Jesse 💜</div>
+      </div>
+
+      <!-- Latest Check-In -->
+      <div class="card">
+        <div class="card-title">Latest Check-In</div>
+        <div class="checkin-grid">
+          <div class="checkin-box">
+            <div class="label">Mood</div>
+            <div class="value" id="mood">—</div>
+          </div>
+          <div class="checkin-box">
+            <div class="label">Energy</div>
+            <div class="value" id="energy">—</div>
+          </div>
+          <div class="checkin-box">
+            <div class="label">Need</div>
+            <div class="value" id="needToday">—</div>
+          </div>
+        </div>
+        <div id="checkinTime" class="time-tag"></div>
+      </div>
+
+      <!-- Daily Living Summary -->
+      <div class="card">
+        <div class="card-title">Jesse's Daily Living Today</div>
+        <div id="dailyLivingSummary">Loading...</div>
+      </div>
+
+      <!-- Difficult Thing -->
+      <div class="card">
+        <div class="card-title">Difficult Thing Jesse Did Today 💪</div>
+        <div id="difficultThingToday"><span style="color:#ccc">Nothing recorded yet today</span></div>
+      </div>
+
+      <!-- Recent Alerts -->
+      <div class="card">
+        <div class="card-title">Recent Alerts</div>
+        <div id="recentAlerts"><span style="color:#ccc">No alerts yet</span></div>
+      </div>
+
+      <!-- Dad's Corner -->
+      <div class="dad-corner-section">
+        <div class="dad-corner-title-label">👨 My Corner — This Week's Focus</div>
+        <div id="dadCornerView" style="display:none">
+          <div id="dadCornerSteps"></div>
+          <div id="dadCornerProgress" class="time-tag" style="margin-top:8px"></div>
+          <button class="dad-submit-btn" style="margin-top:12px" onclick="editDadCorner()">Update my focus</button>
+        </div>
+        <div id="dadCornerForm">
+          <input class="dad-focus-input" type="text" id="dadFocusInput" placeholder="What's your focus this week?">
+          <div id="dadStepInputs">
+            <input class="dad-step-input" type="text" placeholder="Step 1..." id="dadStep1">
+            <input class="dad-step-input" type="text" placeholder="Step 2..." id="dadStep2">
+            <input class="dad-step-input" type="text" placeholder="Step 3..." id="dadStep3">
+            <input class="dad-step-input" type="text" placeholder="Step 4..." id="dadStep4">
+            <input class="dad-step-input" type="text" placeholder="Step 5..." id="dadStep5">
+          </div>
+          <button class="dad-ai-btn" onclick="getDadAISuggestions()">✨ Get AI suggestions</button>
+          <div class="ai-loading" id="dadAiLoading">Getting suggestions...</div>
+          <div class="ai-box" id="dadAiBox"></div>
+          <button class="dad-submit-btn" onclick="saveDadCorner()">Save my focus</button>
+        </div>
+      </div>
+
+      <div class="footer">Dad Dashboard 💜 · Refreshes every 30 seconds</div>
+
+    </div>
+  </div>
+
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbzlTd0HcORu-R78042GmDC5buO-69X9XRB6NjPh-Qmtj_5fnA-fSKBAkXCnuufS5LU5/exec";
+    const PASSWORD = "Beckett";
+
+    let appData = null;
+    let latestAlertId = null;
+
+    function checkPin() {
+      const val = document.getElementById("pinInput").value;
+      if (val === PASSWORD) {
+        document.getElementById("lockScreen").style.display = "none";
+        document.getElementById("appContent").style.display = "block";
+        loadDashboard();
+        setInterval(loadDashboard, 30000);
+      } else {
+        document.getElementById("pinError").innerText = "Incorrect password. Try again.";
+        document.getElementById("pinInput").value = "";
+      }
+    }
+
+    function getAlertLabel(type) {
+      if (type === "OKAY") return "🟢 I'm okay";
+      if (type === "SUPPORT") return "🟡 I could use some support";
+      if (type === "HELP") return "🔴 Dad, I need help today";
+      if (type === "SOS") return "🆘 SOS — Jesse needs urgent help";
+      return type;
+    }
+
+    function getBadgeClass(type) {
+      if (type === "OKAY") return "badge-okay";
+      if (type === "SUPPORT") return "badge-support";
+      if (type === "HELP") return "badge-help";
+      if (type === "SOS") return "badge-sos";
+      return "";
+    }
+
+    function getAlertItemClass(type) {
+      if (type === "OKAY") return "alert-okay";
+      if (type === "SUPPORT") return "alert-support";
+      if (type === "HELP") return "alert-help";
+      if (type === "SOS") return "alert-sos";
+      return "";
+    }
+
+    async function loadDashboard() {
+      try {
+        const response = await fetch(API_URL);
+        appData = await response.json();
+        renderAlerts();
+        renderCheckIn();
+        renderDailyLiving();
+        renderDifficultThing();
+        renderDadCorner();
+      } catch(e) {
+        document.getElementById("latestAlert").innerHTML = "Unable to load";
+      }
+    }
+
+    function renderAlerts() {
+      const alerts = appData.supportAlerts || [];
+      if (alerts.length <= 1) return;
+      const latest = alerts[alerts.length - 1];
+      latestAlertId = latest[0];
+      const alertType = latest[3];
+
+      if (alertType === "SOS") {
+        document.getElementById("sosBanner").style.display = "block";
+      }
+      if (alertType !== "OKAY") {
+        document.getElementById("respondCard").style.display = "block";
+      }
+
+      document.getElementById("latestAlert").innerHTML =
+        `<span class="status-badge ${getBadgeClass(alertType)}">${getAlertLabel(alertType)}</span>`;
+      document.getElementById("latestAlertTime").innerHTML = "Received: " + latest[2];
+
+      if (latest[5]) {
+        document.getElementById("latestSupportType").innerHTML =
+          `<span class="support-type-tag">Needs: ${latest[5]}</span>`;
+      }
+
+      let html = "";
+      const start = Math.max(1, alerts.length - 5);
+      for (let i = alerts.length - 1; i >= start; i--) {
+        html += `
+          <div class="alert-item ${getAlertItemClass(alerts[i][3])}">
+            ${getAlertLabel(alerts[i][3])}
+            ${alerts[i][5] ? `<span class="support-type-tag" style="font-size:11px">${alerts[i][5]}</span>` : ''}
+            <div class="alert-date">${alerts[i][2]}</div>
+          </div>`;
+      }
+      document.getElementById("recentAlerts").innerHTML = html;
+    }
+
+    function renderCheckIn() {
+      const checkIns = appData.checkIns || [];
+      if (checkIns.length <= 1) return;
+      const latest = checkIns[checkIns.length - 1];
+      document.getElementById("mood").innerHTML = latest[3] || "—";
+      document.getElementById("energy").innerHTML = latest[4] || "—";
+      document.getElementById("needToday").innerHTML = latest[5] || "—";
+      document.getElementById("checkinTime").innerHTML = "Updated: " + latest[2];
+    }
+
+    function renderDailyLiving() {
+      const dl = appData.dailyLiving || [];
+      const today = new Date().toDateString();
+      const DAILY_LIVING = [
+        "Brush Teeth","Get Dressed","Medication (morning)","Breakfast",
+        "Drink Water","Lunch","Outside Time","Dinner","Medication (evening)","Shower","Sleep"
+      ];
+      const completed = [];
+      dl.forEach(row => {
+        if (row[1] == 2 && new Date(row[2]).toDateString() === today && row[4] === true) {
+          completed.push(row[3]);
+        }
+      });
+      let html = "";
+      DAILY_LIVING.forEach(item => {
+        const done = completed.includes(item);
+        html += `
+          <div class="dl-summary-item ${done?'dl-done':'dl-not-done'}">
+            <span>${item}</span>
+            <span>${done ? '✅' : '○'}</span>
+          </div>`;
+      });
+      document.getElementById("dailyLivingSummary").innerHTML = html || "<span style='color:#ccc'>No data yet</span>";
+    }
+
+    function renderDifficultThing() {
+      const dt = appData.difficultThings || [];
+      const today = new Date().toDateString();
+      let html = "";
+      for (let i = dt.length - 1; i >= 1; i--) {
+        if (new Date(dt[i][2]).toDateString() === today && dt[i][1] == 2) {
+          html += `<div class="difficult-item">💪 ${dt[i][3]}</div>`;
+        }
+      }
+      if (!html) html = "<span style='color:#ccc'>Nothing recorded yet today</span>";
+      document.getElementById("difficultThingToday").innerHTML = html;
+    }
+
+    async function sendResponse(response) {
+      try {
+        await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify({ action:"dadResponse", alertId:latestAlertId, response })
+        });
+      } catch(e) {}
+      document.getElementById("responseSent").style.display = "block";
+      setTimeout(() => document.getElementById("responseSent").style.display = "none", 3000);
+    }
+
+    function renderDadCorner() {
+      const dc = appData.dadCorner || [];
+      if (dc.length <= 1) {
+        document.getElementById("dadCornerForm").style.display = "block";
+        document.getElementById("dadCornerView").style.display = "none";
+        return;
+      }
+      const latest = dc[dc.length - 1];
+      const focus = latest[3];
+      const steps = JSON.parse(latest[4] || '[]');
+      const completed = JSON.parse(latest[5] || '[]');
+
+      let html = `<div style="font-size:16px;font-weight:800;color:#7a5200;margin-bottom:10px">🎯 ${focus}</div>`;
+      steps.forEach(step => {
+        const done = completed.includes(step);
+        html += `
+          <div class="dad-step-item ${done?'done':''}">
+            <input type="checkbox" ${done?'checked':''} onchange="tickDadStep('${step}',this.checked)">
+            ${step}
+          </div>`;
+      });
+      document.getElementById("dadCornerSteps").innerHTML = html;
+      document.getElementById("dadCornerProgress").innerHTML =
+        `${completed.length} of ${steps.length} steps completed`;
+      document.getElementById("dadCornerView").style.display = "block";
+      document.getElementById("dadCornerForm").style.display = "none";
+    }
+
+    function editDadCorner() {
+      document.getElementById("dadCornerView").style.display = "none";
+      document.getElementById("dadCornerForm").style.display = "block";
+    }
+
+    async function saveDadCorner() {
+      const focus = document.getElementById("dadFocusInput").value.trim();
+      if (!focus) return;
+      const steps = [];
+      for (let i = 1; i <= 5; i++) {
+        const val = document.getElementById(`dadStep${i}`).value.trim();
+        if (val) steps.push(val);
+      }
+      try {
+        await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify({
+            action: "saveDadCorner",
+            userId: 1,
+            week: getWeekString(),
+            focus,
+            steps,
+            completedSteps: []
+          })
+        });
+      } catch(e) {}
+      await loadDashboard();
+    }
+
+    async function tickDadStep(step, checked) {
+      if (!checked) return;
+      try {
+        await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify({ action:"updateDadCornerStep", userId:1, step })
+        });
+      } catch(e) {}
+      setTimeout(loadDashboard, 1000);
+    }
+
+    function getWeekString() {
+      const now = new Date();
+      const start = new Date(now);
+      start.setDate(now.getDate() - now.getDay());
+      return start.toDateString();
+    }
+
+    async function getDadAISuggestions() {
+      const focus = document.getElementById("dadFocusInput").value.trim();
+      if (!focus) { alert("Please enter your weekly focus first"); return; }
+      document.getElementById("dadAiLoading").style.display = "block";
+      document.getElementById("dadAiBox").style.display = "none";
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify({ action: "aiDadSuggest", goal: focus })
+        });
+        const data = await res.json();
+        document.getElementById("dadAiLoading").style.display = "none";
+        if (!data.success || !data.steps) {
+          document.getElementById("dadAiBox").style.display = "block";
+          document.getElementById("dadAiBox").innerHTML = "Couldn't load suggestions. Please try again.";
+          return;
+        }
+        document.getElementById("dadAiBox").style.display = "block";
+        document.getElementById("dadAiBox").innerHTML =
+          "<strong>✨ Suggested steps:</strong><br><br>" +
+          data.steps.map((s, i) => `${i+1}. ${s}`).join("<br>");
+      } catch(e) {
+        document.getElementById("dadAiLoading").style.display = "none";
+      }
+    }
+  </script>
+</body>
+</html>
