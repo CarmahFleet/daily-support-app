@@ -6,7 +6,6 @@
   <title>Daily Support App</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
       font-family: Arial, sans-serif;
       background: linear-gradient(160deg, #f0f4ff 0%, #fdf0ff 100%);
@@ -62,7 +61,36 @@
     .lock-error { color: #e05c5c; font-size: 13px; margin-top: 10px; font-weight: 600; min-height: 20px; }
 
     /* App */
-    .app-content { display: none; padding: 24px 16px 48px; }
+    .app-content { display: none; padding: 0 0 48px; }
+
+    /* Top nav */
+    .top-nav {
+      display: flex;
+      background: white;
+      border-bottom: 2px solid #f0f0f8;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 2px 8px rgba(83,74,183,0.06);
+    }
+    .nav-tab {
+      flex: 1;
+      padding: 14px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 800;
+      color: #bbb;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      text-decoration: none;
+    }
+    .nav-tab.active {
+      color: #534AB7;
+      border-bottom-color: #534AB7;
+    }
+
+    /* Page padding */
+    .page-body { padding: 20px 16px 48px; }
 
     /* Header */
     .app-header {
@@ -97,6 +125,30 @@
       100% { box-shadow: 0 4px 12px rgba(204,0,0,0.35); }
     }
 
+    /* Greeting box */
+    .greeting-box {
+      background: white;
+      border-radius: 22px;
+      padding: 18px;
+      margin-bottom: 14px;
+      box-shadow: 0 4px 16px rgba(83,74,183,0.08);
+      border-left: 5px solid #534AB7;
+    }
+    .greeting-box .greeting-text { font-size: 15px; font-weight: 800; color: #3C3489; margin-bottom: 6px; }
+    .greeting-box .encouragement { font-size: 14px; color: #555; line-height: 1.5; }
+
+    /* Dad response */
+    .dad-response-box {
+      background: #f0faf0;
+      border-radius: 22px;
+      padding: 16px 18px;
+      margin-bottom: 14px;
+      border-left: 5px solid #5cb85c;
+      display: none;
+    }
+    .dad-response-box .dr-title { font-size: 11px; font-weight: 800; color: #2d7a2d; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .dad-response-box .dr-message { font-size: 15px; font-weight: 700; color: #1a6b1a; }
+
     /* Cards */
     .card {
       background: white;
@@ -114,31 +166,7 @@
       margin-bottom: 12px;
     }
 
-    /* Greeting banner */
-    .greeting-banner {
-      background: linear-gradient(135deg, #534AB7, #c054b8);
-      border-radius: 22px;
-      padding: 18px;
-      margin-bottom: 14px;
-      color: white;
-      box-shadow: 0 4px 16px rgba(83,74,183,0.2);
-    }
-    .greeting-banner .greeting-text { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
-    .greeting-banner .encouragement { font-size: 13px; opacity: 0.9; line-height: 1.5; }
-
-    /* Dad response banner */
-    .dad-response-banner {
-      background: linear-gradient(135deg, #f0faf0, #d4f5d4);
-      border-radius: 22px;
-      padding: 16px 18px;
-      margin-bottom: 14px;
-      border: 2px solid #b8edb8;
-      display: none;
-    }
-    .dad-response-banner .dr-title { font-size: 12px; font-weight: 800; color: #2d7a2d; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
-    .dad-response-banner .dr-message { font-size: 15px; font-weight: 700; color: #1a6b1a; }
-
-    /* Mood/Energy buttons */
+    /* Mood/Energy */
     .btn-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
     .sel-btn {
       border: 2.5px solid #eee;
@@ -162,7 +190,6 @@
 
     /* Struggling mode */
     body.struggling .card { border: 2px solid #f5c6cb; }
-    body.struggling .greeting-banner { background: linear-gradient(135deg, #c054b8, #9b2c9b); }
 
     /* Support buttons */
     .sup-btn {
@@ -183,6 +210,35 @@
     .sup-support { background: linear-gradient(90deg, #fff0cc, #ffe8a0); color: #7a5200; }
     .sup-help { background: linear-gradient(90deg, #ffd6d6, #ffb8b8); color: #8a1a1a; }
 
+    /* Inline input row */
+    .inline-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .inline-input {
+      flex: 1;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 2px solid #e0e0f0;
+      font-size: 14px;
+      outline: none;
+      color: #333;
+    }
+    .inline-input:focus { border-color: #7c6fcd; }
+    .inline-btn {
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: none;
+      background: linear-gradient(90deg, #534AB7, #c054b8);
+      color: white;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
     /* Daily living */
     .dl-item {
       display: flex;
@@ -193,11 +249,10 @@
       margin-bottom: 8px;
       font-size: 14px;
       font-weight: 600;
-      cursor: pointer;
       transition: opacity 0.2s;
     }
     .dl-item:last-child { margin-bottom: 0; }
-    .dl-item.completed { opacity: 0.5; text-decoration: line-through; }
+    .dl-item.completed { opacity: 0.45; text-decoration: line-through; }
     .dl-item input[type="checkbox"] { width: 22px; height: 22px; cursor: pointer; accent-color: #534AB7; flex-shrink: 0; }
     .streak-badge {
       display: inline-block;
@@ -210,59 +265,7 @@
       margin-bottom: 12px;
     }
 
-    /* Tasks */
-    .task-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 14px 12px;
-      border-radius: 14px;
-      margin-bottom: 8px;
-      font-size: 15px;
-      font-weight: 600;
-    }
-    .task-item:last-child { margin-bottom: 0; }
-    .task-item input[type="checkbox"] { width: 22px; height: 22px; cursor: pointer; accent-color: #534AB7; flex-shrink: 0; }
-
-    /* Difficult thing */
-    .difficult-input {
-      width: 100%;
-      padding: 12px 14px;
-      border-radius: 14px;
-      border: 2px solid #e0e0f0;
-      font-size: 14px;
-      outline: none;
-      color: #333;
-      margin-bottom: 10px;
-      resize: none;
-    }
-    .difficult-input:focus { border-color: #7c6fcd; }
-    .submit-btn {
-      width: 100%;
-      padding: 13px;
-      border-radius: 14px;
-      border: none;
-      background: linear-gradient(90deg, #534AB7, #c054b8);
-      color: white;
-      font-size: 15px;
-      font-weight: 800;
-      cursor: pointer;
-    }
-
-    /* Tomorrow plan */
-    .tomorrow-input {
-      width: 100%;
-      padding: 12px 14px;
-      border-radius: 14px;
-      border: 2px solid #e0e0f0;
-      font-size: 14px;
-      outline: none;
-      color: #333;
-      margin-bottom: 10px;
-    }
-    .tomorrow-input:focus { border-color: #7c6fcd; }
-
-    /* Dad's corner */
+    /* Dad corner */
     .dad-corner-card {
       background: linear-gradient(135deg, #fff8e6, #fff0cc);
       border-radius: 22px;
@@ -271,7 +274,7 @@
       border: 2px solid #ffe8a0;
     }
     .dad-corner-title { font-size: 11px; font-weight: 800; color: #b8860b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-    .dad-corner-focus { font-size: 16px; font-weight: 800; color: #7a5200; margin-bottom: 10px; }
+    .dad-corner-focus { font-size: 15px; font-weight: 800; color: #7a5200; margin-bottom: 10px; }
     .dad-corner-step {
       display: flex;
       align-items: center;
@@ -287,30 +290,6 @@
     .step-dot { width: 10px; height: 10px; border-radius: 50%; background: #f0ad4e; flex-shrink: 0; }
     .step-dot.done { background: #5cb85c; }
     .dad-progress { font-size: 12px; color: #b8860b; margin-top: 8px; font-weight: 700; }
-
-    /* Goals */
-    .goal-item {
-      padding: 13px 14px;
-      border-radius: 14px;
-      margin-bottom: 8px;
-      background: #eef3ff;
-      color: #3C3489;
-      font-weight: 700;
-      font-size: 14px;
-    }
-
-    /* AI suggestion box */
-    .ai-box {
-      background: #f8f0ff;
-      border-radius: 14px;
-      padding: 14px;
-      margin-top: 10px;
-      border: 2px solid #e0c0ff;
-      font-size: 13px;
-      color: #555;
-      line-height: 1.6;
-      display: none;
-    }
 
     /* Overlays */
     .overlay {
@@ -377,7 +356,7 @@
     }
     .support-type-btn.selected { border-color: #534AB7; background: #eef3ff; color: #3C3489; }
 
-    /* SOS overlay */
+    /* SOS */
     .sos-overlay {
       display: none;
       position: fixed;
@@ -421,21 +400,42 @@
       cursor: pointer;
     }
 
-    .footer { text-align: center; color: #bbb; font-size: 12px; margin-top: 24px; }
-
-    /* Add goal form */
-    .add-goal-input {
-      width: 100%;
-      padding: 12px 14px;
-      border-radius: 14px;
-      border: 2px solid #e0e0f0;
-      font-size: 14px;
-      outline: none;
-      color: #333;
-      margin-bottom: 10px;
+    /* AI celebration */
+    .celebration-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(83,74,183,0.85);
+      z-index: 150;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
     }
-    .add-goal-input:focus { border-color: #7c6fcd; }
-    .ai-loading { color: #7c6fcd; font-size: 13px; font-style: italic; padding: 8px 0; }
+    .celebration-overlay.active { display: flex; }
+    .celebration-card {
+      background: white;
+      border-radius: 28px;
+      padding: 32px 24px;
+      max-width: 320px;
+      width: 100%;
+      text-align: center;
+    }
+    .celebration-icon { font-size: 52px; margin-bottom: 12px; }
+    .celebration-msg { font-size: 15px; color: #555; line-height: 1.6; margin-bottom: 20px; }
+    .celebration-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 14px;
+      border: none;
+      background: linear-gradient(90deg, #534AB7, #c054b8);
+      color: white;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .saved-msg { text-align: center; color: #5cb85c; font-weight: 800; padding: 8px; font-size: 13px; display: none; }
+    .footer { text-align: center; color: #bbb; font-size: 12px; margin-top: 24px; }
   </style>
 </head>
 <body>
@@ -459,7 +459,7 @@
       <div id="sosConfirmScreen">
         <div style="font-size:48px;margin-bottom:12px">🆘</div>
         <div style="font-size:20px;font-weight:900;color:#cc0000;margin-bottom:8px">Send SOS Alert?</div>
-        <div style="font-size:14px;color:#555;margin-bottom:20px;line-height:1.6">This will notify your family that you need urgent help right now. They will come to you.</div>
+        <div style="font-size:14px;color:#555;margin-bottom:20px;line-height:1.6">This will notify your family that you need urgent help right now.</div>
         <button class="sos-confirm-btn" onclick="confirmSOS()">Yes, send alert now</button>
         <button class="sos-cancel-btn" onclick="closeSOS()">Cancel — I'm okay</button>
       </div>
@@ -479,14 +479,14 @@
     <div class="overlay-card">
       <div class="overlay-icon">🟡</div>
       <div class="overlay-title">What would help?</div>
-      <div class="overlay-message">Let Dad know what kind of support would be helpful right now.</div>
+      <div class="overlay-message">Let Dad know what kind of support would help right now.</div>
       <div class="support-type-grid">
-        <div class="support-type-btn" onclick="selectSupportType(this, 'Encouragement')">💬 Encouragement</div>
-        <div class="support-type-btn" onclick="selectSupportType(this, 'Advice')">💡 Advice</div>
-        <div class="support-type-btn" onclick="selectSupportType(this, 'Practical Help')">🤝 Practical Help</div>
-        <div class="support-type-btn" onclick="selectSupportType(this, 'Company')">🫂 Company</div>
-        <div class="support-type-btn" onclick="selectSupportType(this, 'Space')">🌿 Space</div>
-        <div class="support-type-btn" onclick="selectSupportType(this, 'Not Sure')">🤷 Not Sure</div>
+        <div class="support-type-btn" onclick="selectSupportType(this,'Encouragement')">💬 Encouragement</div>
+        <div class="support-type-btn" onclick="selectSupportType(this,'Advice')">💡 Advice</div>
+        <div class="support-type-btn" onclick="selectSupportType(this,'Practical Help')">🤝 Practical Help</div>
+        <div class="support-type-btn" onclick="selectSupportType(this,'Company')">🫂 Company</div>
+        <div class="support-type-btn" onclick="selectSupportType(this,'Space')">🌿 Space</div>
+        <div class="support-type-btn" onclick="selectSupportType(this,'Not Sure')">🤷 Not Sure</div>
       </div>
       <button class="overlay-btn" onclick="sendSupportRequest()">Send to Dad</button>
       <button class="overlay-cancel" onclick="closeOverlay('supportTypeOverlay')">Cancel</button>
@@ -498,9 +498,7 @@
     <div class="overlay-card">
       <div class="overlay-icon">💜</div>
       <div class="overlay-title">Message Sent</div>
-      <div class="overlay-message">
-        Your message has been sent to Dad. He will contact you as soon as possible.
-      </div>
+      <div class="overlay-message">Your message has been sent to Dad. He will contact you as soon as possible.</div>
       <div style="text-align:left;background:#f8f0ff;border-radius:14px;padding:14px;margin-bottom:16px">
         <div style="font-size:12px;font-weight:800;color:#7c6fcd;margin-bottom:8px">WHILE YOU WAIT</div>
         <div style="font-size:14px;color:#555;line-height:1.8">
@@ -514,131 +512,133 @@
     </div>
   </div>
 
+  <!-- Celebration Overlay -->
+  <div class="celebration-overlay" id="celebrationOverlay">
+    <div class="celebration-card">
+      <div class="celebration-icon" id="celebrationIcon">🎉</div>
+      <div style="font-size:18px;font-weight:900;color:#3C3489;margin-bottom:8px" id="celebrationTitle">Well done!</div>
+      <div class="celebration-msg" id="celebrationMsg">Loading your message...</div>
+      <button class="celebration-btn" onclick="closeCelebration()">Thanks 💜</button>
+    </div>
+  </div>
+
   <!-- App Content -->
   <div class="app-content" id="appContent">
 
-    <div class="app-header">
-      <div class="header-text">
-        <h1>Hi Jesse 💜</h1>
-        <p id="headerSubtitle">How are you feeling?</p>
+    <!-- Top Nav -->
+    <div class="top-nav">
+      <div class="nav-tab active">✨ Check In</div>
+      <a class="nav-tab" href="goals.html" id="goalsTabLink">🎯 Goals & Tasks</a>
+    </div>
+
+    <div class="page-body">
+
+      <!-- Header -->
+      <div class="app-header">
+        <div class="header-text">
+          <h1>Hi Jesse 💜</h1>
+          <p id="headerSubtitle">How are you feeling?</p>
+        </div>
+        <button class="sos-btn" onclick="openSOS()">🆘 SOS</button>
       </div>
-      <button class="sos-btn" onclick="openSOS()">🆘 SOS</button>
-    </div>
 
-    <!-- Greeting & Encouragement -->
-    <div class="greeting-banner" id="greetingBanner">
-      <div class="greeting-text" id="greetingText">Good to see you 💜</div>
-      <div class="encouragement" id="encouragementText">Loading your message...</div>
-    </div>
-
-    <!-- Dad Response -->
-    <div class="dad-response-banner" id="dadResponseBanner">
-      <div class="dr-title">👨 Dad responded</div>
-      <div class="dr-message" id="dadResponseText"></div>
-    </div>
-
-    <!-- Mood -->
-    <div class="card">
-      <div class="card-title">Mood</div>
-      <div class="btn-grid">
-        <div class="sel-btn mood-good" id="mood-Good" onclick="selectMood('Good')">
-          <span class="ico">😊</span>Good
-        </div>
-        <div class="sel-btn mood-okay" id="mood-Okay" onclick="selectMood('Okay')">
-          <span class="ico">😐</span>Okay
-        </div>
-        <div class="sel-btn mood-struggle" id="mood-Struggling" onclick="selectMood('Struggling')">
-          <span class="ico">😔</span>Struggling
-        </div>
+      <!-- Greeting -->
+      <div class="greeting-box">
+        <div class="greeting-text" id="greetingText">Good to see you 💜</div>
+        <div class="encouragement" id="encouragementText"></div>
       </div>
-    </div>
 
-    <!-- Energy -->
-    <div class="card">
-      <div class="card-title">Energy</div>
-      <div class="btn-grid">
-        <div class="sel-btn energy-high" id="energy-High" onclick="selectEnergy('High')">
-          <span class="ico">⚡</span>High
-        </div>
-        <div class="sel-btn energy-medium" id="energy-Medium" onclick="selectEnergy('Medium')">
-          <span class="ico">🔋</span>Medium
-        </div>
-        <div class="sel-btn energy-low" id="energy-Low" onclick="selectEnergy('Low')">
-          <span class="ico">🪫</span>Low
+      <!-- Dad Response -->
+      <div class="dad-response-box" id="dadResponseBox">
+        <div class="dr-title">👨 Dad responded</div>
+        <div class="dr-message" id="dadResponseText"></div>
+      </div>
+
+      <!-- Mood -->
+      <div class="card">
+        <div class="card-title">Mood</div>
+        <div class="btn-grid">
+          <div class="sel-btn mood-good" id="mood-Good" onclick="selectMood('Good')">
+            <span class="ico">😊</span>Good
+          </div>
+          <div class="sel-btn mood-okay" id="mood-Okay" onclick="selectMood('Okay')">
+            <span class="ico">😐</span>Okay
+          </div>
+          <div class="sel-btn mood-struggle" id="mood-Struggling" onclick="selectMood('Struggling')">
+            <span class="ico">😔</span>Struggling
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Support -->
-    <div class="card">
-      <div class="card-title">Support</div>
-      <button class="sup-btn sup-ok" onclick="sendOkay()">🟢 I'm okay</button>
-      <button class="sup-btn sup-support" onclick="openOverlay('supportTypeOverlay')">🟡 I could use some support</button>
-      <button class="sup-btn sup-help" onclick="sendHelpToday()">🔴 Dad, I need help today</button>
-    </div>
-
-    <!-- Daily Living -->
-    <div class="card">
-      <div class="card-title">Daily Living</div>
-      <div id="streakBadge"></div>
-      <div id="dailyLiving">Loading...</div>
-    </div>
-
-    <!-- Difficult Thing -->
-    <div class="card">
-      <div class="card-title">Difficult Thing I Did Today 💪</div>
-      <textarea class="difficult-input" id="difficultInput" rows="2"
-        placeholder="Something you did today that was hard but you did it anyway..."></textarea>
-      <button class="submit-btn" onclick="saveDifficultThing()">Record this win 🎉</button>
-      <div id="difficultSaved" style="display:none;text-align:center;color:#5cb85c;font-weight:800;padding:8px">
-        Amazing! You should be proud 💜
+      <!-- Energy -->
+      <div class="card">
+        <div class="card-title">Energy</div>
+        <div class="btn-grid">
+          <div class="sel-btn energy-high" id="energy-High" onclick="selectEnergy('High')">
+            <span class="ico">⚡</span>High
+          </div>
+          <div class="sel-btn energy-medium" id="energy-Medium" onclick="selectEnergy('Medium')">
+            <span class="ico">🔋</span>Medium
+          </div>
+          <div class="sel-btn energy-low" id="energy-Low" onclick="selectEnergy('Low')">
+            <span class="ico">🪫</span>Low
+          </div>
+        </div>
       </div>
-    </div>
 
-    <!-- Goals & Tasks -->
-    <div class="card">
-      <div class="card-title">Goals & Tasks</div>
-      <div id="goalsList"></div>
-      <div style="margin-top:12px">
-        <input class="add-goal-input" type="text" id="newGoalInput" placeholder="Add a new goal...">
-        <button class="submit-btn" onclick="addGoal()">Add Goal</button>
-        <div class="ai-loading" id="aiLoading" style="display:none">✨ Getting AI suggestions...</div>
-        <div class="ai-box" id="aiSuggestions"></div>
+      <!-- Support -->
+      <div class="card">
+        <div class="card-title">Support</div>
+        <button class="sup-btn sup-ok" onclick="sendOkay()">🟢 I'm okay</button>
+        <button class="sup-btn sup-support" onclick="openOverlay('supportTypeOverlay')">🟡 I could use some support</button>
+        <button class="sup-btn sup-help" onclick="sendHelpToday()">🔴 Dad, I need help today</button>
       </div>
-    </div>
 
-    <!-- Today's Tasks -->
-    <div class="card">
-      <div class="card-title">Today's Tasks</div>
-      <div id="tasks">Loading tasks...</div>
-    </div>
-
-    <!-- Tomorrow's Plan -->
-    <div class="card">
-      <div class="card-title">Tomorrow's Plan 🌙</div>
-      <input class="tomorrow-input" type="text" id="tomorrowInput"
-        placeholder="What's one thing you'd like to do tomorrow?">
-      <button class="submit-btn" onclick="saveTomorrowPlan()">Save my intention</button>
-      <div id="tomorrowSaved" style="display:none;text-align:center;color:#5cb85c;font-weight:800;padding:8px">
-        Saved! Something to look forward to 💜
+      <!-- Daily Living -->
+      <div class="card">
+        <div class="card-title">Daily Living</div>
+        <div id="streakBadge"></div>
+        <div id="dailyLiving">Loading...</div>
       </div>
+
+      <!-- Difficult Thing -->
+      <div class="card">
+        <div class="card-title">Difficult Thing I Did Today 💪</div>
+        <div class="inline-row">
+          <input class="inline-input" type="text" id="difficultInput"
+            placeholder="Something hard that you did anyway...">
+          <button class="inline-btn" onclick="saveDifficultThing()">Record win 🎉</button>
+        </div>
+        <div class="saved-msg" id="difficultSaved">Amazing! You should be proud 💜</div>
+      </div>
+
+      <!-- Tomorrow's Plan -->
+      <div class="card">
+        <div class="card-title">Tomorrow's Plan 🌙</div>
+        <div class="inline-row">
+          <input class="inline-input" type="text" id="tomorrowInput"
+            placeholder="One thing you'd like to do tomorrow...">
+          <button class="inline-btn" onclick="saveTomorrowPlan()">Save 💜</button>
+        </div>
+        <div class="saved-msg" id="tomorrowSaved">Saved! Something to look forward to 💜</div>
+      </div>
+
+      <!-- Dad's Corner -->
+      <div class="dad-corner-card">
+        <div class="dad-corner-title">👨 Dad's Corner</div>
+        <div id="dadCornerContent">Loading...</div>
+      </div>
+
+      <div class="footer">Daily Support App 💜</div>
+
     </div>
-
-    <!-- Dad's Corner -->
-    <div class="dad-corner-card" id="dadCornerCard">
-      <div class="dad-corner-title">👨 Dad's Corner</div>
-      <div id="dadCornerContent">Loading...</div>
-    </div>
-
-    <div class="footer">Daily Support App 💜</div>
-
   </div>
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzlTd0HcORu-R78042GmDC5buO-69X9XRB6NjPh-Qmtj_5fnA-fSKBAkXCnuufS5LU5/exec";
     const PASSWORD = "Beckett";
 
-    const ENCOURAGEMENT_MESSAGES = [
+    const ENCOURAGEMENT = [
       "Every small step forward is still progress. You're doing better than you think. 💜",
       "You showed up today — that matters more than you know. 💜",
       "It's okay to take things one moment at a time. You've got this. 💜",
@@ -650,25 +650,25 @@
     ];
 
     const DAILY_LIVING = [
-      { emoji: "🪥", label: "Brush Teeth" },
-      { emoji: "👗", label: "Get Dressed" },
-      { emoji: "💊", label: "Medication (morning)" },
-      { emoji: "🍳", label: "Breakfast" },
-      { emoji: "💧", label: "Drink Water" },
-      { emoji: "🥗", label: "Lunch" },
-      { emoji: "🌿", label: "Outside Time" },
-      { emoji: "🍽️", label: "Dinner" },
-      { emoji: "💊", label: "Medication (evening)" },
-      { emoji: "🚿", label: "Shower" },
-      { emoji: "😴", label: "Sleep" }
+      { emoji:"🪥", label:"Brush Teeth" },
+      { emoji:"👗", label:"Get Dressed" },
+      { emoji:"💊", label:"Medication (morning)" },
+      { emoji:"🍳", label:"Breakfast" },
+      { emoji:"💧", label:"Drink Water" },
+      { emoji:"🥗", label:"Lunch" },
+      { emoji:"🌿", label:"Outside Time" },
+      { emoji:"🍽️", label:"Dinner" },
+      { emoji:"💊", label:"Medication (evening)" },
+      { emoji:"🚿", label:"Shower" },
+      { emoji:"😴", label:"Sleep" }
     ];
 
-    const TASK_COLORS = [
-      { bg: "#eef3ff", color: "#3C3489" },
-      { bg: "#fdf0ff", color: "#7a1fa0" },
-      { bg: "#fff0f5", color: "#a01a4a" },
-      { bg: "#f0faf0", color: "#2d7a2d" },
-      { bg: "#fffbf0", color: "#8a5c00" }
+    const COLORS = [
+      { bg:"#eef3ff", color:"#3C3489" },
+      { bg:"#fdf0ff", color:"#7a1fa0" },
+      { bg:"#fff0f5", color:"#a01a4a" },
+      { bg:"#f0faf0", color:"#2d7a2d" },
+      { bg:"#fffbf0", color:"#8a5c00" }
     ];
 
     let selectedMood = "";
@@ -676,12 +676,12 @@
     let selectedSupportType = "";
     let appData = null;
 
-    // PIN check
     function checkPin() {
       const val = document.getElementById("pinInput").value;
       if (val === PASSWORD) {
         document.getElementById("lockScreen").style.display = "none";
         document.getElementById("appContent").style.display = "block";
+        sessionStorage.setItem("auth", "true");
         initApp();
       } else {
         document.getElementById("pinError").innerText = "Incorrect password. Try again.";
@@ -691,65 +691,51 @@
 
     async function initApp() {
       try {
-        const response = await fetch(API_URL);
-        appData = await response.json();
+        const res = await fetch(API_URL);
+        appData = await res.json();
         showGreeting();
         showDadResponse();
         renderDailyLiving();
-        loadTasks();
-        loadGoals();
         loadDadCorner();
         checkTomorrowPlan();
-      } catch(e) {
-        console.error(e);
-      }
+      } catch(e) { console.error(e); }
     }
 
-    // Greeting
     function showGreeting() {
       const hour = new Date().getHours();
-      let timeGreeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+      const time = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+      document.getElementById("greetingText").innerHTML = `${time}, Jesse 💜`;
 
-      // Check tomorrow plan from yesterday
-      let tomorrowMsg = "";
-      if (appData && appData.tomorrowPlan && appData.tomorrowPlan.length > 1) {
+      // Check yesterday's tomorrow plan
+      if (appData?.tomorrowPlan?.length > 1) {
         const plans = appData.tomorrowPlan;
         const latest = plans[plans.length - 1];
         const planDate = new Date(latest[2]);
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
         if (planDate.toDateString() === yesterday.toDateString()) {
-          tomorrowMsg = `Yesterday you planned to: <strong>${latest[3]}</strong> — you've got this! 💜`;
+          document.getElementById("encouragementText").innerHTML =
+            `Yesterday you planned to: <strong>${latest[3]}</strong> — you've got this! 💜`;
+          return;
         }
       }
-
-      document.getElementById("greetingText").innerHTML = `${timeGreeting}, Jesse 💜`;
-
-      if (tomorrowMsg) {
-        document.getElementById("encouragementText").innerHTML = tomorrowMsg;
-      } else {
-        const msg = ENCOURAGEMENT_MESSAGES[new Date().getDay() % ENCOURAGEMENT_MESSAGES.length];
-        document.getElementById("encouragementText").innerHTML = msg;
-      }
+      document.getElementById("encouragementText").innerHTML =
+        ENCOURAGEMENT[new Date().getDay() % ENCOURAGEMENT.length];
     }
 
-    // Dad response
     function showDadResponse() {
-      if (!appData || !appData.dadResponses || appData.dadResponses.length <= 1) return;
+      if (!appData?.dadResponses?.length > 1) return;
       const responses = appData.dadResponses;
       const latest = responses[responses.length - 1];
-      const responseDate = new Date(latest[3]);
-      const today = new Date();
-      if (responseDate.toDateString() === today.toDateString()) {
-        document.getElementById("dadResponseText").innerText = "👨 " + latest[2];
-        document.getElementById("dadResponseBanner").style.display = "block";
+      if (new Date(latest[3]).toDateString() === new Date().toDateString()) {
+        document.getElementById("dadResponseText").innerText = latest[2];
+        document.getElementById("dadResponseBox").style.display = "block";
       }
     }
 
-    // Mood selection
     function selectMood(value) {
       selectedMood = value;
-      document.querySelectorAll('.mood-good, .mood-okay, .mood-struggle').forEach(btn => btn.classList.remove('selected'));
+      document.querySelectorAll('.mood-good,.mood-okay,.mood-struggle').forEach(b => b.classList.remove('selected'));
       document.getElementById('mood-' + value).classList.add('selected');
       if (value === 'Struggling') {
         document.body.classList.add('struggling');
@@ -762,11 +748,10 @@
 
     function selectEnergy(value) {
       selectedEnergy = value;
-      document.querySelectorAll('.energy-high, .energy-medium, .energy-low').forEach(btn => btn.classList.remove('selected'));
+      document.querySelectorAll('.energy-high,.energy-medium,.energy-low').forEach(b => b.classList.remove('selected'));
       document.getElementById('energy-' + value).classList.add('selected');
     }
 
-    // Support
     async function sendOkay() {
       await saveCheckIn("I'm okay", "");
       await saveAlert("OKAY", "I'm okay", "");
@@ -780,9 +765,7 @@
     }
 
     async function sendSupportRequest() {
-      if (!selectedSupportType) {
-        selectedSupportType = "Not Sure";
-      }
+      if (!selectedSupportType) selectedSupportType = "Not Sure";
       await saveCheckIn("I could use some support", selectedSupportType);
       await saveAlert("SUPPORT", "I could use some support", selectedSupportType);
       closeOverlay('supportTypeOverlay');
@@ -798,16 +781,8 @@
     async function saveCheckIn(needToday, supportType) {
       try {
         await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain" },
-          body: JSON.stringify({
-            action: "checkIn",
-            userId: 2,
-            mood: selectedMood || "Not set",
-            energy: selectedEnergy || "Not set",
-            needToday: needToday,
-            supportType: supportType
-          })
+          method:"POST", headers:{"Content-Type":"text/plain"},
+          body: JSON.stringify({ action:"checkIn", userId:2, mood:selectedMood||"Not set", energy:selectedEnergy||"Not set", needToday, supportType })
         });
       } catch(e) {}
     }
@@ -815,88 +790,64 @@
     async function saveAlert(alertType, message, supportType) {
       try {
         await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain" },
-          body: JSON.stringify({
-            action: "supportAlert",
-            userId: 2,
-            alertType: alertType,
-            message: message,
-            supportType: supportType
-          })
+          method:"POST", headers:{"Content-Type":"text/plain"},
+          body: JSON.stringify({ action:"supportAlert", userId:2, alertType, message, supportType })
         });
       } catch(e) {}
     }
 
-    // SOS
     function openSOS() {
       document.getElementById("sosConfirmScreen").style.display = "block";
       document.getElementById("sosSentScreen").style.display = "none";
       document.getElementById("sosOverlay").classList.add("active");
     }
-
-    function closeSOS() {
-      document.getElementById("sosOverlay").classList.remove("active");
-    }
-
+    function closeSOS() { document.getElementById("sosOverlay").classList.remove("active"); }
     async function confirmSOS() {
       await saveAlert("SOS", "🆘 Jesse has sent an SOS and needs urgent help right now.", "");
       document.getElementById("sosConfirmScreen").style.display = "none";
       document.getElementById("sosSentScreen").style.display = "block";
     }
 
-    // Overlays
     function openOverlay(id) { document.getElementById(id).classList.add("active"); }
     function closeOverlay(id) { document.getElementById(id).classList.remove("active"); }
 
     // Daily Living
     function renderDailyLiving() {
-      const completedToday = [];
-      if (appData && appData.dailyLiving && appData.dailyLiving.length > 1) {
+      const completed = [];
+      if (appData?.dailyLiving?.length > 1) {
         const today = new Date().toDateString();
         appData.dailyLiving.forEach(row => {
-          if (row[1] == 2 && new Date(row[2]).toDateString() === today && row[4] === true) {
-            completedToday.push(row[3]);
-          }
+          if (row[1] == 2 && new Date(row[2]).toDateString() === today && row[4] === true)
+            completed.push(row[3]);
         });
       }
-
-      // Streak
       const streak = calculateStreak();
       if (streak > 1) {
         document.getElementById("streakBadge").innerHTML =
           `<div class="streak-badge">🔥 ${streak} day streak!</div>`;
       }
-
       let html = "";
       DAILY_LIVING.forEach((item, idx) => {
-        const done = completedToday.includes(item.label);
-        const c = TASK_COLORS[idx % TASK_COLORS.length];
+        const done = completed.includes(item.label);
+        const c = COLORS[idx % COLORS.length];
         html += `
-          <div class="dl-item ${done ? 'completed' : ''}" style="background:${c.bg};color:${c.color}">
-            <input type="checkbox" ${done ? 'checked' : ''}
-              onchange="toggleDailyLiving('${item.label}', this.checked)">
+          <div class="dl-item ${done?'completed':''}" style="background:${c.bg};color:${c.color}">
+            <input type="checkbox" ${done?'checked':''} onchange="toggleDailyLiving('${item.label}',this.checked)">
             ${item.emoji} ${item.label}
-          </div>
-        `;
+          </div>`;
       });
       document.getElementById("dailyLiving").innerHTML = html;
     }
 
     function calculateStreak() {
-      if (!appData || !appData.dailyLiving || appData.dailyLiving.length <= 1) return 0;
+      if (!appData?.dailyLiving?.length > 1) return 0;
       let streak = 0;
-      const checkDate = new Date();
-      checkDate.setDate(checkDate.getDate() - 1);
-      for (let d = 0; d < 30; d++) {
-        const dateStr = checkDate.toDateString();
-        const dayEntries = appData.dailyLiving.filter(row =>
-          row[1] == 2 && new Date(row[2]).toDateString() === dateStr && row[4] === true
-        );
-        if (dayEntries.length >= 5) {
-          streak++;
-          checkDate.setDate(checkDate.getDate() - 1);
-        } else break;
+      const d = new Date();
+      d.setDate(d.getDate() - 1);
+      for (let i = 0; i < 30; i++) {
+        const ds = d.toDateString();
+        const entries = appData.dailyLiving.filter(r => r[1]==2 && new Date(r[2]).toDateString()===ds && r[4]===true);
+        if (entries.length >= 5) { streak++; d.setDate(d.getDate()-1); } else break;
       }
       return streak;
     }
@@ -904,22 +855,19 @@
     async function toggleDailyLiving(activity, completed) {
       try {
         await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain" },
-          body: JSON.stringify({ action: "saveDailyLiving", userId: 2, activity: activity, completed: completed })
+          method:"POST", headers:{"Content-Type":"text/plain"},
+          body: JSON.stringify({ action:"saveDailyLiving", userId:2, activity, completed })
         });
       } catch(e) {}
     }
 
-    // Difficult thing
     async function saveDifficultThing() {
       const desc = document.getElementById("difficultInput").value.trim();
       if (!desc) return;
       try {
         await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain" },
-          body: JSON.stringify({ action: "saveDifficultThing", userId: 2, description: desc })
+          method:"POST", headers:{"Content-Type":"text/plain"},
+          body: JSON.stringify({ action:"saveDifficultThing", userId:2, description:desc })
         });
       } catch(e) {}
       document.getElementById("difficultInput").value = "";
@@ -927,105 +875,13 @@
       setTimeout(() => document.getElementById("difficultSaved").style.display = "none", 3000);
     }
 
-    // Tasks
-    async function loadTasks() {
-      if (!appData) return;
-      const tasks = appData.tasks;
-      let html = "";
-      let count = 0;
-      for (let i = 1; i < tasks.length; i++) {
-        const row = tasks[i];
-        if (row[1] == 2 && row[6] !== "Completed") {
-          const c = TASK_COLORS[count % TASK_COLORS.length];
-          html += `
-            <div class="task-item" style="background:${c.bg};color:${c.color}">
-              <input type="checkbox" onchange="completeTask(${row[0]})">
-              ${row[4]}
-            </div>
-          `;
-          count++;
-        }
-      }
-      if (html === "") html = "<p style='text-align:center;color:#5cb85c;font-weight:800;padding:12px'>🎉 All tasks completed!</p>";
-      document.getElementById("tasks").innerHTML = html;
-    }
-
-    async function completeTask(taskId) {
-      try {
-        await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain" },
-          body: JSON.stringify({ action: "completeTask", taskId: taskId })
-        });
-      } catch(e) {}
-      setTimeout(() => location.reload(), 1500);
-    }
-
-    // Goals
-    function loadGoals() {
-      if (!appData) return;
-      const goals = appData.goals;
-      let html = "";
-      for (let i = 1; i < goals.length; i++) {
-        if (goals[i][3] === "Active") {
-          html += `<div class="goal-item">🎯 ${goals[i][2]}</div>`;
-        }
-      }
-      if (!html) html = "<p style='color:#bbb;font-size:13px'>No goals yet — add one below</p>";
-      document.getElementById("goalsList").innerHTML = html;
-    }
-
-    async function addGoal() {
-      const goal = document.getElementById("newGoalInput").value.trim();
-      if (!goal) return;
-      try {
-        await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain" },
-          body: JSON.stringify({ action: "saveGoal", userId: 2, goal: goal })
-        });
-      } catch(e) {}
-      document.getElementById("aiLoading").style.display = "block";
-      document.getElementById("aiSuggestions").style.display = "none";
-      await getAISuggestions(goal);
-      document.getElementById("newGoalInput").value = "";
-    }
-
-    async function getAISuggestions(goal) {
-      try {
-        const response = await fetch("https://api.anthropic.com/v1/messages", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            model: "claude-sonnet-4-20250514",
-            max_tokens: 1000,
-            messages: [{
-              role: "user",
-              content: `You are a warm, encouraging support assistant helping someone called Jesse who is working on their wellbeing and goals. Jesse has set this goal: "${goal}". Please suggest 5 simple, practical, achievable steps to help Jesse work toward this goal. Keep each step short (one sentence), positive, and encouraging. Format as a numbered list. Don't use complex language.`
-            }]
-          })
-        });
-        const data = await response.json();
-        const text = data.content[0].text;
-        document.getElementById("aiLoading").style.display = "none";
-        document.getElementById("aiSuggestions").style.display = "block";
-        document.getElementById("aiSuggestions").innerHTML =
-          "<strong style='color:#7c6fcd'>✨ Here are some ideas to get started:</strong><br><br>" +
-          text.replace(/\n/g, "<br>");
-      } catch(e) {
-        document.getElementById("aiLoading").style.display = "none";
-      }
-    }
-
-    // Tomorrow plan
     async function saveTomorrowPlan() {
       const intention = document.getElementById("tomorrowInput").value.trim();
       if (!intention) return;
       try {
         await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain" },
-          body: JSON.stringify({ action: "saveTomorrowPlan", userId: 2, intention: intention })
+          method:"POST", headers:{"Content-Type":"text/plain"},
+          body: JSON.stringify({ action:"saveTomorrowPlan", userId:2, intention })
         });
       } catch(e) {}
       document.getElementById("tomorrowInput").value = "";
@@ -1034,41 +890,75 @@
     }
 
     function checkTomorrowPlan() {
-      if (!appData || !appData.tomorrowPlan || appData.tomorrowPlan.length <= 1) return;
+      if (!appData?.tomorrowPlan?.length > 1) return;
       const plans = appData.tomorrowPlan;
       const latest = plans[plans.length - 1];
-      const planDate = new Date(latest[2]);
-      const today = new Date();
-      if (planDate.toDateString() === today.toDateString()) {
+      if (new Date(latest[2]).toDateString() === new Date().toDateString()) {
         document.getElementById("tomorrowInput").value = latest[3];
       }
     }
 
-    // Dad's corner
     function loadDadCorner() {
-      if (!appData || !appData.dadCorner || appData.dadCorner.length <= 1) {
+      if (!appData?.dadCorner?.length > 1) {
         document.getElementById("dadCornerContent").innerHTML =
           "<p style='color:#b8860b;font-size:13px'>Dad hasn't set a focus this week yet.</p>";
         return;
       }
       const latest = appData.dadCorner[appData.dadCorner.length - 1];
-      const focus = latest[3];
       const steps = JSON.parse(latest[4] || '[]');
       const completed = JSON.parse(latest[5] || '[]');
-      let html = `<div class="dad-corner-focus">🎯 ${focus}</div>`;
+      let html = `<div class="dad-corner-focus">🎯 ${latest[3]}</div>`;
       steps.forEach(step => {
         const done = completed.includes(step);
         html += `
-          <div class="dad-corner-step ${done ? 'done' : ''}">
-            <div class="step-dot ${done ? 'done' : ''}"></div>
-            ${step}
-          </div>
-        `;
+          <div class="dad-corner-step ${done?'done':''}">
+            <div class="step-dot ${done?'done':''}"></div>${step}
+          </div>`;
       });
-      const progress = steps.length > 0 ? `${completed.length} of ${steps.length} steps done` : "";
-      html += `<div class="dad-progress">${progress}</div>`;
+      if (steps.length > 0) {
+        html += `<div class="dad-progress">${completed.length} of ${steps.length} steps done</div>`;
+      }
       document.getElementById("dadCornerContent").innerHTML = html;
     }
+
+    // AI Celebration
+    async function showCelebration(type, context) {
+      document.getElementById("celebrationIcon").innerText = type === "goal" ? "🏆" : "🎉";
+      document.getElementById("celebrationTitle").innerText = type === "goal" ? "Goal Completed!" : "Task Done!";
+      document.getElementById("celebrationMsg").innerText = "Getting your message...";
+      document.getElementById("celebrationOverlay").classList.add("active");
+      try {
+        const prompt = type === "goal"
+          ? `Write a warm, personal 2-3 sentence celebration message for Jesse who just completed her goal: "${context}". Use her name. Be genuine and encouraging. No emojis in the text itself.`
+          : `Write a warm, personal 1-2 sentence encouraging message for Jesse who just completed a task: "${context}". Use her name. Be genuine and encouraging. No emojis in the text itself.`;
+        const res = await fetch("https://api.anthropic.com/v1/messages", {
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body: JSON.stringify({
+            model:"claude-sonnet-4-20250514",
+            max_tokens:200,
+            messages:[{ role:"user", content:prompt }]
+          })
+        });
+        const data = await res.json();
+        document.getElementById("celebrationMsg").innerText = data.content[0].text;
+      } catch(e) {
+        document.getElementById("celebrationMsg").innerText = "Jesse, you did it. Every step you take is proof of your strength. 💜";
+      }
+    }
+
+    function closeCelebration() {
+      document.getElementById("celebrationOverlay").classList.remove("active");
+    }
+
+    // Check auth on load
+    window.onload = function() {
+      if (sessionStorage.getItem("auth") === "true") {
+        document.getElementById("lockScreen").style.display = "none";
+        document.getElementById("appContent").style.display = "block";
+        initApp();
+      }
+    };
   </script>
 </body>
 </html>
