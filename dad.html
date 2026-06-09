@@ -13,20 +13,55 @@
       color: #333;
       padding: 24px 16px 48px;
     }
-    .app-header {
+    .lock-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .lock-card {
+      background: white;
+      border-radius: 28px;
+      padding: 36px 28px;
+      box-shadow: 0 4px 24px rgba(83,74,183,0.12);
+      width: 100%;
+      max-width: 320px;
       text-align: center;
-      margin-bottom: 20px;
     }
-    .app-header h1 {
-      font-size: 28px;
-      font-weight: 800;
+    .lock-icon { font-size: 48px; margin-bottom: 12px; }
+    .lock-title { font-size: 22px; font-weight: 800; color: #3C3489; margin-bottom: 6px; }
+    .lock-subtitle { font-size: 14px; color: #7c6fcd; margin-bottom: 24px; }
+    .lock-input {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 2.5px solid #e0e0f0;
+      font-size: 16px;
+      text-align: center;
+      outline: none;
       color: #3C3489;
+      margin-bottom: 14px;
+      letter-spacing: 2px;
     }
-    .app-header p {
-      font-size: 15px;
-      color: #7c6fcd;
-      margin-top: 4px;
+    .lock-input:focus { border-color: #7c6fcd; }
+    .lock-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 14px;
+      border: none;
+      background: linear-gradient(90deg, #534AB7, #c054b8);
+      color: white;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
     }
+    .lock-error { color: #e05c5c; font-size: 13px; margin-top: 10px; font-weight: 600; min-height: 20px; }
+    .app-content { display: none; }
+    .app-header { text-align: center; margin-bottom: 20px; }
+    .app-header h1 { font-size: 28px; font-weight: 800; color: #3C3489; }
+    .app-header p { font-size: 15px; color: #7c6fcd; margin-top: 4px; }
     .card {
       background: white;
       border-radius: 22px;
@@ -53,103 +88,95 @@
     .badge-okay { background: linear-gradient(90deg, #d4f5d4, #b8edb8); color: #1a6b1a; }
     .badge-support { background: linear-gradient(90deg, #fff0cc, #ffe8a0); color: #7a5200; }
     .badge-help { background: linear-gradient(90deg, #ffd6d6, #ffb8b8); color: #8a1a1a; }
-    .checkin-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-    }
-    .checkin-box {
-      border-radius: 14px;
-      padding: 14px 8px;
-      text-align: center;
-    }
+    .checkin-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .checkin-box { border-radius: 14px; padding: 14px 8px; text-align: center; }
     .checkin-box:nth-child(1) { background: #fdf0ff; }
     .checkin-box:nth-child(2) { background: #eef3ff; }
     .checkin-box:nth-child(3) { background: #f0faf0; }
-    .checkin-box .label {
-      font-size: 10px;
-      font-weight: 800;
-      color: #bbb;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 6px;
-    }
-    .checkin-box .value {
-      font-size: 15px;
-      font-weight: 800;
-      color: #3C3489;
-    }
-    .alert-item {
-      padding: 13px 14px;
-      border-radius: 14px;
-      margin-bottom: 8px;
-      font-weight: 700;
-      font-size: 15px;
-    }
+    .checkin-box .label { font-size: 10px; font-weight: 800; color: #bbb; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .checkin-box .value { font-size: 15px; font-weight: 800; color: #3C3489; }
+    .alert-item { padding: 13px 14px; border-radius: 14px; margin-bottom: 8px; font-weight: 700; font-size: 15px; }
     .alert-item:last-child { margin-bottom: 0; }
     .alert-okay { background: #f0faf0; color: #1a6b1a; }
     .alert-support { background: #fffbf0; color: #7a5200; }
     .alert-help { background: #fff5f5; color: #8a1a1a; }
-    .alert-date {
-      font-size: 11px;
-      font-weight: 400;
-      color: #999;
-      margin-top: 3px;
-    }
-    .time-tag {
-      font-size: 12px;
-      color: #bbb;
-      margin-top: 8px;
-    }
-    .footer {
-      text-align: center;
-      color: #bbb;
-      font-size: 12px;
-      margin-top: 24px;
-    }
+    .alert-date { font-size: 11px; font-weight: 400; color: #999; margin-top: 3px; }
+    .time-tag { font-size: 12px; color: #bbb; margin-top: 8px; }
+    .footer { text-align: center; color: #bbb; font-size: 12px; margin-top: 24px; }
   </style>
 </head>
 <body>
 
-  <div class="app-header">
-    <h1>Hi Dad 👋</h1>
-    <p>Here's how Jesse is doing</p>
-  </div>
-
-  <div class="card">
-    <div class="card-title">Latest Support Request</div>
-    <div id="status"><span style="color:#ccc">No alerts yet</span></div>
-    <div id="latestTime" class="time-tag"></div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">Latest Check-In</div>
-    <div class="checkin-grid">
-      <div class="checkin-box">
-        <div class="label">Mood</div>
-        <div class="value" id="mood">—</div>
-      </div>
-      <div class="checkin-box">
-        <div class="label">Energy</div>
-        <div class="value" id="energy">—</div>
-      </div>
-      <div class="checkin-box">
-        <div class="label">Need</div>
-        <div class="value" id="needToday">—</div>
-      </div>
+  <!-- Lock Screen -->
+  <div class="lock-screen" id="lockScreen">
+    <div class="lock-card">
+      <div class="lock-icon">👋</div>
+      <div class="lock-title">Dad Dashboard</div>
+      <div class="lock-subtitle">Enter your password to continue</div>
+      <input class="lock-input" type="password" id="pinInput" placeholder="Password" onkeydown="if(event.key==='Enter') checkPin()">
+      <button class="lock-btn" onclick="checkPin()">Enter</button>
+      <div class="lock-error" id="pinError"></div>
     </div>
-    <div id="checkinTime" class="time-tag"></div>
   </div>
 
-  <div class="card">
-    <div class="card-title">Recent Alerts</div>
-    <div id="alerts"><span style="color:#ccc">No alerts yet</span></div>
-  </div>
+  <!-- App Content -->
+  <div class="app-content" id="appContent">
 
-  <div class="footer">Dad Dashboard 💜 · Refreshes every 30 seconds</div>
+    <div class="app-header">
+      <h1>Hi Dad 👋</h1>
+      <p>Here's how Jesse is doing</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Latest Support Request</div>
+      <div id="status"><span style="color:#ccc">No alerts yet</span></div>
+      <div id="latestTime" class="time-tag"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Latest Check-In</div>
+      <div class="checkin-grid">
+        <div class="checkin-box">
+          <div class="label">Mood</div>
+          <div class="value" id="mood">—</div>
+        </div>
+        <div class="checkin-box">
+          <div class="label">Energy</div>
+          <div class="value" id="energy">—</div>
+        </div>
+        <div class="checkin-box">
+          <div class="label">Need</div>
+          <div class="value" id="needToday">—</div>
+        </div>
+      </div>
+      <div id="checkinTime" class="time-tag"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Recent Alerts</div>
+      <div id="alerts"><span style="color:#ccc">No alerts yet</span></div>
+    </div>
+
+    <div class="footer">Dad Dashboard 💜 · Refreshes every 30 seconds</div>
+
+  </div>
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzlTd0HcORu-R78042GmDC5buO-69X9XRB6NjPh-Qmtj_5fnA-fSKBAkXCnuufS5LU5/exec";
+    const PASSWORD = "Beckett";
+
+    function checkPin() {
+      const val = document.getElementById("pinInput").value;
+      if (val === PASSWORD) {
+        document.getElementById("lockScreen").style.display = "none";
+        document.getElementById("appContent").style.display = "block";
+        loadDashboard();
+        setInterval(loadDashboard, 30000);
+      } else {
+        document.getElementById("pinError").innerText = "Incorrect password. Try again.";
+        document.getElementById("pinInput").value = "";
+      }
+    }
 
     function getAlertLabel(type) {
       if (type === "OKAY") return "🟢 I'm okay";
@@ -210,9 +237,6 @@
         document.getElementById("status").innerHTML = "Unable to load";
       }
     }
-
-    loadDashboard();
-    setInterval(loadDashboard, 30000);
   </script>
 </body>
 </html>
