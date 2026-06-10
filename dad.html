@@ -627,16 +627,13 @@
 
   function renderDailyLiving() {
       const dl = appData.dailyLiving || [];
-   const today = new Date().toLocaleDateString('en-CA', { timeZone:'Australia/Perth' });
+ const now = new Date();
+      const todayNum = Number(now.toLocaleDateString('en-CA', { timeZone:'Australia/Perth' }).replace(/-/g, ''));
       const ITEMS = ["Brush Teeth","Get Dressed","Medication (morning)","Breakfast","Drink Water","Lunch","Outside Time","Dinner","Medication (evening)","Shower","Sleep"];
       const completed = [];
       dl.forEach(row => {
         const isDone = row[4] === true || String(row[4]).toUpperCase() === 'TRUE';
-        const cellDate = row[2];
-        const rowDate = cellDate instanceof Date
-          ? cellDate.toISOString().substring(0, 10)
-          : String(cellDate).substring(0, 10);
-        if (row[1] == 2 && isDone && rowDate === today) {
+        if (row[1] == 2 && isDone && Number(row[2]) === todayNum) {
           completed.push(row[3]);
         }
       });
