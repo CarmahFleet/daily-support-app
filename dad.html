@@ -630,8 +630,8 @@
       const today = new Date().toLocaleDateString('en-AU', { timeZone:'Australia/Perth' });
       const ITEMS = ["Brush Teeth","Get Dressed","Medication (morning)","Breakfast","Drink Water","Lunch","Outside Time","Dinner","Medication (evening)","Shower","Sleep"];
       const completed = [];
-      dl.forEach(row => {
-        if (row[1] == 2 && row[4] === true) {
+    dl.forEach(row => {
+        if (row[1] == 2 && (row[4] === true || row[4] === "TRUE" || row[4] === "true")) {
           if (new Date(row[2]).toLocaleDateString('en-AU', { timeZone:'Australia/Perth' }) === today) {
             completed.push(row[3]);
           }
