@@ -894,12 +894,14 @@ window.onload = function() {
 
     async function saveCheckIn(needToday, supportType) {
       try {
-        await fetch(API_URL, {
+     await fetch(API_URL, {
           method:"POST", headers:{"Content-Type":"text/plain"},
-          body: JSON.stringify({ action:"checkIn", userId:2, mood:selectedMood||"Not set", energy:selectedEnergy||"Not set", needToday, supportType })
+          body: JSON.stringify({ action:"saveDailyLiving", userId:2, activity, completed })
         });
-      } catch(e) {}
-    }
+    await refreshData();
+    renderDailyLiving();
+  } catch(e) {}
+}
 
     async function saveAlert(alertType, message, supportType) {
       try {
@@ -929,12 +931,12 @@ window.onload = function() {
 
     // ─── DAILY LIVING ────────────────────────────────────────
 
-    function renderDailyLiving() {
+   function renderDailyLiving() {
       const completed = [];
       if (appData?.dailyLiving?.length > 1) {
-        const today = new Date().toDateString();
+        const today = new Date().toLocaleDateString('en-AU', { timeZone:'Australia/Perth' });
         appData.dailyLiving.forEach(row => {
-          if (row[1] == 2 && new Date(row[2]).toDateString() === today && row[4] === true)
+          if (row[1] == 2 && new Date(row[2]).toLocaleDateString('en-AU', { timeZone:'Australia/Perth' }) === today && row[4] === true)
             completed.push(row[3]);
         });
       }
