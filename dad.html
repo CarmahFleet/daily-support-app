@@ -630,11 +630,11 @@
       const today = new Date().toLocaleDateString('en-AU', { timeZone:'Australia/Perth' });
       const ITEMS = ["Brush Teeth","Get Dressed","Medication (morning)","Breakfast","Drink Water","Lunch","Outside Time","Dinner","Medication (evening)","Shower","Sleep"];
       const completed = [];
-    dl.forEach(row => {
-        if (row[1] == 2 && (row[4] === true || row[4] === "TRUE" || row[4] === "true")) {
-          if (new Date(row[2]).toLocaleDateString('en-AU', { timeZone:'Australia/Perth' }) === today) {
-            completed.push(row[3]);
-          }
+   dl.forEach(row => {
+        const rowDate = new Date(row[2]).toLocaleDateString('en-AU', { timeZone:'Australia/Perth' });
+        const isDone = row[4] === true || String(row[4]).toUpperCase() === 'TRUE';
+        if (row[1] == 2 && isDone && rowDate === today) {
+          completed.push(row[3]);
         }
       });
       let html = "";
