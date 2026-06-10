@@ -931,11 +931,14 @@ window.onload = function() {
 
    function renderDailyLiving() {
       const completed = [];
-      if (appData?.dailyLiving?.length > 1) {
-        const today = new Date().toLocaleDateString('en-AU', { timeZone:'Australia/Perth' });
-     appData.dailyLiving.forEach(row => {
-          const rowDate = new Date(row[2]).toLocaleDateString('en-AU', { timeZone:'Australia/Perth' });
+    if (appData?.dailyLiving?.length > 1) {
+        const today = new Date().toLocaleDateString('en-CA', { timeZone:'Australia/Perth' });
+        appData.dailyLiving.forEach(row => {
           const isDone = row[4] === true || String(row[4]).toUpperCase() === 'TRUE';
+          const cellDate = row[2];
+          const rowDate = cellDate instanceof Date
+            ? cellDate.toISOString().substring(0, 10)
+            : String(cellDate).substring(0, 10);
           if (row[1] == 2 && rowDate === today && isDone)
             completed.push(row[3]);
         });
