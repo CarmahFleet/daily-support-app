@@ -625,15 +625,14 @@
       document.getElementById("checkinTime").innerHTML = "Updated: " + latest[2];
     }
 
-    function renderDailyLiving() {
+  function renderDailyLiving() {
       const dl = appData.dailyLiving || [];
-      const today = new Date().toLocaleDateString('en-AU', { timeZone: 'Australia/Perth', day:'2-digit', month:'2-digit', year:'numeric' });
+      const today = new Date().toLocaleDateString('en-AU', { timeZone:'Australia/Perth' });
       const ITEMS = ["Brush Teeth","Get Dressed","Medication (morning)","Breakfast","Drink Water","Lunch","Outside Time","Dinner","Medication (evening)","Shower","Sleep"];
       const completed = [];
       dl.forEach(row => {
         if (row[1] == 2 && row[4] === true) {
-          const rowDate = row[2].toString();
-          if (rowDate.includes(today.split('/')[0]) && rowDate.includes(today.split('/')[1])) {
+          if (new Date(row[2]).toLocaleDateString('en-AU', { timeZone:'Australia/Perth' }) === today) {
             completed.push(row[3]);
           }
         }
