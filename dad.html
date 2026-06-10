@@ -492,7 +492,7 @@
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzlTd0HcORu-R78042GmDC5buO-69X9XRB6NjPh-Qmtj_5fnA-fSKBAkXCnuufS5LU5/exec";
     const PASSWORD = "Beckett";
-    const TIMEOUT_MS = 60 * 60 * 1000;
+    const TIMEOUT_MS = 60 * 60 * 1000; // 1 hour
 
     let appData = null;
     let latestAlertId = null;
@@ -500,33 +500,24 @@
     let deleteTarget = null;
     let currentDadCorner = null;
     let activityTimer = null;
-    let authed = false;
 
     // ─── AUTH ────────────────────────────────────────────────
 
-ffunction checkPin() {
-  const val = document.getElementById("pinInput").value;
-  if (val === PASSWORD) {
-    authed = true;
-    sessionStorage.setItem("dadAuth", Date.now().toString());
-    document.getElementById("pinInput").value = "";
-    document.getElementById("pinError").innerText = "";
-    document.getElementById("lockScreen").style.display = "none";
-    document.getElementById("appContent").style.display = "block";
-    resetTimer();
-    loadDashboard();
-    setInterval(loadDashboard, 30000);
-  } else {
-    document.getElementById("pinError").innerText = "Incorrect password. Try again.";
-    document.getElementById("pinInput").value = "";
-  }
-}
-
-    function showApp() {
-      document.getElementById("lockScreen").style.display = "none";
-      document.getElementById("appContent").style.display = "block";
-      resetTimer();
-      loadDashboard();
+    function checkPin() {
+      const val = document.getElementById("pinInput").value;
+      if (val === PASSWORD) {
+        sessionStorage.setItem("dadAuth", Date.now().toString());
+        document.getElementById("pinInput").value = "";
+        document.getElementById("pinError").innerText = "";
+        document.getElementById("lockScreen").style.display = "none";
+        document.getElementById("appContent").style.display = "block";
+        resetTimer();
+        loadDashboard();
+        setInterval(loadDashboard, 30000);
+      } else {
+        document.getElementById("pinError").innerText = "Incorrect password. Try again.";
+        document.getElementById("pinInput").value = "";
+      }
     }
 
     function resetTimer() {
@@ -535,26 +526,25 @@ ffunction checkPin() {
     }
 
     function lockApp() {
-      authed = false;
+      sessionStorage.removeItem("dadAuth");
       document.getElementById("appContent").style.display = "none";
       document.getElementById("lockScreen").style.display = "flex";
       document.getElementById("pinInput").value = "";
       document.getElementById("pinError").innerText = "";
     }
 
-window.onload = function() {
-  const savedAuth = sessionStorage.getItem("dadAuth");
-  if (savedAuth && (Date.now() - parseInt(savedAuth)) < TIMEOUT_MS) {
-    authed = true;
-    document.getElementById("lockScreen").style.display = "none";
-    document.getElementById("appContent").style.display = "block";
-    resetTimer();
-    loadDashboard();
-    setInterval(loadDashboard, 30000);
-  }
-  document.addEventListener("touchstart", resetTimer);
-  document.addEventListener("click", resetTimer);
-};
+    window.onload = function() {
+      const savedAuth = sessionStorage.getItem("dadAuth");
+      if (savedAuth && (Date.now() - parseInt(savedAuth)) < TIMEOUT_MS) {
+        document.getElementById("lockScreen").style.display = "none";
+        document.getElementById("appContent").style.display = "block";
+        resetTimer();
+        loadDashboard();
+        setInterval(loadDashboard, 30000);
+      }
+      document.addEventListener("touchstart", resetTimer);
+      document.addEventListener("click", resetTimer);
+    };
 
     // ─── DASHBOARD ───────────────────────────────────────────
 
@@ -568,9 +558,8 @@ window.onload = function() {
         renderDifficultThing();
         renderDadCorner();
         renderDadArchive();
-        setTimeout(loadDashboard, 30000);
       } catch(e) {
-        setTimeout(loadDashboard, 30000);
+        document.getElementById("latestAlert").innerHTML = "Unable to load";
       }
     }
 
@@ -638,11 +627,16 @@ window.onload = function() {
 
     function renderDailyLiving() {
       const dl = appData.dailyLiving || [];
-      const today = new Date().toDateString();
+      const today = new Date().toLocaleDateString('en-AU', { timeZone: 'Australia/Perth', day:'2-digit', month:'2-digit', year:'numeric' });
       const ITEMS = ["Brush Teeth","Get Dressed","Medication (morning)","Breakfast","Drink Water","Lunch","Outside Time","Dinner","Medication (evening)","Shower","Sleep"];
       const completed = [];
       dl.forEach(row => {
-        if (row[1] == 2 && new Date(row[2]).toDateString() === today && row[4] === true) completed.push(row[3]);
+        if (row[1] == 2 && row[4] === true) {
+          const rowDate = row[2].toString();
+          if (rowDate.includes(today.split('/')[0]) && rowDate.includes(today.split('/')[1])) {
+            completed.push(row[3]);
+          }
+        }
       });
       let html = "";
       ITEMS.forEach(item => {
@@ -654,10 +648,11 @@ window.onload = function() {
 
     function renderDifficultThing() {
       const dt = appData.difficultThings || [];
-      const today = new Date().toDateString();
+      const today = new Date().toLocaleDateString('en-AU', { timeZone: 'Australia/Perth', day:'2-digit', month:'2-digit', year:'numeric' });
       let html = "";
       for (let i = dt.length - 1; i >= 1; i--) {
-        if (new Date(dt[i][2]).toDateString() === today && dt[i][1] == 2) {
+        const rowDate = dt[i][2].toString();
+        if (dt[i][1] == 2 && rowDate.includes(today.split('/')[0]) && rowDate.includes(today.split('/')[1])) {
           html += `<div class="difficult-item">💪 ${dt[i][3]}</div>`;
         }
       }
@@ -723,11 +718,7 @@ window.onload = function() {
       section.style.display = "block";
       let html = "";
       completed.reverse().forEach(item => {
-        html += `
-          <div class="archive-item">
-            🏆 ${item[3]}
-            <span class="archive-date">${formatDate(item[7])}</span>
-          </div>`;
+        html += `<div class="archive-item">🏆 ${item[3]}<span class="archive-date">${item[7] || ''}</span></div>`;
       });
       document.getElementById("dadArchiveBody").innerHTML = html;
     }
@@ -749,10 +740,7 @@ window.onload = function() {
         });
       } catch(e) {}
       await showCelebration(currentDadCorner[3]);
-      const res = await fetch(API_URL);
-      appData = await res.json();
-      renderDadCorner();
-      renderDadArchive();
+      await loadDashboard();
     }
 
     function openEditFocus() {
@@ -792,9 +780,7 @@ window.onload = function() {
       }
       closeOverlay("editOverlay");
       editTarget = null;
-      const res = await fetch(API_URL);
-      appData = await res.json();
-      renderDadCorner();
+      await loadDashboard();
     }
 
     function openDeleteStep(idx, step) {
@@ -815,9 +801,7 @@ window.onload = function() {
       });
       closeOverlay("confirmDeleteOverlay");
       deleteTarget = null;
-      const res = await fetch(API_URL);
-      appData = await res.json();
-      renderDadCorner();
+      await loadDashboard();
     }
 
     async function tickDadStep(step, checked) {
@@ -828,9 +812,7 @@ window.onload = function() {
           body: JSON.stringify({ action:"updateDadCornerStep", userId:1, step })
         });
       } catch(e) {}
-      const res = await fetch(API_URL);
-      appData = await res.json();
-      renderDadCorner();
+      setTimeout(loadDashboard, 1000);
     }
 
     async function saveDadCorner() {
@@ -847,10 +829,7 @@ window.onload = function() {
           body: JSON.stringify({ action:"saveDadCorner", userId:1, week: getWeekString(), focus, steps, completedSteps:[] })
         });
       } catch(e) {}
-      const res = await fetch(API_URL);
-      appData = await res.json();
-      renderDadCorner();
-      renderDadArchive();
+      await loadDashboard();
     }
 
     function getWeekString() {
@@ -920,13 +899,6 @@ window.onload = function() {
 
     function escStr(str) {
       return String(str).replace(/'/g,"\\'").replace(/"/g,"&quot;");
-    }
-
-    function formatDate(dateStr) {
-      if (!dateStr) return "";
-      try {
-        return new Date(dateStr).toLocaleDateString('en-AU', { day:'numeric', month:'short', year:'numeric' });
-      } catch(e) { return ""; }
     }
   </script>
 </body>
