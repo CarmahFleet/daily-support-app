@@ -609,7 +609,7 @@
           <div class="alert-item ${getAlertItemClass(alerts[i][3])}">
             ${getAlertLabel(alerts[i][3])}
             ${alerts[i][5] ? `<span class="support-type-tag" style="font-size:11px">${alerts[i][5]}</span>` : ''}
-            <div class="alert-date">${alerts[i][2]}</div>
+           <div class="alert-date">${new Date(alerts[i][2]).toLocaleString('en-AU', { timeZone:'Australia/Perth', day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })}</div>
           </div>`;
       }
       document.getElementById("recentAlerts").innerHTML = html;
