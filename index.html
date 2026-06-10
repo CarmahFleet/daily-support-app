@@ -933,8 +933,10 @@ window.onload = function() {
       const completed = [];
       if (appData?.dailyLiving?.length > 1) {
         const today = new Date().toLocaleDateString('en-AU', { timeZone:'Australia/Perth' });
-      appData.dailyLiving.forEach(row => {
-          if (row[1] == 2 && new Date(row[2]).toLocaleDateString('en-AU', { timeZone:'Australia/Perth' }) === today && (row[4] === true || row[4] === "TRUE" || row[4] === "true"))
+     appData.dailyLiving.forEach(row => {
+          const rowDate = new Date(row[2]).toLocaleDateString('en-AU', { timeZone:'Australia/Perth' });
+          const isDone = row[4] === true || String(row[4]).toUpperCase() === 'TRUE';
+          if (row[1] == 2 && rowDate === today && isDone)
             completed.push(row[3]);
         });
       }
