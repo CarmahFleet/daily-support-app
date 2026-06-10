@@ -597,7 +597,7 @@
       if (alertType !== "OKAY") document.getElementById("respondCard").style.display = "block";
       document.getElementById("latestAlert").innerHTML =
         `<span class="status-badge ${getBadgeClass(alertType)}">${getAlertLabel(alertType)}</span>`;
-      document.getElementById("latestAlertTime").innerHTML = "Received: " + latest[2];
+      document.getElementById("latestAlertTime").innerHTML = "Received: " + new Date(latest[2]).toLocaleString('en-AU', { timeZone:'Australia/Perth', day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
       if (latest[5]) {
         document.getElementById("latestSupportType").innerHTML =
           `<span class="support-type-tag">Needs: ${latest[5]}</span>`;
