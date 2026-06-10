@@ -892,16 +892,14 @@ window.onload = function() {
       openOverlay('helpTodayOverlay');
     }
 
-    async function saveCheckIn(needToday, supportType) {
+ async function saveCheckIn(needToday, supportType) {
       try {
-     await fetch(API_URL, {
+        await fetch(API_URL, {
           method:"POST", headers:{"Content-Type":"text/plain"},
-          body: JSON.stringify({ action:"saveDailyLiving", userId:2, activity, completed })
+          body: JSON.stringify({ action:"checkIn", userId:2, mood:selectedMood||"Not set", energy:selectedEnergy||"Not set", needToday, supportType })
         });
-    await refreshData();
-    renderDailyLiving();
-  } catch(e) {}
-}
+      } catch(e) {}
+    }
 
     async function saveAlert(alertType, message, supportType) {
       try {
@@ -971,12 +969,14 @@ window.onload = function() {
       return streak;
     }
 
-    async function toggleDailyLiving(activity, completed) {
+  async function toggleDailyLiving(activity, completed) {
       try {
         await fetch(API_URL, {
           method:"POST", headers:{"Content-Type":"text/plain"},
           body: JSON.stringify({ action:"saveDailyLiving", userId:2, activity, completed })
         });
+        await refreshData();
+        renderDailyLiving();
       } catch(e) {}
     }
 
