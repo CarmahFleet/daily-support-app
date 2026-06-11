@@ -298,7 +298,7 @@
       white-space: nowrap;
       flex-shrink: 0;
     }
-    .streak-badge {
+  .streak-badge {
       display: inline-block;
       background: linear-gradient(90deg, #f0ad4e, #e8920a);
       color: white;
@@ -308,6 +308,20 @@
       font-weight: 800;
       margin-bottom: 12px;
     }
+    .app-streak-badge {
+      background: linear-gradient(90deg, #ff6b35, #f0ad4e);
+      border-radius: 18px;
+      padding: 10px 16px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .app-streak-badge .streak-flame { font-size: 24px; }
+    .app-streak-badge .streak-info { flex: 1; }
+    .app-streak-badge .streak-count { font-size: 16px; font-weight: 900; color: white; }
+    .app-streak-badge .streak-label { font-size: 12px; color: rgba(255,255,255,0.85); margin-top: 1px; }
+    .app-streak-badge .streak-warning { font-size: 11px; color: white; background: rgba(0,0,0,0.15); border-radius: 10px; padding: 3px 8px; flex-shrink: 0; }
 
     /* Dad Corner on page 1 */
     .dad-corner-card {
@@ -602,7 +616,15 @@
       <button class="overlay-btn" onclick="closeOverlay('helpTodayOverlay')">Okay</button>
     </div>
   </div>
-
+<!-- Streak Overlay -->
+  <div class="celebration-overlay" id="streakOverlay">
+    <div class="celebration-card">
+      <div style="font-size:52px;margin-bottom:12px" id="streakIcon">🔥</div>
+      <div style="font-size:18px;font-weight:900;color:#3C3489;margin-bottom:8px" id="streakTitle">Streak!</div>
+      <div style="font-size:15px;color:#555;line-height:1.6;margin-bottom:20px" id="streakMsg">Loading your message...</div>
+      <button class="celebration-btn" onclick="closeStreak()">Thanks 💜</button>
+    </div>
+  </div>
   <!-- Celebration Overlay -->
   <div class="celebration-overlay" id="celebrationOverlay">
     <div class="celebration-card">
@@ -652,6 +674,7 @@
         </div>
         <button class="sos-btn" onclick="openSOS()">🆘 SOS</button>
       </div>
+      <div id="appStreakBadge"></div>
 
       <div class="greeting-box">
         <div class="greeting-text" id="greetingText">Good to see you 💜</div>
@@ -854,6 +877,98 @@
       document.addEventListener("touchstart", resetTimer);
       document.addEventListener("click", resetTimer);
     };
+    // ─── STREAK ──────────────────────────────────────────────
+
+    const STREAK_MILESTONES = [7, 10, 14, 21, 30];
+
+    function isMilestone(streak) {
+      if (streak <= 30) return STREAK_MILESTONES.includes(streak);
+      return streak % 10 === 0;
+    }
+
+    async function checkStreak() {
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify({ action: "updateStreak", userId: 2 })
+        });
+        const data = await res.json();
+        if (!data.success || data.alreadyDone) {
+          renderStreakBadge();
+          return;
+        }
+        renderStreakBadge();
+        if (data.isReset && data.streak === 1) {
+          showStreakReset();
+        } else if (data.warning) {
+          showStreakWarning(data.streak);
+        } else if (isMilestone(data.streak)) {
+          await showStreakCelebration(data.streak);
+        }
+      } catch(e) {}
+    }
+
+    function renderStreakBadge() {
+      if (!appData?.streaks || appData.streaks.length <= 1) return;
+      const row = appData.streaks.find((r, i) => i > 0 && r[0] == 2);
+      if (!row) return;
+      const streak = Number(row[1]) || 0;
+      const warning = row[3] === true || String(row[3]).toUpperCase() === 'TRUE';
+      if (streak < 2) return;
+      const badgeEl = document.getElementById("appStreakBadge");
+      if (!badgeEl) return;
+      let label = `${streak} day streak`;
+      if (streak >= 365) label = `${Math.floor(streak/365)} year${Math.floor(streak/365)>1?'s':''} & ${streak % 365} days`;
+      badgeEl.innerHTML = `
+        <div class="app-streak-badge">
+          <div class="streak-flame">🔥</div>
+          <div class="streak-info">
+            <div class="streak-count">${label}</div>
+            <div class="streak-label">Keep showing up for yourself 💜</div>
+          </div>
+          ${warning ? `<div class="streak-warning">⚠️ 1 day grace</div>` : ''}
+        </div>`;
+    }
+
+    function showStreakWarning(streak) {
+      document.getElementById("streakIcon").innerText = "💜";
+      document.getElementById("streakTitle").innerText = "We missed you yesterday";
+      document.getElementById("streakMsg").innerText = `Your ${streak} day streak is safe — come back tomorrow to keep it going 💜`;
+      document.getElementById("streakOverlay").classList.add("active");
+    }
+
+    function showStreakReset() {
+      document.getElementById("streakIcon").innerText = "🌱";
+      document.getElementById("streakTitle").innerText = "Starting fresh today";
+      document.getElementById("streakMsg").innerText = "Every day is a new beginning. Today is day one of something great 💜";
+      document.getElementById("streakOverlay").classList.add("active");
+    }
+
+    async function showStreakCelebration(streak) {
+      document.getElementById("streakIcon").innerText = "🔥";
+      document.getElementById("streakTitle").innerText = `${streak} Day Streak!`;
+      document.getElementById("streakMsg").innerText = "Getting your message...";
+      document.getElementById("streakOverlay").classList.add("active");
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify({ action: "aiStreakCelebrate", streak })
+        });
+        const data = await res.json();
+        document.getElementById("streakMsg").innerText = data.success
+          ? data.message
+          : `Jesse, ${streak} days of showing up for yourself. That is something to be genuinely proud of. 💜`;
+      } catch(e) {
+        document.getElementById("streakMsg").innerText =
+          `Jesse, ${streak} days of showing up for yourself. That is something to be genuinely proud of. 💜`;
+      }
+    }
+
+    function closeStreak() {
+      document.getElementById("streakOverlay").classList.remove("active");
+    }
 
     // ─── NAVIGATION ──────────────────────────────────────────
 
@@ -884,10 +999,11 @@
         }
         loadTaskOrder();
         loadGoalOrder();
-        showGreeting();
+       showGreeting();
         showDadResponse();
         renderDailyLiving();
         loadDadCorner();
+        await checkStreak();
       } catch(e) { console.error(e); }
     }
 
