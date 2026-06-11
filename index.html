@@ -257,7 +257,7 @@
       margin-bottom: 12px;
     }
     .dl-item-label { flex: 1; }
-    .dl-edit-btn {
+   .dl-edit-btn {
       background: none;
       border: none;
       cursor: pointer;
@@ -267,6 +267,17 @@
       flex-shrink: 0;
     }
     .dl-edit-btn:hover { opacity: 1; }
+    .dl-move-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 12px;
+      padding: 2px 3px;
+      opacity: 0.3;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+    .dl-move-btn:hover { opacity: 0.8; }
     .dl-add-row {
       display: flex;
       gap: 8px;
@@ -995,10 +1006,12 @@ window.onload = function() {
       DAILY_LIVING.forEach((item, idx) => {
         const done = completed.includes(item.label);
         const c = COLORS[idx % COLORS.length];
-        html += `
+      html += `
           <div class="dl-item ${done?'completed':''}" style="background:${c.bg};color:${c.color}">
             <input type="checkbox" ${done?'checked':''} onchange="toggleDailyLiving('${item.label}',this.checked)">
             <span class="dl-item-label">${item.emoji} ${item.label}</span>
+            <button class="dl-move-btn" onclick="moveDailyLiving(${idx},-1)" ${idx===0?'style="opacity:0;pointer-events:none"':''}>▲</button>
+            <button class="dl-move-btn" onclick="moveDailyLiving(${idx},1)" ${idx===DAILY_LIVING.length-1?'style="opacity:0;pointer-events:none"':''}>▼</button>
             <button class="dl-edit-btn" onclick="openEditDailyLiving(${idx},'${escStr(item.label)}')">✏️</button>
             <button class="dl-edit-btn" onclick="openDeleteDailyLiving(${idx},'${escStr(item.label)}')">🗑️</button>
           </div>`;
@@ -1048,7 +1061,15 @@ window.onload = function() {
       document.getElementById("confirmDeleteMsg").innerHTML = `Remove "<strong>${label}</strong>" from your daily living list?`;
       document.getElementById("confirmDeleteOverlay").classList.add("active");
     }
-
+async function moveDailyLiving(idx, direction) {
+      const newIdx = idx + direction;
+      if (newIdx < 0 || newIdx >= DAILY_LIVING.length) return;
+      const temp = DAILY_LIVING[idx];
+      DAILY_LIVING[idx] = DAILY_LIVING[newIdx];
+      DAILY_LIVING[newIdx] = temp;
+      await post({ action:"saveDailyLivingItems", items: DAILY_LIVING });
+      renderDailyLiving();
+    }
    async function addDailyLivingItem() {
       const input = document.getElementById("dlAddInput");
       const label = input?.value?.trim();
