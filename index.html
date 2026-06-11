@@ -246,18 +246,8 @@
     .dl-item:last-child { margin-bottom: 0; }
     .dl-item.completed { opacity: 0.45; text-decoration: line-through; }
     .dl-item input[type="checkbox"] { width: 22px; height: 22px; cursor: pointer; accent-color: #534AB7; flex-shrink: 0; }
-   .streak-badge {
-      display: inline-block;
-      background: linear-gradient(90deg, #f0ad4e, #e8920a);
-      color: white;
-      border-radius: 20px;
-      padding: 4px 12px;
-      font-size: 12px;
-      font-weight: 800;
-      margin-bottom: 12px;
-    }
     .dl-item-label { flex: 1; }
-   .dl-edit-btn {
+    .dl-edit-btn {
       background: none;
       border: none;
       cursor: pointer;
@@ -308,6 +298,16 @@
       white-space: nowrap;
       flex-shrink: 0;
     }
+    .streak-badge {
+      display: inline-block;
+      background: linear-gradient(90deg, #f0ad4e, #e8920a);
+      color: white;
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
 
     /* Dad Corner on page 1 */
     .dad-corner-card {
@@ -356,6 +356,17 @@
     .task-tag { font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 10px; background: rgba(83,74,183,0.1); color: #534AB7; flex-shrink: 0; }
     .icon-btn { background: none; border: none; cursor: pointer; font-size: 15px; padding: 2px 4px; flex-shrink: 0; opacity: 0.5; transition: opacity 0.15s; }
     .icon-btn:hover { opacity: 1; }
+    .move-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 12px;
+      padding: 2px 3px;
+      opacity: 0.3;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+    .move-btn:hover { opacity: 0.8; }
 
     .goal-card { background: white; border-radius: 20px; margin-bottom: 12px; box-shadow: 0 4px 16px rgba(83,74,183,0.07); overflow: hidden; }
     .goal-header { display: flex; align-items: center; padding: 16px; cursor: pointer; gap: 10px; background: linear-gradient(90deg, #f0f4ff, #fdf0ff); }
@@ -765,7 +776,7 @@
       "You are loved, always. 💜"
     ];
 
-   let DAILY_LIVING = [
+    let DAILY_LIVING = [
       { emoji:"🪥", label:"Brush Teeth" },
       { emoji:"👗", label:"Get Dressed" },
       { emoji:"💊", label:"Medication (morning)" },
@@ -796,25 +807,27 @@
     let editTarget = null;
     let deleteTarget = null;
     let expandedGoals = {};
+    let taskOrder = [];
+    let goalOrder = [];
 
     // ─── AUTH ────────────────────────────────────────────────
 
-function checkPin() {
-  const val = document.getElementById("pinInput").value;
-  if (val === PASSWORD) {
-    authed = true;
-    sessionStorage.setItem("jessieAuth", Date.now().toString());
-    document.getElementById("pinInput").value = "";
-    document.getElementById("pinError").innerText = "";
-    document.getElementById("lockScreen").style.display = "none";
-    document.getElementById("appContent").style.display = "block";
-    resetTimer();
-    initApp();
-  } else {
-    document.getElementById("pinError").innerText = "Incorrect password. Try again.";
-    document.getElementById("pinInput").value = "";
-  }
-}
+    function checkPin() {
+      const val = document.getElementById("pinInput").value;
+      if (val === PASSWORD) {
+        authed = true;
+        sessionStorage.setItem("jessieAuth", Date.now().toString());
+        document.getElementById("pinInput").value = "";
+        document.getElementById("pinError").innerText = "";
+        document.getElementById("lockScreen").style.display = "none";
+        document.getElementById("appContent").style.display = "block";
+        resetTimer();
+        initApp();
+      } else {
+        document.getElementById("pinError").innerText = "Incorrect password. Try again.";
+        document.getElementById("pinInput").value = "";
+      }
+    }
 
     function resetTimer() {
       clearTimeout(activityTimer);
@@ -829,18 +842,18 @@ function checkPin() {
       document.getElementById("pinError").innerText = "";
     }
 
-window.onload = function() {
-  const savedAuth = sessionStorage.getItem("jessieAuth");
-  if (savedAuth && (Date.now() - parseInt(savedAuth)) < TIMEOUT_MS) {
-    authed = true;
-    document.getElementById("lockScreen").style.display = "none";
-    document.getElementById("appContent").style.display = "block";
-    resetTimer();
-    initApp();
-  }
-  document.addEventListener("touchstart", resetTimer);
-  document.addEventListener("click", resetTimer);
-};
+    window.onload = function() {
+      const savedAuth = sessionStorage.getItem("jessieAuth");
+      if (savedAuth && (Date.now() - parseInt(savedAuth)) < TIMEOUT_MS) {
+        authed = true;
+        document.getElementById("lockScreen").style.display = "none";
+        document.getElementById("appContent").style.display = "block";
+        resetTimer();
+        initApp();
+      }
+      document.addEventListener("touchstart", resetTimer);
+      document.addEventListener("click", resetTimer);
+    };
 
     // ─── NAVIGATION ──────────────────────────────────────────
 
@@ -859,7 +872,7 @@ window.onload = function() {
 
     // ─── INIT ────────────────────────────────────────────────
 
-   async function initApp() {
+    async function initApp() {
       try {
         const res = await fetch(API_URL);
         appData = await res.json();
@@ -869,6 +882,8 @@ window.onload = function() {
             label: row[1]
           }));
         }
+        loadTaskOrder();
+        loadGoalOrder();
         showGreeting();
         showDadResponse();
         renderDailyLiving();
@@ -880,7 +895,27 @@ window.onload = function() {
       try {
         const res = await fetch(API_URL);
         appData = await res.json();
+        loadTaskOrder();
+        loadGoalOrder();
       } catch(e) {}
+    }
+
+    function loadTaskOrder() {
+      const tasks = (appData?.tasks || []).filter((r, i) =>
+        i > 0 && r[1] == 2 && r[6] !== 'Completed' && r[6] !== 'Deleted'
+      );
+      const withOrder = tasks.map(r => ({ id: String(r[0]), order: r[12] !== '' && r[12] !== undefined && r[12] !== null ? Number(r[12]) : 9999 }));
+      withOrder.sort((a, b) => a.order - b.order);
+      taskOrder = withOrder.map(r => r.id);
+    }
+
+    function loadGoalOrder() {
+      const goals = (appData?.goals || []).filter((r, i) =>
+        i > 0 && r[2] && r[3] !== 'Completed' && r[3] !== 'Deleted'
+      );
+      const withOrder = goals.map(r => ({ id: String(r[0]), order: r[9] !== '' && r[9] !== undefined && r[9] !== null ? Number(r[9]) : 9999 }));
+      withOrder.sort((a, b) => a.order - b.order);
+      goalOrder = withOrder.map(r => r.id);
     }
 
     function showGreeting() {
@@ -950,7 +985,7 @@ window.onload = function() {
       openOverlay('helpTodayOverlay');
     }
 
- async function saveCheckIn(needToday, supportType) {
+    async function saveCheckIn(needToday, supportType) {
       try {
         await fetch(API_URL, {
           method:"POST", headers:{"Content-Type":"text/plain"},
@@ -987,7 +1022,7 @@ window.onload = function() {
 
     // ─── DAILY LIVING ────────────────────────────────────────
 
-   function renderDailyLiving() {
+    function renderDailyLiving() {
       const completed = [];
       const todayStr = new Date().toLocaleDateString('en-CA', { timeZone:'Australia/Perth' }).replace(/-/g, '');
       if (appData?.dailyLiving?.length > 1) {
@@ -1006,7 +1041,7 @@ window.onload = function() {
       DAILY_LIVING.forEach((item, idx) => {
         const done = completed.includes(item.label);
         const c = COLORS[idx % COLORS.length];
-      html += `
+        html += `
           <div class="dl-item ${done?'completed':''}" style="background:${c.bg};color:${c.color}">
             <input type="checkbox" ${done?'checked':''} onchange="toggleDailyLiving('${item.label}',this.checked)">
             <span class="dl-item-label">${item.emoji} ${item.label}</span>
@@ -1037,7 +1072,7 @@ window.onload = function() {
       return streak;
     }
 
-  async function toggleDailyLiving(activity, completed) {
+    async function toggleDailyLiving(activity, completed) {
       try {
         await fetch(API_URL, {
           method:"POST", headers:{"Content-Type":"text/plain"},
@@ -1047,7 +1082,8 @@ window.onload = function() {
         renderDailyLiving();
       } catch(e) {}
     }
-// ─── DAILY LIVING EDIT/DELETE/ADD ────────────────────────
+
+    // ─── DAILY LIVING EDIT/DELETE/ADD/MOVE ───────────────────
 
     function openEditDailyLiving(idx, currentLabel) {
       editTarget = { type: 'dailyLiving', idx, currentLabel };
@@ -1061,16 +1097,8 @@ window.onload = function() {
       document.getElementById("confirmDeleteMsg").innerHTML = `Remove "<strong>${label}</strong>" from your daily living list?`;
       document.getElementById("confirmDeleteOverlay").classList.add("active");
     }
-async function moveDailyLiving(idx, direction) {
-      const newIdx = idx + direction;
-      if (newIdx < 0 || newIdx >= DAILY_LIVING.length) return;
-      const temp = DAILY_LIVING[idx];
-      DAILY_LIVING[idx] = DAILY_LIVING[newIdx];
-      DAILY_LIVING[newIdx] = temp;
-      await post({ action:"saveDailyLivingItems", items: DAILY_LIVING });
-      renderDailyLiving();
-    }
-   async function addDailyLivingItem() {
+
+    async function addDailyLivingItem() {
       const input = document.getElementById("dlAddInput");
       const label = input?.value?.trim();
       if (!label) return;
@@ -1079,6 +1107,17 @@ async function moveDailyLiving(idx, direction) {
       await post({ action:"saveDailyLivingItems", items: DAILY_LIVING });
       renderDailyLiving();
     }
+
+    async function moveDailyLiving(idx, direction) {
+      const newIdx = idx + direction;
+      if (newIdx < 0 || newIdx >= DAILY_LIVING.length) return;
+      const temp = DAILY_LIVING[idx];
+      DAILY_LIVING[idx] = DAILY_LIVING[newIdx];
+      DAILY_LIVING[newIdx] = temp;
+      await post({ action:"saveDailyLivingItems", items: DAILY_LIVING });
+      renderDailyLiving();
+    }
+
     // ─── DIFFICULT THING ─────────────────────────────────────
 
     async function saveDifficultThing() {
@@ -1116,17 +1155,17 @@ async function moveDailyLiving(idx, direction) {
       }
       const focus = latest[3];
       const steps = JSON.parse(latest[4] || '[]');
-      const completed = JSON.parse(latest[5] || '[]');
+      const completedSteps = JSON.parse(latest[5] || '[]');
       let html = `<div class="dad-corner-focus">🎯 ${focus}</div>`;
       steps.forEach(step => {
-        const done = completed.includes(step);
+        const done = completedSteps.includes(step);
         html += `
           <div class="dad-corner-step ${done?'done':''}">
             <div class="step-dot ${done?'done':''}"></div>${step}
           </div>`;
       });
       if (steps.length > 0) {
-        html += `<div class="dad-progress">${completed.length} of ${steps.length} steps done</div>`;
+        html += `<div class="dad-progress">${completedSteps.length} of ${steps.length} steps done</div>`;
       }
       document.getElementById("dadCornerContent").innerHTML = html;
     }
@@ -1135,26 +1174,51 @@ async function moveDailyLiving(idx, direction) {
 
     function renderTodayTasks() {
       const tasks = appData?.tasks || [];
-      let html = "";
-      let count = 0;
+      const activeTasks = [];
       for (let i = 1; i < tasks.length; i++) {
         const row = tasks[i];
         if (row[1] == 2 && row[6] !== "Completed" && row[6] !== "Deleted") {
-          const c = COLORS[count % COLORS.length];
-          const isGoalTask = row[2] !== "" && row[2] !== null && row[2] !== undefined;
-          html += `
-            <div class="task-item" style="background:${c.bg};color:${c.color}">
-              <input type="checkbox" onchange="completeTask(${row[0]},'${escStr(row[4])}')">
-              <span class="task-label">${row[4]}</span>
-              ${isGoalTask ? `<span class="task-tag">Goal</span>` : ''}
-              <button class="icon-btn" onclick="openEdit('task',${row[0]},'${escStr(row[4])}')">✏️</button>
-              <button class="icon-btn" onclick="openDeleteTask(${row[0]},'${escStr(row[4])}')">🗑️</button>
-            </div>`;
-          count++;
+          activeTasks.push(row);
         }
       }
+      // Sort by saved order
+      activeTasks.sort((a, b) => {
+        const ai = taskOrder.indexOf(String(a[0]));
+        const bi = taskOrder.indexOf(String(b[0]));
+        const aOrder = ai === -1 ? 9999 : ai;
+        const bOrder = bi === -1 ? 9999 : bi;
+        return aOrder - bOrder;
+      });
+
+      let html = "";
+      activeTasks.forEach((row, idx) => {
+        const c = COLORS[idx % COLORS.length];
+        const isGoalTask = row[2] !== "" && row[2] !== null && row[2] !== undefined;
+        html += `
+          <div class="task-item" style="background:${c.bg};color:${c.color}">
+            <input type="checkbox" onchange="completeTask(${row[0]},'${escStr(row[4])}')">
+            <span class="task-label">${row[4]}</span>
+            ${isGoalTask ? `<span class="task-tag">Goal</span>` : ''}
+            <button class="move-btn" onclick="moveTask('${row[0]}',-1)" ${idx===0?'style="opacity:0;pointer-events:none"':''}>▲</button>
+            <button class="move-btn" onclick="moveTask('${row[0]}',1)" ${idx===activeTasks.length-1?'style="opacity:0;pointer-events:none"':''}>▼</button>
+            <button class="icon-btn" onclick="openEdit('task',${row[0]},'${escStr(row[4])}')">✏️</button>
+            <button class="icon-btn" onclick="openDeleteTask(${row[0]},'${escStr(row[4])}')">🗑️</button>
+          </div>`;
+      });
       if (!html) html = `<div class="empty-msg">No tasks yet — add one below or from a goal ✨</div>`;
       document.getElementById("todayTasksList").innerHTML = html;
+    }
+
+    async function moveTask(taskId, direction) {
+      const idx = taskOrder.indexOf(String(taskId));
+      if (idx === -1) return;
+      const newIdx = idx + direction;
+      if (newIdx < 0 || newIdx >= taskOrder.length) return;
+      const temp = taskOrder[idx];
+      taskOrder[idx] = taskOrder[newIdx];
+      taskOrder[newIdx] = temp;
+      await post({ action:"saveTaskOrder", order: taskOrder });
+      renderTodayTasks();
     }
 
     async function addManualTask() {
@@ -1173,6 +1237,7 @@ async function moveDailyLiving(idx, direction) {
           if (String(row[0]) === String(taskId)) row[6] = 'Completed';
         });
       }
+      taskOrder = taskOrder.filter(id => id !== String(taskId));
       renderTodayTasks();
       renderGoals();
       post({ action:"completeTask", taskId });
@@ -1187,13 +1252,21 @@ async function moveDailyLiving(idx, direction) {
     function renderGoals() {
       const goals = appData?.goals || [];
       const tasks = appData?.tasks || [];
-      let html = "";
-      let hasActive = false;
 
-      for (let i = 1; i < goals.length; i++) {
-        const goal = goals[i];
-        if (!goal[2] || goal[3] === "Completed" || goal[3] === "Deleted") continue;
-        hasActive = true;
+      const activeGoals = goals.filter((g, i) => i > 0 && g[2] && g[3] !== 'Completed' && g[3] !== 'Deleted');
+
+      // Sort by saved order
+      activeGoals.sort((a, b) => {
+        const ai = goalOrder.indexOf(String(a[0]));
+        const bi = goalOrder.indexOf(String(b[0]));
+        const aOrder = ai === -1 ? 9999 : ai;
+        const bOrder = bi === -1 ? 9999 : bi;
+        return aOrder - bOrder;
+      });
+
+      let html = "";
+
+      activeGoals.forEach((goal, goalIdx) => {
         const goalId = goal[0];
         const goalName = goal[2];
         const isOpen = expandedGoals[goalId] || false;
@@ -1210,6 +1283,8 @@ async function moveDailyLiving(idx, direction) {
             <div class="goal-header" onclick="toggleGoal(${goalId})">
               <div class="goal-name">🎯 ${goalName}</div>
               ${taskCount > 0 ? `<span style="font-size:11px;color:#7c6fcd;font-weight:700">${doneCount}/${taskCount}</span>` : ''}
+              <button class="move-btn" onclick="event.stopPropagation();moveGoal('${goalId}',-1)" ${goalIdx===0?'style="opacity:0;pointer-events:none"':''}>▲</button>
+              <button class="move-btn" onclick="event.stopPropagation();moveGoal('${goalId}',1)" ${goalIdx===activeGoals.length-1?'style="opacity:0;pointer-events:none"':''}>▼</button>
               <button class="icon-btn" style="opacity:0.6" onclick="event.stopPropagation();openEdit('goal',${goalId},'${escStr(goalName)}')">✏️</button>
               <button class="icon-btn" style="opacity:0.6" onclick="event.stopPropagation();openDeleteGoal(${goalId},'${escStr(goalName)}')">🗑️</button>
               <div class="goal-chevron ${isOpen?'open':''}" id="chevron_${goalId}">▼</div>
@@ -1266,10 +1341,22 @@ async function moveDailyLiving(idx, direction) {
           </div>
         </div>
         </div>`;
-      }
+      });
 
-      if (!hasActive) html = `<div class="empty-msg">No active goals — add one below ✨</div>`;
+      if (!activeGoals.length) html = `<div class="empty-msg">No active goals — add one below ✨</div>`;
       document.getElementById("goalsList").innerHTML = html;
+    }
+
+    async function moveGoal(goalId, direction) {
+      const idx = goalOrder.indexOf(String(goalId));
+      if (idx === -1) return;
+      const newIdx = idx + direction;
+      if (newIdx < 0 || newIdx >= goalOrder.length) return;
+      const temp = goalOrder[idx];
+      goalOrder[idx] = goalOrder[newIdx];
+      goalOrder[newIdx] = temp;
+      await post({ action:"saveGoalOrder", order: goalOrder });
+      renderGoals();
     }
 
     function toggleGoal(goalId) {
@@ -1309,6 +1396,7 @@ async function moveDailyLiving(idx, direction) {
     }
 
     async function completeGoal(goalId, goalName) {
+      goalOrder = goalOrder.filter(id => id !== String(goalId));
       await post({ action:"completeGoal", goalId });
       await showCelebration("goal", goalName);
       await refreshData();
@@ -1427,11 +1515,11 @@ async function moveDailyLiving(idx, direction) {
       document.getElementById("editOverlay").classList.add("active");
     }
 
- async function saveEdit() {
+    async function saveEdit() {
       if (!editTarget) return;
       const newValue = document.getElementById("editInput").value.trim();
       if (!newValue) return;
-     if (editTarget.type === 'dailyLiving') {
+      if (editTarget.type === 'dailyLiving') {
         const idx = DAILY_LIVING.findIndex(item => item.label === editTarget.currentLabel);
         if (idx > -1) DAILY_LIVING[idx].label = newValue;
         closeOverlay("editOverlay");
@@ -1461,9 +1549,9 @@ async function moveDailyLiving(idx, direction) {
       document.getElementById("confirmDeleteOverlay").classList.add("active");
     }
 
-   async function confirmDelete() {
+    async function confirmDelete() {
       if (!deleteTarget) return;
-     if (deleteTarget.type === 'dailyLiving') {
+      if (deleteTarget.type === 'dailyLiving') {
         DAILY_LIVING.splice(deleteTarget.idx, 1);
         closeOverlay("confirmDeleteOverlay");
         deleteTarget = null;
@@ -1472,8 +1560,10 @@ async function moveDailyLiving(idx, direction) {
         return;
       }
       if (deleteTarget.type === "task") {
+        taskOrder = taskOrder.filter(id => id !== String(deleteTarget.id));
         await post({ action:"deleteTask", taskId: deleteTarget.id });
       } else {
+        goalOrder = goalOrder.filter(id => id !== String(deleteTarget.id));
         await post({ action:"deleteGoal", goalId: deleteTarget.id });
       }
       closeOverlay("confirmDeleteOverlay");
