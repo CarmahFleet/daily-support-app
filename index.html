@@ -246,7 +246,7 @@
     .dl-item:last-child { margin-bottom: 0; }
     .dl-item.completed { opacity: 0.45; text-decoration: line-through; }
     .dl-item input[type="checkbox"] { width: 22px; height: 22px; cursor: pointer; accent-color: #534AB7; flex-shrink: 0; }
-    .streak-badge {
+   .streak-badge {
       display: inline-block;
       background: linear-gradient(90deg, #f0ad4e, #e8920a);
       color: white;
@@ -255,6 +255,47 @@
       font-size: 12px;
       font-weight: 800;
       margin-bottom: 12px;
+    }
+    .dl-item-label { flex: 1; }
+    .dl-edit-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      padding: 2px 4px;
+      opacity: 0.4;
+      flex-shrink: 0;
+    }
+    .dl-edit-btn:hover { opacity: 1; }
+    .dl-add-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 2px solid #f0f0f8;
+    }
+    .dl-add-input {
+      flex: 1;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 2px solid #e0e0f0;
+      font-size: 13px;
+      outline: none;
+      color: #333;
+    }
+    .dl-add-input:focus { border-color: #7c6fcd; }
+    .dl-add-btn {
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(90deg, #534AB7, #c054b8);
+      color: white;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     /* Dad Corner on page 1 */
@@ -931,12 +972,11 @@ window.onload = function() {
 
    function renderDailyLiving() {
       const completed = [];
-    if (appData?.dailyLiving?.length > 1) {
-       const now = new Date();
-        const todayNum = Number(now.toLocaleDateString('en-CA', { timeZone:'Australia/Perth' }).replace(/-/g, ''));
+      const todayStr = new Date().toLocaleDateString('en-CA', { timeZone:'Australia/Perth' }).replace(/-/g, '');
+      if (appData?.dailyLiving?.length > 1) {
         appData.dailyLiving.forEach(row => {
           const isDone = row[4] === true || String(row[4]).toUpperCase() === 'TRUE';
-          if (row[1] == 2 && Number(row[2]) === todayNum && isDone)
+          if (row[1] == 2 && String(row[2]) === todayStr && isDone)
             completed.push(row[3]);
         });
       }
@@ -952,9 +992,16 @@ window.onload = function() {
         html += `
           <div class="dl-item ${done?'completed':''}" style="background:${c.bg};color:${c.color}">
             <input type="checkbox" ${done?'checked':''} onchange="toggleDailyLiving('${item.label}',this.checked)">
-            ${item.emoji} ${item.label}
+            <span class="dl-item-label">${item.emoji} ${item.label}</span>
+            <button class="dl-edit-btn" onclick="openEditDailyLiving(${idx},'${escStr(item.label)}')">✏️</button>
+            <button class="dl-edit-btn" onclick="openDeleteDailyLiving(${idx},'${escStr(item.label)}')">🗑️</button>
           </div>`;
       });
+      html += `
+        <div class="dl-add-row">
+          <input class="dl-add-input" type="text" id="dlAddInput" placeholder="Add a new daily living item...">
+          <button class="dl-add-btn" onclick="addDailyLivingItem()">+ Add</button>
+        </div>`;
       document.getElementById("dailyLiving").innerHTML = html;
     }
 
@@ -981,7 +1028,29 @@ window.onload = function() {
         renderDailyLiving();
       } catch(e) {}
     }
+// ─── DAILY LIVING EDIT/DELETE/ADD ────────────────────────
 
+    function openEditDailyLiving(idx, currentLabel) {
+      editTarget = { type: 'dailyLiving', idx, currentLabel };
+      document.getElementById("editOverlayTitle").innerText = "Edit Daily Living Item";
+      document.getElementById("editInput").value = currentLabel;
+      document.getElementById("editOverlay").classList.add("active");
+    }
+
+    function openDeleteDailyLiving(idx, label) {
+      deleteTarget = { type: 'dailyLiving', idx, label };
+      document.getElementById("confirmDeleteMsg").innerHTML = `Remove "<strong>${label}</strong>" from your daily living list?`;
+      document.getElementById("confirmDeleteOverlay").classList.add("active");
+    }
+
+    async function addDailyLivingItem() {
+      const input = document.getElementById("dlAddInput");
+      const label = input?.value?.trim();
+      if (!label) return;
+      input.value = "";
+      DAILY_LIVING.push({ emoji:"✅", label });
+      renderDailyLiving();
+    }
     // ─── DIFFICULT THING ─────────────────────────────────────
 
     async function saveDifficultThing() {
@@ -1330,10 +1399,18 @@ window.onload = function() {
       document.getElementById("editOverlay").classList.add("active");
     }
 
-    async function saveEdit() {
+ async function saveEdit() {
       if (!editTarget) return;
       const newValue = document.getElementById("editInput").value.trim();
       if (!newValue) return;
+      if (editTarget.type === 'dailyLiving') {
+        const idx = DAILY_LIVING.findIndex(item => item.label === editTarget.currentLabel);
+        if (idx > -1) DAILY_LIVING[idx].label = newValue;
+        closeOverlay("editOverlay");
+        editTarget = null;
+        renderDailyLiving();
+        return;
+      }
       const action = editTarget.type === "goal" ? "editGoal" : "editTask";
       await post({ action, id: editTarget.id, newValue });
       closeOverlay("editOverlay");
@@ -1355,8 +1432,15 @@ window.onload = function() {
       document.getElementById("confirmDeleteOverlay").classList.add("active");
     }
 
-    async function confirmDelete() {
+   async function confirmDelete() {
       if (!deleteTarget) return;
+      if (deleteTarget.type === 'dailyLiving') {
+        DAILY_LIVING.splice(deleteTarget.idx, 1);
+        closeOverlay("confirmDeleteOverlay");
+        deleteTarget = null;
+        renderDailyLiving();
+        return;
+      }
       if (deleteTarget.type === "task") {
         await post({ action:"deleteTask", taskId: deleteTarget.id });
       } else {
