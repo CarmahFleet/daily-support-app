@@ -754,7 +754,7 @@
       "You are loved, always. 💜"
     ];
 
-    const DAILY_LIVING = [
+   let DAILY_LIVING = [
       { emoji:"🪥", label:"Brush Teeth" },
       { emoji:"👗", label:"Get Dressed" },
       { emoji:"💊", label:"Medication (morning)" },
@@ -848,10 +848,16 @@ window.onload = function() {
 
     // ─── INIT ────────────────────────────────────────────────
 
-    async function initApp() {
+   async function initApp() {
       try {
         const res = await fetch(API_URL);
         appData = await res.json();
+        if (appData?.dailyLivingItems?.length > 1) {
+          DAILY_LIVING = appData.dailyLivingItems.slice(1).map(row => ({
+            emoji: row[2] || '✅',
+            label: row[1]
+          }));
+        }
         showGreeting();
         showDadResponse();
         renderDailyLiving();
@@ -1043,12 +1049,13 @@ window.onload = function() {
       document.getElementById("confirmDeleteOverlay").classList.add("active");
     }
 
-    async function addDailyLivingItem() {
+   async function addDailyLivingItem() {
       const input = document.getElementById("dlAddInput");
       const label = input?.value?.trim();
       if (!label) return;
       input.value = "";
       DAILY_LIVING.push({ emoji:"✅", label });
+      await post({ action:"saveDailyLivingItems", items: DAILY_LIVING });
       renderDailyLiving();
     }
     // ─── DIFFICULT THING ─────────────────────────────────────
@@ -1403,11 +1410,12 @@ window.onload = function() {
       if (!editTarget) return;
       const newValue = document.getElementById("editInput").value.trim();
       if (!newValue) return;
-      if (editTarget.type === 'dailyLiving') {
+     if (editTarget.type === 'dailyLiving') {
         const idx = DAILY_LIVING.findIndex(item => item.label === editTarget.currentLabel);
         if (idx > -1) DAILY_LIVING[idx].label = newValue;
         closeOverlay("editOverlay");
         editTarget = null;
+        await post({ action:"saveDailyLivingItems", items: DAILY_LIVING });
         renderDailyLiving();
         return;
       }
@@ -1434,10 +1442,11 @@ window.onload = function() {
 
    async function confirmDelete() {
       if (!deleteTarget) return;
-      if (deleteTarget.type === 'dailyLiving') {
+     if (deleteTarget.type === 'dailyLiving') {
         DAILY_LIVING.splice(deleteTarget.idx, 1);
         closeOverlay("confirmDeleteOverlay");
         deleteTarget = null;
+        await post({ action:"saveDailyLivingItems", items: DAILY_LIVING });
         renderDailyLiving();
         return;
       }
