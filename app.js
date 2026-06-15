@@ -304,8 +304,8 @@ function clearSupBtnSelection() {
 async function sendOkay() {
   clearSupBtnSelection();
   document.querySelector('.sup-ok').classList.add('selected-ok');
-  await saveCheckIn("I'm okay", "");
-  await saveAlert("OKAY", "I'm okay", "");
+  saveCheckIn("I'm okay", "");
+  saveAlert("OKAY", "I'm okay", "");
   alert("Thanks Jesse 💜");
 }
 
@@ -319,8 +319,8 @@ async function sendSupportRequest() {
   if (!selectedSupportType) selectedSupportType = "Not Sure";
   clearSupBtnSelection();
   document.querySelector('.sup-support').classList.add('selected-support');
-  await saveCheckIn("I could use some support", selectedSupportType);
-  await saveAlert("SUPPORT", "I could use some support", selectedSupportType);
+  saveCheckIn("I could use some support", selectedSupportType);
+  saveAlert("SUPPORT", "I could use some support", selectedSupportType);
   closeOverlay('supportTypeOverlay');
   alert("Thanks Jesse. Dad has been notified 💜");
 }
@@ -328,27 +328,17 @@ async function sendSupportRequest() {
 async function sendHelpToday() {
   clearSupBtnSelection();
   document.querySelector('.sup-help').classList.add('selected-help');
-  await saveCheckIn("Dad, I need help today", "");
-  await saveAlert("HELP", "Dad, I need help today", "");
+  saveCheckIn("Dad, I need help today", "");
+  saveAlert("HELP", "Dad, I need help today", "");
   openOverlay('helpTodayOverlay');
 }
 
-async function saveCheckIn(needToday, supportType) {
-  try {
-    await fetch(API_URL, {
-      method:"POST", headers:{"Content-Type":"text/plain"},
-      body: JSON.stringify({ action:"checkIn", userId:2, mood:selectedMood||"Not set", energy:selectedEnergy||"Not set", needToday, supportType })
-    });
-  } catch(e) {}
+function saveCheckIn(needToday, supportType) {
+  post({ action:"checkIn", userId:2, mood:selectedMood||"Not set", energy:selectedEnergy||"Not set", needToday, supportType });
 }
 
-async function saveAlert(alertType, message, supportType) {
-  try {
-    await fetch(API_URL, {
-      method:"POST", headers:{"Content-Type":"text/plain"},
-      body: JSON.stringify({ action:"supportAlert", userId:2, alertType, message, supportType })
-    });
-  } catch(e) {}
+function saveAlert(alertType, message, supportType) {
+  post({ action:"supportAlert", userId:2, alertType, message, supportType });
 }
 
 // ─── SOS ─────────────────────────────────────────────────
@@ -359,8 +349,8 @@ function openSOS() {
   document.getElementById("sosOverlay").classList.add("active");
 }
 function closeSOS() { document.getElementById("sosOverlay").classList.remove("active"); }
-async function confirmSOS() {
-  await saveAlert("SOS", "🆘 Jesse has sent an SOS and needs urgent help right now.", "");
+function confirmSOS() {
+  saveAlert("SOS", "🆘 Jesse has sent an SOS and needs urgent help right now.", "");
   document.getElementById("sosConfirmScreen").style.display = "none";
   document.getElementById("sosSentScreen").style.display = "block";
 }
@@ -421,15 +411,19 @@ function calculateStreak() {
   return streak;
 }
 
-async function toggleDailyLiving(activity, completed) {
-  try {
-    await fetch(API_URL, {
-      method:"POST", headers:{"Content-Type":"text/plain"},
-      body: JSON.stringify({ action:"saveDailyLiving", userId:2, activity, completed })
-    });
-    await refreshData();
-    renderDailyLiving();
-  } catch(e) {}
+function toggleDailyLiving(activity, completed) {
+  // Update local data immediately
+  const todayStr = new Date().toLocaleDateString('en-CA', { timeZone:'Australia/Perth' }).replace(/-/g, '');
+  if (appData?.dailyLiving) {
+    const existing = appData.dailyLiving.find(r => r[1] == 2 && String(r[2]) === todayStr && r[3] === activity);
+    if (existing) {
+      existing[4] = completed;
+    } else {
+      appData.dailyLiving.push([appData.dailyLiving.length, 2, todayStr, activity, completed, '']);
+    }
+  }
+  renderDailyLiving();
+  post({ action:"saveDailyLiving", userId:2, activity, completed });
 }
 
 // ─── DAILY LIVING EDIT/DELETE/ADD/MOVE ───────────────────
@@ -447,7 +441,7 @@ function openDeleteDailyLiving(idx, label) {
   document.getElementById("confirmDeleteOverlay").classList.add("active");
 }
 
-async function addDailyLivingItem() {
+function addDailyLivingItem() {
   const input = document.getElementById("dlAddInput");
   const label = input?.value?.trim();
   if (!label) return;
@@ -457,7 +451,7 @@ async function addDailyLivingItem() {
   post({ action:"saveDailyLivingItems", items: DAILY_LIVING });
 }
 
-async function moveDailyLiving(idx, direction) {
+function moveDailyLiving(idx, direction) {
   const newIdx = idx + direction;
   if (newIdx < 0 || newIdx >= DAILY_LIVING.length) return;
   const temp = DAILY_LIVING[idx];
@@ -469,20 +463,17 @@ async function moveDailyLiving(idx, direction) {
 
 // ─── DIFFICULT THING ─────────────────────────────────────
 
-async function saveDifficultThing() {
+function saveDifficultThing() {
   const desc = document.getElementById("difficultInput").value.trim();
   if (!desc) return;
-  try {
-    await fetch(API_URL, {
-      method:"POST", headers:{"Content-Type":"text/plain"},
-      body: JSON.stringify({ action:"saveDifficultThing", userId:2, description:desc })
-    });
-  } catch(e) {}
   document.getElementById("difficultInput").value = "";
   document.getElementById("difficultSaved").style.display = "block";
   setTimeout(() => document.getElementById("difficultSaved").style.display = "none", 3000);
-  await refreshData();
+  // Add to local data immediately
+  if (!appData.difficultThings) appData.difficultThings = [[]];
+  appData.difficultThings.push(['', 2, new Date().toISOString(), desc, '']);
   renderDifficultThings();
+  post({ action:"saveDifficultThing", userId:2, description:desc });
 }
 
 // ─── DAD CORNER ──────────────────────────────────────────
@@ -555,7 +546,7 @@ function renderTodayTasks() {
   document.getElementById("todayTasksList").innerHTML = html;
 }
 
-async function moveTask(taskId, direction) {
+function moveTask(taskId, direction) {
   const idx = taskOrder.indexOf(String(taskId));
   if (idx === -1) return;
   const newIdx = idx + direction;
@@ -567,20 +558,17 @@ async function moveTask(taskId, direction) {
   post({ action:"saveTaskOrder", order: taskOrder });
 }
 
-async function addManualTask() {
+function addManualTask() {
   const title = document.getElementById("manualTaskInput").value.trim();
   if (!title) return;
   document.getElementById("manualTaskInput").value = "";
   showSaved("taskSaved");
-  // Optimistically add to local appData so it renders immediately
   const fakeId = 'temp_' + Date.now();
   if (!appData.tasks) appData.tasks = [[]];
   appData.tasks.push([fakeId, 2, '', '', title, '', 'Not Started', false, '', '', '', '']);
   taskOrder.push(fakeId);
   renderTodayTasks();
-  await post({ action:"saveTask", userId:2, goalId:"", milestoneId:"", title });
-  await refreshData();
-  renderTodayTasks();
+  post({ action:"saveTask", userId:2, goalId:"", milestoneId:"", title });
 }
 
 async function completeTask(taskId, taskTitle) {
@@ -594,9 +582,6 @@ async function completeTask(taskId, taskTitle) {
   renderGoals();
   post({ action:"completeTask", taskId });
   await showCelebration("task", taskTitle);
-  await refreshData();
-  renderTodayTasks();
-  renderGoals();
 }
 
 // ─── GOALS ───────────────────────────────────────────────
@@ -686,30 +671,27 @@ function renderGoals() {
   document.getElementById("goalsList").innerHTML = html;
 }
 
-async function moveGoalStep(goalId, stepIdx, direction) {
+function moveGoalStep(goalId, stepIdx, direction) {
   const tasks = appData?.tasks || [];
   const pendingTasks = tasks.filter(t =>
     String(t[2]) === String(goalId) && t[0] !== "TaskID" && t[6] !== "Deleted" && t[6] !== "Completed"
   );
   const newIdx = stepIdx + direction;
   if (newIdx < 0 || newIdx >= pendingTasks.length) return;
-
   const reordered = [...pendingTasks];
   const temp = reordered[stepIdx];
   reordered[stepIdx] = reordered[newIdx];
   reordered[newIdx] = temp;
-
   const allTasks = appData.tasks;
   reordered.forEach((t, i) => {
     const row = allTasks.find(r => String(r[0]) === String(t[0]));
     if (row) row[12] = i;
   });
-
   renderGoals();
-  post({ action: "saveGoalStepOrder", goalId, order: reordered.map(t => String(t[0])) });
+  post({ action:"saveGoalStepOrder", goalId, order: reordered.map(t => String(t[0])) });
 }
 
-async function moveGoal(goalId, direction) {
+function moveGoal(goalId, direction) {
   const idx = goalOrder.indexOf(String(goalId));
   if (idx === -1) return;
   const newIdx = idx + direction;
@@ -729,7 +711,7 @@ function toggleGoal(goalId) {
   if (chevron) chevron.classList.toggle("open", expandedGoals[goalId]);
 }
 
-async function addGoal() {
+function addGoal() {
   const goal = document.getElementById("newGoalInput").value.trim();
   if (!goal) return;
   document.getElementById("newGoalInput").value = "";
@@ -739,17 +721,14 @@ async function addGoal() {
   appData.goals.push([fakeId, 2, goal, 'Active', '']);
   goalOrder.push(fakeId);
   renderGoals();
-  await post({ action:"saveGoal", userId:2, goal });
-  await refreshData();
-  renderGoals();
+  post({ action:"saveGoal", userId:2, goal });
 }
 
-async function addGoalTask(goalId, addToToday) {
+function addGoalTask(goalId, addToToday) {
   const input = document.getElementById(`goalTask_${goalId}`);
   const title = input?.value?.trim();
   if (!title) return;
   if (input) input.value = "";
-  // Optimistically add to local appData so it renders immediately
   const fakeId = 'temp_' + Date.now();
   if (!appData.tasks) appData.tasks = [[]];
   appData.tasks.push([fakeId, 2, goalId, '', title, '', 'Not Started', false, '', '', '', '']);
@@ -757,13 +736,10 @@ async function addGoalTask(goalId, addToToday) {
   expandedGoals[goalId] = true;
   renderGoals();
   if (addToToday) renderTodayTasks();
-  await post({ action:"saveTask", userId:2, goalId, milestoneId:"", title });
-  await refreshData();
-  renderGoals();
-  if (addToToday) renderTodayTasks();
+  post({ action:"saveTask", userId:2, goalId, milestoneId:"", title });
 }
 
-async function addAISuggestionTask(goalId, title, addToToday) {
+function addAISuggestionTask(goalId, title, addToToday) {
   const fakeId = 'temp_' + Date.now();
   if (!appData.tasks) appData.tasks = [[]];
   appData.tasks.push([fakeId, 2, goalId, '', title, '', 'Not Started', false, '', '', '', '']);
@@ -771,19 +747,19 @@ async function addAISuggestionTask(goalId, title, addToToday) {
   expandedGoals[goalId] = true;
   renderGoals();
   if (addToToday) renderTodayTasks();
-  await post({ action:"saveTask", userId:2, goalId, milestoneId:"", title });
-  await refreshData();
-  renderGoals();
-  if (addToToday) renderTodayTasks();
+  post({ action:"saveTask", userId:2, goalId, milestoneId:"", title });
 }
 
 async function completeGoal(goalId, goalName) {
+  if (appData?.goals) {
+    const g = appData.goals.find(r => String(r[0]) === String(goalId));
+    if (g) g[3] = 'Completed';
+  }
   goalOrder = goalOrder.filter(id => id !== String(goalId));
-  await post({ action:"completeGoal", goalId });
-  await showCelebration("goal", goalName);
-  await refreshData();
   renderGoals();
   renderCompletedGoals();
+  post({ action:"completeGoal", goalId });
+  await showCelebration("goal", goalName);
 }
 
 // ─── AI ──────────────────────────────────────────────────
@@ -897,7 +873,7 @@ function openEdit(type, id, currentValue) {
   document.getElementById("editOverlay").classList.add("active");
 }
 
-async function saveEdit() {
+function saveEdit() {
   if (!editTarget) return;
   const newValue = document.getElementById("editInput").value.trim();
   if (!newValue) return;
@@ -910,11 +886,21 @@ async function saveEdit() {
     post({ action:"saveDailyLivingItems", items: DAILY_LIVING });
     return;
   }
-  const action = editTarget.type === "goal" ? "editGoal" : "editTask";
-  await post({ action, id: editTarget.id, newValue });
+  if (editTarget.type === 'goal') {
+    if (appData?.goals) {
+      const g = appData.goals.find(r => String(r[0]) === String(editTarget.id));
+      if (g) g[2] = newValue;
+    }
+  } else {
+    if (appData?.tasks) {
+      const t = appData.tasks.find(r => String(r[0]) === String(editTarget.id));
+      if (t) t[4] = newValue;
+    }
+  }
   closeOverlay("editOverlay");
+  const action = editTarget.type === "goal" ? "editGoal" : "editTask";
+  post({ action, id: editTarget.id, newValue });
   editTarget = null;
-  await refreshData();
   renderTodayTasks();
   renderGoals();
 }
@@ -931,7 +917,7 @@ function openDeleteGoal(goalId, goalName) {
   document.getElementById("confirmDeleteOverlay").classList.add("active");
 }
 
-async function confirmDelete() {
+function confirmDelete() {
   if (!deleteTarget) return;
   if (deleteTarget.type === 'dailyLiving') {
     DAILY_LIVING.splice(deleteTarget.idx, 1);
@@ -942,41 +928,44 @@ async function confirmDelete() {
     return;
   }
   if (deleteTarget.type === "task") {
-    // Optimistically remove from local data
     if (appData?.tasks) {
       const idx = appData.tasks.findIndex(r => String(r[0]) === String(deleteTarget.id));
       if (idx > -1) appData.tasks.splice(idx, 1);
     }
     taskOrder = taskOrder.filter(id => id !== String(deleteTarget.id));
+    const id = deleteTarget.id;
     closeOverlay("confirmDeleteOverlay");
     deleteTarget = null;
     renderTodayTasks();
     renderGoals();
-    await post({ action:"deleteTask", taskId: deleteTarget?.id });
+    post({ action:"deleteTask", taskId: id });
   } else {
-    // Optimistically remove from local data
     if (appData?.goals) {
-      const idx = appData.goals.findIndex(r => String(r[0]) === String(deleteTarget.id));
-      if (idx > -1) appData.goals[idx][3] = 'Deleted';
+      const g = appData.goals.find(r => String(r[0]) === String(deleteTarget.id));
+      if (g) g[3] = 'Deleted';
+    }
+    if (appData?.tasks) {
+      appData.tasks.forEach(t => {
+        if (String(t[2]) === String(deleteTarget.id)) t[6] = 'Deleted';
+      });
     }
     goalOrder = goalOrder.filter(id => id !== String(deleteTarget.id));
+    const id = deleteTarget.id;
     closeOverlay("confirmDeleteOverlay");
     deleteTarget = null;
     renderGoals();
-    await post({ action:"deleteGoal", goalId: deleteTarget?.id });
+    post({ action:"deleteGoal", goalId: id });
   }
 }
 
 // ─── HELPERS ─────────────────────────────────────────────
 
-async function post(body) {
-  try {
-    await fetch(API_URL, {
-      method:"POST",
-      headers:{"Content-Type":"text/plain"},
-      body: JSON.stringify(body)
-    });
-  } catch(e) {}
+function post(body) {
+  fetch(API_URL, {
+    method:"POST",
+    headers:{"Content-Type":"text/plain"},
+    body: JSON.stringify(body)
+  }).catch(() => {});
 }
 
 function showSaved(id) {
