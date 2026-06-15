@@ -124,8 +124,6 @@ async function initApp() {
   } catch(e) { console.error(e); }
 }
 
-// BUG 1 FIX: extract DAILY_LIVING sync into its own function
-// so it can be called after initApp AND after refreshData
 function syncDailyLivingFromData() {
   if (appData?.dailyLivingItems?.length > 1) {
     DAILY_LIVING = appData.dailyLivingItems.slice(1).map(row => ({
@@ -139,7 +137,7 @@ async function refreshData() {
   try {
     const res = await fetch(API_URL);
     appData = await res.json();
-    syncDailyLivingFromData(); // BUG 1 FIX: keep DAILY_LIVING in sync after every refresh
+    syncDailyLivingFromData();
     loadTaskOrder();
     loadGoalOrder();
   } catch(e) {}
@@ -401,7 +399,7 @@ function renderDailyLiving() {
         <button class="dl-edit-btn" onclick="openDeleteDailyLiving(${idx},'${escStr(item.label)}')">🗑️</button>
       </div>`;
   });
- html += `
+  html += `
     <div class="dl-add-row">
       <input class="dl-add-input" type="text" id="dlAddInput" placeholder="Add a new daily living item...">
       <button class="dl-add-btn" id="dlAddBtn">+ Add</button>
@@ -456,7 +454,7 @@ async function addDailyLivingItem() {
   input.value = "";
   DAILY_LIVING.push({ emoji:"✅", label });
   await post({ action:"saveDailyLivingItems", items: DAILY_LIVING });
-  // BUG 1 FIX: refresh from server after saving so local array stays in sync
+  await new Promise(resolve => setTimeout(resolve, 1500));
   await refreshData();
   renderDailyLiving();
 }
@@ -643,7 +641,6 @@ function renderGoals() {
         </div>`;
     });
 
-    // BUG 3 FIX: all pending steps get up/down arrows, not just the first one
     pendingTasks.forEach((t, tIdx) => {
       const isFirst = tIdx === 0;
       const isLast = tIdx === pendingTasks.length - 1;
@@ -685,7 +682,6 @@ function renderGoals() {
   document.getElementById("goalsList").innerHTML = html;
 }
 
-// BUG 3 FIX: reorder steps within a goal by swapping task order in the sheet
 async function moveGoalStep(goalId, stepIdx, direction) {
   const tasks = appData?.tasks || [];
   const pendingTasks = tasks.filter(t =>
@@ -694,13 +690,11 @@ async function moveGoalStep(goalId, stepIdx, direction) {
   const newIdx = stepIdx + direction;
   if (newIdx < 0 || newIdx >= pendingTasks.length) return;
 
-  // Build new order: swap stepIdx and newIdx within this goal's pending tasks
   const reordered = [...pendingTasks];
   const temp = reordered[stepIdx];
   reordered[stepIdx] = reordered[newIdx];
   reordered[newIdx] = temp;
 
-  // Save the new order for these task IDs
   const newOrder = reordered.map(t => String(t[0]));
   await post({ action: "saveGoalStepOrder", goalId, order: newOrder });
   await refreshData();
@@ -956,29 +950,24 @@ function escStr(str) {
   return String(str).replace(/'/g,"\\'").replace(/"/g,"&quot;");
 }
 
-// BUG 2 FIX: robust date formatter that handles plain text date strings
-// from Google Sheets without relying on new Date() parsing
 function formatDate(dateStr) {
   if (!dateStr) return "";
   const s = String(dateStr).trim();
-  // Handle ISO format: YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS
   const isoMatch = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
   if (isoMatch) {
     const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
     return `${parseInt(isoMatch[3])} ${months[parseInt(isoMatch[2])-1]} ${isoMatch[1]}`;
   }
-  // Handle compact format: YYYYMMDD (with or without leading apostrophe)
   const compact = s.replace(/^'/, '');
   if (/^\d{8}$/.test(compact)) {
     const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
     return `${parseInt(compact.slice(6,8))} ${months[parseInt(compact.slice(4,6))-1]} ${compact.slice(0,4)}`;
   }
-  // Fallback: try native Date parse
   try {
     const d = new Date(s);
     if (!isNaN(d.getTime())) {
       return d.toLocaleDateString('en-AU', { day:'numeric', month:'short', year:'numeric' });
     }
   } catch(e) {}
-  return s; // return raw string rather than blank if all else fails
+  return s;
 }
