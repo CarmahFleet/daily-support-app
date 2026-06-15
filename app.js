@@ -572,6 +572,12 @@ async function addManualTask() {
   if (!title) return;
   document.getElementById("manualTaskInput").value = "";
   showSaved("taskSaved");
+  // Optimistically add to local appData so it renders immediately
+  const fakeId = 'temp_' + Date.now();
+  if (!appData.tasks) appData.tasks = [[]];
+  appData.tasks.push([fakeId, 2, '', '', title, '', 'Not Started', false, '', '', '', '']);
+  taskOrder.push(fakeId);
+  renderTodayTasks();
   await post({ action:"saveTask", userId:2, goalId:"", milestoneId:"", title });
   await refreshData();
   renderTodayTasks();
@@ -693,7 +699,6 @@ async function moveGoalStep(goalId, stepIdx, direction) {
   reordered[stepIdx] = reordered[newIdx];
   reordered[newIdx] = temp;
 
-  // Update local appData so the UI reflects immediately
   const allTasks = appData.tasks;
   reordered.forEach((t, i) => {
     const row = allTasks.find(r => String(r[0]) === String(t[0]));
@@ -729,6 +734,11 @@ async function addGoal() {
   if (!goal) return;
   document.getElementById("newGoalInput").value = "";
   showSaved("goalSaved");
+  const fakeId = 'temp_' + Date.now();
+  if (!appData.goals) appData.goals = [[]];
+  appData.goals.push([fakeId, 2, goal, 'Active', '']);
+  goalOrder.push(fakeId);
+  renderGoals();
   await post({ action:"saveGoal", userId:2, goal });
   await refreshData();
   renderGoals();
@@ -739,6 +749,14 @@ async function addGoalTask(goalId, addToToday) {
   const title = input?.value?.trim();
   if (!title) return;
   if (input) input.value = "";
+  // Optimistically add to local appData so it renders immediately
+  const fakeId = 'temp_' + Date.now();
+  if (!appData.tasks) appData.tasks = [[]];
+  appData.tasks.push([fakeId, 2, goalId, '', title, '', 'Not Started', false, '', '', '', '']);
+  if (addToToday) taskOrder.push(fakeId);
+  expandedGoals[goalId] = true;
+  renderGoals();
+  if (addToToday) renderTodayTasks();
   await post({ action:"saveTask", userId:2, goalId, milestoneId:"", title });
   await refreshData();
   renderGoals();
@@ -746,6 +764,13 @@ async function addGoalTask(goalId, addToToday) {
 }
 
 async function addAISuggestionTask(goalId, title, addToToday) {
+  const fakeId = 'temp_' + Date.now();
+  if (!appData.tasks) appData.tasks = [[]];
+  appData.tasks.push([fakeId, 2, goalId, '', title, '', 'Not Started', false, '', '', '', '']);
+  if (addToToday) taskOrder.push(fakeId);
+  expandedGoals[goalId] = true;
+  renderGoals();
+  if (addToToday) renderTodayTasks();
   await post({ action:"saveTask", userId:2, goalId, milestoneId:"", title });
   await refreshData();
   renderGoals();
@@ -917,17 +942,29 @@ async function confirmDelete() {
     return;
   }
   if (deleteTarget.type === "task") {
+    // Optimistically remove from local data
+    if (appData?.tasks) {
+      const idx = appData.tasks.findIndex(r => String(r[0]) === String(deleteTarget.id));
+      if (idx > -1) appData.tasks.splice(idx, 1);
+    }
     taskOrder = taskOrder.filter(id => id !== String(deleteTarget.id));
-    await post({ action:"deleteTask", taskId: deleteTarget.id });
+    closeOverlay("confirmDeleteOverlay");
+    deleteTarget = null;
+    renderTodayTasks();
+    renderGoals();
+    await post({ action:"deleteTask", taskId: deleteTarget?.id });
   } else {
+    // Optimistically remove from local data
+    if (appData?.goals) {
+      const idx = appData.goals.findIndex(r => String(r[0]) === String(deleteTarget.id));
+      if (idx > -1) appData.goals[idx][3] = 'Deleted';
+    }
     goalOrder = goalOrder.filter(id => id !== String(deleteTarget.id));
-    await post({ action:"deleteGoal", goalId: deleteTarget.id });
+    closeOverlay("confirmDeleteOverlay");
+    deleteTarget = null;
+    renderGoals();
+    await post({ action:"deleteGoal", goalId: deleteTarget?.id });
   }
-  closeOverlay("confirmDeleteOverlay");
-  deleteTarget = null;
-  await refreshData();
-  renderTodayTasks();
-  renderGoals();
 }
 
 // ─── HELPERS ─────────────────────────────────────────────
