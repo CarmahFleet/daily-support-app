@@ -301,7 +301,7 @@ function clearSupBtnSelection() {
   });
 }
 
-async function sendOkay() {
+function sendOkay() {
   clearSupBtnSelection();
   document.querySelector('.sup-ok').classList.add('selected-ok');
   saveCheckIn("I'm okay", "");
@@ -315,7 +315,7 @@ function selectSupportType(btn, type) {
   btn.classList.add('selected');
 }
 
-async function sendSupportRequest() {
+function sendSupportRequest() {
   if (!selectedSupportType) selectedSupportType = "Not Sure";
   clearSupBtnSelection();
   document.querySelector('.sup-support').classList.add('selected-support');
@@ -325,7 +325,7 @@ async function sendSupportRequest() {
   alert("Thanks Jesse. Dad has been notified 💜");
 }
 
-async function sendHelpToday() {
+function sendHelpToday() {
   clearSupBtnSelection();
   document.querySelector('.sup-help').classList.add('selected-help');
   saveCheckIn("Dad, I need help today", "");
@@ -381,7 +381,7 @@ function renderDailyLiving() {
     const c = COLORS[idx % COLORS.length];
     html += `
       <div class="dl-item ${done?'completed':''}" style="background:${c.bg};color:${c.color}">
-        <input type="checkbox" ${done?'checked':''} onchange="toggleDailyLiving('${item.label}',this.checked)">
+        <input type="checkbox" ${done?'checked':''} onchange="toggleDailyLiving('${escStr(item.label)}',this.checked)">
         <span class="dl-item-label">${item.emoji} ${item.label}</span>
         <button class="dl-move-btn" onclick="moveDailyLiving(${idx},-1)" ${idx===0?'style="opacity:0;pointer-events:none"':''}>▲</button>
         <button class="dl-move-btn" onclick="moveDailyLiving(${idx},1)" ${idx===DAILY_LIVING.length-1?'style="opacity:0;pointer-events:none"':''}>▼</button>
@@ -412,7 +412,6 @@ function calculateStreak() {
 }
 
 function toggleDailyLiving(activity, completed) {
-  // Update local data immediately
   const todayStr = new Date().toLocaleDateString('en-CA', { timeZone:'Australia/Perth' }).replace(/-/g, '');
   if (appData?.dailyLiving) {
     const existing = appData.dailyLiving.find(r => r[1] == 2 && String(r[2]) === todayStr && r[3] === activity);
@@ -469,7 +468,6 @@ function saveDifficultThing() {
   document.getElementById("difficultInput").value = "";
   document.getElementById("difficultSaved").style.display = "block";
   setTimeout(() => document.getElementById("difficultSaved").style.display = "none", 3000);
-  // Add to local data immediately
   if (!appData.difficultThings) appData.difficultThings = [[]];
   appData.difficultThings.push(['', 2, new Date().toISOString(), desc, '']);
   renderDifficultThings();
@@ -533,13 +531,13 @@ function renderTodayTasks() {
     const isGoalTask = row[2] !== "" && row[2] !== null && row[2] !== undefined;
     html += `
       <div class="task-item" style="background:${c.bg};color:${c.color}">
-        <input type="checkbox" onchange="completeTask(${row[0]},'${escStr(row[4])}')">
+        <input type="checkbox" onchange="completeTask('${row[0]}','${escStr(row[4])}')">
         <span class="task-label">${row[4]}</span>
         ${isGoalTask ? `<span class="task-tag">Goal</span>` : ''}
         <button class="move-btn" onclick="moveTask('${row[0]}',-1)" ${idx===0?'style="opacity:0;pointer-events:none"':''}>▲</button>
         <button class="move-btn" onclick="moveTask('${row[0]}',1)" ${idx===activeTasks.length-1?'style="opacity:0;pointer-events:none"':''}>▼</button>
-        <button class="icon-btn" onclick="openEdit('task',${row[0]},'${escStr(row[4])}')">✏️</button>
-        <button class="icon-btn" onclick="openDeleteTask(${row[0]},'${escStr(row[4])}')">🗑️</button>
+        <button class="icon-btn" onclick="openEdit('task','${row[0]}','${escStr(row[4])}')">✏️</button>
+        <button class="icon-btn" onclick="openDeleteTask('${row[0]}','${escStr(row[4])}')">🗑️</button>
       </div>`;
   });
   if (!html) html = `<div class="empty-msg">No tasks yet — add one below or from a goal ✨</div>`;
@@ -563,7 +561,7 @@ function addManualTask() {
   if (!title) return;
   document.getElementById("manualTaskInput").value = "";
   showSaved("taskSaved");
-  const fakeId = 'temp_' + Date.now();
+  const fakeId = 'tmp' + Date.now();
   if (!appData.tasks) appData.tasks = [[]];
   appData.tasks.push([fakeId, 2, '', '', title, '', 'Not Started', false, '', '', '', '']);
   taskOrder.push(fakeId);
@@ -598,11 +596,11 @@ function renderGoals() {
 
   let html = "";
   activeGoals.forEach((goal, goalIdx) => {
-    const goalId = goal[0];
+    const goalId = String(goal[0]);
     const goalName = goal[2];
     const isOpen = expandedGoals[goalId] || false;
     const goalTasks = tasks.filter(t =>
-      String(t[2]) === String(goalId) && t[0] !== "TaskID" && t[6] !== "Deleted"
+      String(t[2]) === goalId && t[0] !== "TaskID" && t[6] !== "Deleted"
     );
     const completedTasks = goalTasks.filter(t => t[6] === "Completed");
     const pendingTasks = goalTasks.filter(t => t[6] !== "Completed");
@@ -611,13 +609,13 @@ function renderGoals() {
 
     html += `
       <div class="goal-card">
-        <div class="goal-header" onclick="toggleGoal(${goalId})">
+        <div class="goal-header" onclick="toggleGoal('${goalId}')">
           <div class="goal-name">🎯 ${goalName}</div>
           ${taskCount > 0 ? `<span style="font-size:11px;color:#7c6fcd;font-weight:700">${doneCount}/${taskCount}</span>` : ''}
           <button class="move-btn" onclick="event.stopPropagation();moveGoal('${goalId}',-1)" ${goalIdx===0?'style="opacity:0;pointer-events:none"':''}>▲</button>
           <button class="move-btn" onclick="event.stopPropagation();moveGoal('${goalId}',1)" ${goalIdx===activeGoals.length-1?'style="opacity:0;pointer-events:none"':''}>▼</button>
-          <button class="icon-btn" style="opacity:0.6" onclick="event.stopPropagation();openEdit('goal',${goalId},'${escStr(goalName)}')">✏️</button>
-          <button class="icon-btn" style="opacity:0.6" onclick="event.stopPropagation();openDeleteGoal(${goalId},'${escStr(goalName)}')">🗑️</button>
+          <button class="icon-btn" style="opacity:0.6" onclick="event.stopPropagation();openEdit('goal','${goalId}','${escStr(goalName)}')">✏️</button>
+          <button class="icon-btn" style="opacity:0.6" onclick="event.stopPropagation();openDeleteGoal('${goalId}','${escStr(goalName)}')">🗑️</button>
           <div class="goal-chevron ${isOpen?'open':''}" id="chevron_${goalId}">▼</div>
         </div>
         <div class="goal-body ${isOpen?'open':''}" id="goalBody_${goalId}">`;
@@ -633,17 +631,18 @@ function renderGoals() {
     pendingTasks.forEach((t, tIdx) => {
       const isFirst = tIdx === 0;
       const isLast = tIdx === pendingTasks.length - 1;
+      const tId = String(t[0]);
       html += `
         <div class="goal-task-row${isFirst ? '' : ' queued'}">
           ${isFirst
-            ? `<input type="checkbox" onchange="completeTask(${t[0]},'${escStr(t[4])}')">`
+            ? `<input type="checkbox" onchange="completeTask('${tId}','${escStr(t[4])}')">`
             : `<span style="width:20px;text-align:center;color:#ccc;flex-shrink:0">○</span>`
           }
           <span class="gt-label">${t[4]}</span>
           <button class="move-btn" onclick="moveGoalStep('${goalId}',${tIdx},-1)" ${isFirst?'style="opacity:0;pointer-events:none"':''}>▲</button>
           <button class="move-btn" onclick="moveGoalStep('${goalId}',${tIdx},1)" ${isLast?'style="opacity:0;pointer-events:none"':''}>▼</button>
-          <button class="icon-btn" onclick="openEdit('task',${t[0]},'${escStr(t[4])}')">✏️</button>
-          <button class="icon-btn" onclick="openDeleteTask(${t[0]},'${escStr(t[4])}')">🗑️</button>
+          <button class="icon-btn" onclick="openEdit('task','${tId}','${escStr(t[4])}')">✏️</button>
+          <button class="icon-btn" onclick="openDeleteTask('${tId}','${escStr(t[4])}')">🗑️</button>
         </div>`;
     });
 
@@ -652,16 +651,16 @@ function renderGoals() {
           <input class="inline-input" style="font-size:13px;padding:10px 12px" type="text"
             id="goalTask_${goalId}" placeholder="Add a step to this goal...">
           <button class="inline-btn" style="font-size:11px;padding:10px 10px"
-            onclick="addGoalTask(${goalId},false)">+ Goal</button>
+            onclick="addGoalTask('${goalId}',false)">+ Goal</button>
           <button class="inline-btn" style="font-size:11px;padding:10px 10px;background:linear-gradient(90deg,#5cb85c,#3d9a3d)"
-            onclick="addGoalTask(${goalId},true)">+ Today</button>
+            onclick="addGoalTask('${goalId}',true)">+ Today</button>
         </div>
-        <button class="ai-btn" onclick="getAISuggestions(${goalId},'${escStr(goalName)}')">✨ Get AI suggestions</button>
+        <button class="ai-btn" onclick="getAISuggestions('${goalId}','${escStr(goalName)}')">✨ Get AI suggestions</button>
         <div class="ai-loading" id="aiLoading_${goalId}">Getting suggestions...</div>
         <div class="ai-suggestions-box" id="aiBox_${goalId}"></div>
         <div class="goal-actions">
-          <button class="complete-goal-btn" onclick="completeGoal(${goalId},'${escStr(goalName)}')">✅ Mark goal as complete</button>
-          <button class="delete-goal-btn" onclick="openDeleteGoal(${goalId},'${escStr(goalName)}')">🗑️ Delete</button>
+          <button class="complete-goal-btn" onclick="completeGoal('${goalId}','${escStr(goalName)}')">✅ Mark goal as complete</button>
+          <button class="delete-goal-btn" onclick="openDeleteGoal('${goalId}','${escStr(goalName)}')">🗑️ Delete</button>
         </div>
       </div>
       </div>`;
@@ -716,7 +715,7 @@ function addGoal() {
   if (!goal) return;
   document.getElementById("newGoalInput").value = "";
   showSaved("goalSaved");
-  const fakeId = 'temp_' + Date.now();
+  const fakeId = 'tmp' + Date.now();
   if (!appData.goals) appData.goals = [[]];
   appData.goals.push([fakeId, 2, goal, 'Active', '']);
   goalOrder.push(fakeId);
@@ -729,7 +728,7 @@ function addGoalTask(goalId, addToToday) {
   const title = input?.value?.trim();
   if (!title) return;
   if (input) input.value = "";
-  const fakeId = 'temp_' + Date.now();
+  const fakeId = 'tmp' + Date.now();
   if (!appData.tasks) appData.tasks = [[]];
   appData.tasks.push([fakeId, 2, goalId, '', title, '', 'Not Started', false, '', '', '', '']);
   if (addToToday) taskOrder.push(fakeId);
@@ -740,7 +739,7 @@ function addGoalTask(goalId, addToToday) {
 }
 
 function addAISuggestionTask(goalId, title, addToToday) {
-  const fakeId = 'temp_' + Date.now();
+  const fakeId = 'tmp' + Date.now();
   if (!appData.tasks) appData.tasks = [[]];
   appData.tasks.push([fakeId, 2, goalId, '', title, '', 'Not Started', false, '', '', '', '']);
   if (addToToday) taskOrder.push(fakeId);
@@ -790,8 +789,8 @@ async function getAISuggestions(goalId, goalName) {
         <div class="ai-suggestion-item">
           <div class="ai-suggestion-text">${idx+1}. ${step}</div>
           <div class="ai-add-btns">
-            <button class="ai-add-btn ai-add-goal" onclick="addAISuggestionTask(${goalId},'${escStr(step)}',false)">+ Add to goal</button>
-            <button class="ai-add-btn ai-add-today" onclick="addAISuggestionTask(${goalId},'${escStr(step)}',true)">+ Goal & today</button>
+            <button class="ai-add-btn ai-add-goal" onclick="addAISuggestionTask('${goalId}','${escStr(step)}',false)">+ Add to goal</button>
+            <button class="ai-add-btn ai-add-today" onclick="addAISuggestionTask('${goalId}','${escStr(step)}',true)">+ Goal & today</button>
           </div>
         </div>`;
     });
@@ -897,12 +896,13 @@ function saveEdit() {
       if (t) t[4] = newValue;
     }
   }
-  closeOverlay("editOverlay");
   const action = editTarget.type === "goal" ? "editGoal" : "editTask";
-  post({ action, id: editTarget.id, newValue });
+  const id = editTarget.id;
+  closeOverlay("editOverlay");
   editTarget = null;
   renderTodayTasks();
   renderGoals();
+  post({ action, id, newValue });
 }
 
 function openDeleteTask(taskId, taskTitle) {
@@ -976,7 +976,7 @@ function showSaved(id) {
 }
 
 function escStr(str) {
-  return String(str).replace(/'/g,"\\'").replace(/"/g,"&quot;");
+  return String(str).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,"&quot;");
 }
 
 function formatDate(dateStr) {
