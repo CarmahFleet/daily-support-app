@@ -401,12 +401,13 @@ function renderDailyLiving() {
         <button class="dl-edit-btn" onclick="openDeleteDailyLiving(${idx},'${escStr(item.label)}')">🗑️</button>
       </div>`;
   });
-  html += `
+ html += `
     <div class="dl-add-row">
       <input class="dl-add-input" type="text" id="dlAddInput" placeholder="Add a new daily living item...">
-      <button class="dl-add-btn" onclick="addDailyLivingItem()">+ Add</button>
+      <button class="dl-add-btn" id="dlAddBtn">+ Add</button>
     </div>`;
   document.getElementById("dailyLiving").innerHTML = html;
+  document.getElementById("dlAddBtn").addEventListener("click", addDailyLivingItem);
 }
 
 function calculateStreak() {
