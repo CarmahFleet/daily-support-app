@@ -453,10 +453,8 @@ async function addDailyLivingItem() {
   if (!label) return;
   input.value = "";
   DAILY_LIVING.push({ emoji:"✅", label });
-  await post({ action:"saveDailyLivingItems", items: DAILY_LIVING });
-  await new Promise(resolve => setTimeout(resolve, 1500));
-  await refreshData();
   renderDailyLiving();
+  post({ action:"saveDailyLivingItems", items: DAILY_LIVING });
 }
 
 async function moveDailyLiving(idx, direction) {
@@ -465,8 +463,8 @@ async function moveDailyLiving(idx, direction) {
   const temp = DAILY_LIVING[idx];
   DAILY_LIVING[idx] = DAILY_LIVING[newIdx];
   DAILY_LIVING[newIdx] = temp;
-  await post({ action:"saveDailyLivingItems", items: DAILY_LIVING });
   renderDailyLiving();
+  post({ action:"saveDailyLivingItems", items: DAILY_LIVING });
 }
 
 // ─── DIFFICULT THING ─────────────────────────────────────
@@ -565,8 +563,8 @@ async function moveTask(taskId, direction) {
   const temp = taskOrder[idx];
   taskOrder[idx] = taskOrder[newIdx];
   taskOrder[newIdx] = temp;
-  await post({ action:"saveTaskOrder", order: taskOrder });
   renderTodayTasks();
+  post({ action:"saveTaskOrder", order: taskOrder });
 }
 
 async function addManualTask() {
@@ -695,10 +693,15 @@ async function moveGoalStep(goalId, stepIdx, direction) {
   reordered[stepIdx] = reordered[newIdx];
   reordered[newIdx] = temp;
 
-  const newOrder = reordered.map(t => String(t[0]));
-  await post({ action: "saveGoalStepOrder", goalId, order: newOrder });
-  await refreshData();
+  // Update local appData so the UI reflects immediately
+  const allTasks = appData.tasks;
+  reordered.forEach((t, i) => {
+    const row = allTasks.find(r => String(r[0]) === String(t[0]));
+    if (row) row[12] = i;
+  });
+
   renderGoals();
+  post({ action: "saveGoalStepOrder", goalId, order: reordered.map(t => String(t[0])) });
 }
 
 async function moveGoal(goalId, direction) {
@@ -709,8 +712,8 @@ async function moveGoal(goalId, direction) {
   const temp = goalOrder[idx];
   goalOrder[idx] = goalOrder[newIdx];
   goalOrder[newIdx] = temp;
-  await post({ action:"saveGoalOrder", order: goalOrder });
   renderGoals();
+  post({ action:"saveGoalOrder", order: goalOrder });
 }
 
 function toggleGoal(goalId) {
@@ -878,8 +881,8 @@ async function saveEdit() {
     if (idx > -1) DAILY_LIVING[idx].label = newValue;
     closeOverlay("editOverlay");
     editTarget = null;
-    await post({ action:"saveDailyLivingItems", items: DAILY_LIVING });
     renderDailyLiving();
+    post({ action:"saveDailyLivingItems", items: DAILY_LIVING });
     return;
   }
   const action = editTarget.type === "goal" ? "editGoal" : "editTask";
@@ -909,8 +912,8 @@ async function confirmDelete() {
     DAILY_LIVING.splice(deleteTarget.idx, 1);
     closeOverlay("confirmDeleteOverlay");
     deleteTarget = null;
-    await post({ action:"saveDailyLivingItems", items: DAILY_LIVING });
     renderDailyLiving();
+    post({ action:"saveDailyLivingItems", items: DAILY_LIVING });
     return;
   }
   if (deleteTarget.type === "task") {
