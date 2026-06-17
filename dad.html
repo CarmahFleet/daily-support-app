@@ -831,7 +831,10 @@
       const select = document.getElementById(containerId + '_select');
       const custom = document.getElementById(containerId + '_custom');
       let comment = select.value === '__custom__' ? custom.value.trim() : select.value;
-      if (!comment) return;
+      if (!comment) {
+        alert("Please choose a response from the dropdown (or write your own) before sending.");
+        return;
+      }
       try {
         await fetch(API_URL, {
           method: "POST", headers: { "Content-Type": "text/plain" },
