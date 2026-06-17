@@ -800,50 +800,66 @@
       renderRespondWidget('taskRespondWidget', 'Task', latestTask.row[0], TASK_RESPONSES);
     }
 
-    // ─── RESPOND WIDGET (generic) ──────────────────────────────
+    // ─── RESPOND WIDGET (generic, auto-send) ───────────────────
 
     function renderRespondWidget(containerId, targetType, targetId, options) {
       const el = document.getElementById(containerId);
       if (!el) return;
       const selectId = containerId + '_select';
       const customId = containerId + '_custom';
+      const sendBtnId = containerId + '_sendBtn';
       const sentId = containerId + '_sent';
       const optsHtml = options.map(o => `<option value="${escStr(o)}">${o}</option>`).join('');
       el.innerHTML = `
-        <select class="respond-select" id="${selectId}" onchange="toggleCustomInput('${containerId}')">
+        <select class="respond-select" id="${selectId}" onchange="handleRespondSelect('${targetType}','${escStr(String(targetId))}','${containerId}')">
           <option value="">💬 Respond to Jesse...</option>
           ${optsHtml}
           <option value="__custom__">✏️ Write your own...</option>
         </select>
         <input class="respond-custom-input" type="text" id="${customId}" placeholder="Type your message..." style="display:none">
-        <button class="respond-send-btn" onclick="sendDadComment('${targetType}','${escStr(String(targetId))}','${containerId}')">Send</button>
+        <button class="respond-send-btn" id="${sendBtnId}" style="display:none" onclick="sendCustomComment('${targetType}','${escStr(String(targetId))}','${containerId}')">Send</button>
         <div class="response-sent" id="${sentId}">Sent to Jesse 💜</div>
       `;
     }
 
-    function toggleCustomInput(containerId) {
+    function handleRespondSelect(targetType, targetId, containerId) {
       const select = document.getElementById(containerId + '_select');
       const custom = document.getElementById(containerId + '_custom');
-      custom.style.display = select.value === '__custom__' ? 'block' : 'none';
-    }
-
-    async function sendDadComment(targetType, targetId, containerId) {
-      const select = document.getElementById(containerId + '_select');
-      const custom = document.getElementById(containerId + '_custom');
-      let comment = select.value === '__custom__' ? custom.value.trim() : select.value;
-      if (!comment) {
-        alert("Please choose a response from the dropdown (or write your own) before sending.");
+      const sendBtn = document.getElementById(containerId + '_sendBtn');
+      if (select.value === '') return;
+      if (select.value === '__custom__') {
+        custom.style.display = 'block';
+        sendBtn.style.display = 'block';
+        custom.focus();
         return;
       }
+      sendDadComment(targetType, targetId, containerId, select.value);
+    }
+
+    async function sendCustomComment(targetType, targetId, containerId) {
+      const custom = document.getElementById(containerId + '_custom');
+      const comment = custom.value.trim();
+      if (!comment) {
+        alert("Please type a message first.");
+        return;
+      }
+      await sendDadComment(targetType, targetId, containerId, comment);
+    }
+
+    async function sendDadComment(targetType, targetId, containerId, comment) {
       try {
         await fetch(API_URL, {
           method: "POST", headers: { "Content-Type": "text/plain" },
           body: JSON.stringify({ action: "dadComment", targetType, targetId, comment })
         });
       } catch(e) {}
+      const select = document.getElementById(containerId + '_select');
+      const custom = document.getElementById(containerId + '_custom');
+      const sendBtn = document.getElementById(containerId + '_sendBtn');
       select.value = "";
       custom.value = "";
       custom.style.display = "none";
+      sendBtn.style.display = "none";
       const sent = document.getElementById(containerId + '_sent');
       sent.style.display = "block";
       setTimeout(() => sent.style.display = "none", 3000);
