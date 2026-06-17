@@ -169,12 +169,35 @@ function showGreeting() {
     ENCOURAGEMENT[new Date().getDay() % ENCOURAGEMENT.length];
 }
 
+function parsePerthDateTime(str) {
+  if (!str) return null;
+  const s = String(str).trim();
+  const m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})/);
+  if (m) {
+    return new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]), Number(m[4]), Number(m[5]));
+  }
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? null : d;
+}
+
 function showDadResponse() {
-  if (!appData?.dadResponses || appData.dadResponses.length <= 1) return;
-  const responses = appData.dadResponses;
-  const latest = responses[responses.length - 1];
-  if (new Date(latest[3]).toDateString() === new Date().toDateString()) {
-    document.getElementById("dadResponseText").innerText = latest[2];
+  const responses = appData?.dadResponses || [];
+  const comments = appData?.dadComments || [];
+  let latestText = null;
+  let latestTime = null;
+
+  if (responses.length > 1) {
+    const r = responses[responses.length - 1];
+    const t = parsePerthDateTime(r[3]);
+    if (t) { latestText = r[2]; latestTime = t; }
+  }
+  if (comments.length > 1) {
+    const c = comments[comments.length - 1];
+    const t = parsePerthDateTime(c[4]);
+    if (t && (!latestTime || t > latestTime)) { latestText = c[3]; latestTime = t; }
+  }
+  if (latestText && latestTime && latestTime.toDateString() === new Date().toDateString()) {
+    document.getElementById("dadResponseText").innerText = latestText;
     document.getElementById("dadResponseBox").style.display = "block";
   }
 }
