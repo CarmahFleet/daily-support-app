@@ -180,26 +180,42 @@ function parsePerthDateTime(str) {
   return isNaN(d.getTime()) ? null : d;
 }
 
+function getCommentLabel(targetType) {
+  if (targetType === 'CheckIn') return '💭 About your check-in';
+  if (targetType === 'Goal') return '🎯 About your goal';
+  if (targetType === 'Task') return '✅ About your task';
+  if (targetType === 'DailyLiving') return '📋 About your daily living';
+  if (targetType === 'DifficultThing') return '💪 About something difficult you did';
+  return '';
+}
+
 function showDadResponse() {
   const responses = appData?.dadResponses || [];
   const comments = appData?.dadComments || [];
-  let latestText = null;
-  let latestTime = null;
+  const todayItems = [];
 
-  if (responses.length > 1) {
-    const r = responses[responses.length - 1];
-    const t = parsePerthDateTime(r[3]);
-    if (t) { latestText = r[2]; latestTime = t; }
+  for (let i = 1; i < responses.length; i++) {
+    const t = parsePerthDateTime(responses[i][3]);
+    if (t && t.toDateString() === new Date().toDateString()) {
+      todayItems.push({ text: responses[i][2], label: '💜 About your message to Dad', time: t });
+    }
   }
-  if (comments.length > 1) {
-    const c = comments[comments.length - 1];
-    const t = parsePerthDateTime(c[4]);
-    if (t && (!latestTime || t > latestTime)) { latestText = c[3]; latestTime = t; }
+  for (let i = 1; i < comments.length; i++) {
+    const t = parsePerthDateTime(comments[i][4]);
+    if (t && t.toDateString() === new Date().toDateString()) {
+      todayItems.push({ text: comments[i][3], label: getCommentLabel(comments[i][1]), time: t });
+    }
   }
-  if (latestText && latestTime && latestTime.toDateString() === new Date().toDateString()) {
-    document.getElementById("dadResponseText").innerText = latestText;
-    document.getElementById("dadResponseBox").style.display = "block";
-  }
+
+  if (todayItems.length === 0) return;
+  todayItems.sort((a, b) => b.time - a.time);
+  const html = todayItems.map(item => `
+    <div style="margin-bottom:10px">
+      ${item.label ? `<div style="font-size:11px;font-weight:700;color:#7c6fcd;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px">${item.label}</div>` : ''}
+      <div>${item.text}</div>
+    </div>`).join('');
+  document.getElementById("dadResponseText").innerHTML = html;
+  document.getElementById("dadResponseBox").style.display = "block";
 }
 
 // ─── STREAK ──────────────────────────────────────────────
