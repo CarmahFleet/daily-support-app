@@ -352,6 +352,37 @@
     .confirm-msg { font-size: 14px; color: #555; margin-bottom: 20px; text-align: center; line-height: 1.5; }
     .confirm-delete-btn { width: 100%; padding: 13px; border-radius: 14px; border: none; background: linear-gradient(90deg, #ff3b3b, #cc0000); color: white; font-size: 14px; font-weight: 800; cursor: pointer; margin-bottom: 8px; }
     .footer { text-align: center; color: #bbb; font-size: 12px; margin-top: 24px; }
+    .respond-widget { margin-top: 10px; }
+    .respond-select {
+      width: 100%;
+      padding: 11px 12px;
+      border-radius: 12px;
+      border: 2px solid #e0e0f0;
+      font-size: 13px;
+      color: #3C3489;
+      margin-bottom: 8px;
+      background: white;
+    }
+    .respond-custom-input {
+      width: 100%;
+      padding: 11px 12px;
+      border-radius: 12px;
+      border: 2px solid #e0e0f0;
+      font-size: 13px;
+      color: #333;
+      margin-bottom: 8px;
+    }
+    .respond-send-btn {
+      width: 100%;
+      padding: 11px;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(90deg, #534AB7, #c054b8);
+      color: white;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -432,16 +463,29 @@
           <div class="checkin-box"><div class="label">Need</div><div class="value" id="needToday">—</div></div>
         </div>
         <div id="checkinTime" class="time-tag"></div>
+        <div class="respond-widget" id="checkinRespondWidget"></div>
       </div>
 
       <div class="card">
         <div class="card-title">Jesse's Daily Living Today</div>
         <div id="dailyLivingSummary">Loading...</div>
+        <div class="respond-widget" id="dailyLivingRespondWidget"></div>
       </div>
 
       <div class="card">
         <div class="card-title">Difficult Thing Jesse Did Today 💪</div>
         <div id="difficultThingToday"><span style="color:#ccc">Nothing recorded yet today</span></div>
+        <div class="respond-widget" id="difficultRespondWidget"></div>
+      </div>
+
+      <div class="card" id="goalsActivitySection" style="display:none">
+        <div class="card-title">Jesse's Goals & Tasks</div>
+        <div id="latestGoalLabel" style="font-size:14px;font-weight:700;color:#3C3489;margin-bottom:8px"></div>
+        <div class="respond-widget" id="goalRespondWidget"></div>
+        <div id="latestTaskBlock" style="margin-top:14px;display:none">
+          <div id="latestTaskLabel" style="font-size:14px;font-weight:700;color:#3C3489;margin-bottom:8px"></div>
+          <div class="respond-widget" id="taskRespondWidget"></div>
+        </div>
       </div>
 
       <div class="card">
@@ -493,6 +537,43 @@
     const API_URL = "https://script.google.com/macros/s/AKfycbzlTd0HcORu-R78042GmDC5buO-69X9XRB6NjPh-Qmtj_5fnA-fSKBAkXCnuufS5LU5/exec";
     const PASSWORD = "Beckett";
     const TIMEOUT_MS = 60 * 60 * 1000; // 1 hour
+
+    const MOOD_RESPONSES = [
+      "That's great to hear, Jesse! 💜",
+      "I'm here if you need to talk 💜",
+      "Proud of you for checking in today",
+      "Sending you love today 💜"
+    ];
+    const GOAL_SET_RESPONSES = [
+      "Love this goal, go for it! 🎯",
+      "Let's tackle this together",
+      "I believe in you",
+      "Great choice, Jesse!"
+    ];
+    const GOAL_COMPLETED_RESPONSES = [
+      "Amazing work, Jesse! 🏆",
+      "So proud of you!",
+      "You did it! 🎉",
+      "That's incredible, well done"
+    ];
+    const TASK_RESPONSES = [
+      "Nice one! ✅",
+      "Keep it up!",
+      "One step closer 💪",
+      "Great job today"
+    ];
+    const DAILY_LIVING_RESPONSES = [
+      "Well done getting through today!",
+      "Proud of you for taking care of yourself",
+      "Look at you go! 💜",
+      "Keep taking care of yourself"
+    ];
+    const DIFFICULT_RESPONSES = [
+      "That sounds tough — proud of you for doing it anyway 💪",
+      "You're stronger than you know",
+      "That took real courage",
+      "I'm proud of you for facing that"
+    ];
 
     let appData = null;
     let latestAlertId = null;
@@ -556,6 +637,7 @@
         renderCheckIn();
         renderDailyLiving();
         renderDifficultThing();
+        renderGoalsTasksActivity();
         renderDadCorner();
         renderDadArchive();
       } catch(e) {
@@ -623,6 +705,7 @@
       document.getElementById("energy").innerHTML = latest[4] || "—";
       document.getElementById("needToday").innerHTML = latest[5] || "—";
       document.getElementById("checkinTime").innerHTML = "Updated: " + latest[2];
+      renderRespondWidget('checkinRespondWidget', 'CheckIn', latest[0], MOOD_RESPONSES);
     }
 
   function renderDailyLiving() {
@@ -643,20 +726,124 @@
         html += `<div class="dl-summary-item ${done?'dl-done':'dl-not-done'}"><span>${item}</span><span>${done?'✅':'○'}</span></div>`;
       });
       document.getElementById("dailyLivingSummary").innerHTML = html || "<span style='color:#ccc'>No data yet</span>";
+      renderRespondWidget('dailyLivingRespondWidget', 'DailyLiving', String(todayNum), DAILY_LIVING_RESPONSES);
     }
 
     function renderDifficultThing() {
       const dt = appData.difficultThings || [];
       const today = new Date().toLocaleDateString('en-AU', { timeZone: 'Australia/Perth', day:'2-digit', month:'2-digit', year:'numeric' });
       let html = "";
+      let latestId = null;
       for (let i = dt.length - 1; i >= 1; i--) {
         const rowDate = dt[i][2].toString();
         if (dt[i][1] == 2 && rowDate.includes(today.split('/')[0]) && rowDate.includes(today.split('/')[1])) {
           html += `<div class="difficult-item">💪 ${dt[i][3]}</div>`;
+          if (latestId === null) latestId = dt[i][0];
         }
       }
-      if (!html) html = "<span style='color:#ccc'>Nothing recorded yet today</span>";
+      if (!html) {
+        html = "<span style='color:#ccc'>Nothing recorded yet today</span>";
+        document.getElementById("difficultRespondWidget").innerHTML = "";
+      } else {
+        renderRespondWidget('difficultRespondWidget', 'DifficultThing', latestId, DIFFICULT_RESPONSES);
+      }
       document.getElementById("difficultThingToday").innerHTML = html;
+    }
+
+    // ─── GOALS & TASKS ACTIVITY ────────────────────────────────
+
+    function parsePerthDateTime(str) {
+      if (!str) return null;
+      const s = String(str).trim();
+      const m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})/);
+      if (m) {
+        return new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]), Number(m[4]), Number(m[5]));
+      }
+      const d = new Date(s);
+      return isNaN(d.getTime()) ? null : d;
+    }
+
+    function renderGoalsTasksActivity() {
+      const goals = appData.goals || [];
+      const tasks = appData.tasks || [];
+      const section = document.getElementById('goalsActivitySection');
+
+      let latestGoal = null;
+      for (let i = 1; i < goals.length; i++) {
+        const g = goals[i];
+        if (g[1] != 2 || !g[2]) continue;
+        const t = parsePerthDateTime(g[4]);
+        if (t && (!latestGoal || t > latestGoal.time)) latestGoal = { row: g, time: t };
+      }
+
+      if (!latestGoal) { section.style.display = 'none'; return; }
+      section.style.display = 'block';
+
+      const g = latestGoal.row;
+      const isCompleted = g[3] === 'Completed';
+      document.getElementById('latestGoalLabel').innerHTML =
+        (isCompleted ? '🏆 Completed: ' : '🎯 New goal: ') + g[2];
+      renderRespondWidget('goalRespondWidget', 'Goal', g[0], isCompleted ? GOAL_COMPLETED_RESPONSES : GOAL_SET_RESPONSES);
+
+      let latestTask = null;
+      for (let i = 1; i < tasks.length; i++) {
+        const t = tasks[i];
+        if (t[1] != 2 || t[6] !== 'Completed') continue;
+        const ct = parsePerthDateTime(t[11]);
+        if (ct && (!latestTask || ct > latestTask.time)) latestTask = { row: t, time: ct };
+      }
+
+      const taskBlock = document.getElementById('latestTaskBlock');
+      if (!latestTask) { taskBlock.style.display = 'none'; return; }
+      taskBlock.style.display = 'block';
+      document.getElementById('latestTaskLabel').innerHTML = '✅ Completed task: ' + latestTask.row[4];
+      renderRespondWidget('taskRespondWidget', 'Task', latestTask.row[0], TASK_RESPONSES);
+    }
+
+    // ─── RESPOND WIDGET (generic) ──────────────────────────────
+
+    function renderRespondWidget(containerId, targetType, targetId, options) {
+      const el = document.getElementById(containerId);
+      if (!el) return;
+      const selectId = containerId + '_select';
+      const customId = containerId + '_custom';
+      const sentId = containerId + '_sent';
+      const optsHtml = options.map(o => `<option value="${escStr(o)}">${o}</option>`).join('');
+      el.innerHTML = `
+        <select class="respond-select" id="${selectId}" onchange="toggleCustomInput('${containerId}')">
+          <option value="">💬 Respond to Jesse...</option>
+          ${optsHtml}
+          <option value="__custom__">✏️ Write your own...</option>
+        </select>
+        <input class="respond-custom-input" type="text" id="${customId}" placeholder="Type your message..." style="display:none">
+        <button class="respond-send-btn" onclick="sendDadComment('${targetType}','${escStr(String(targetId))}','${containerId}')">Send</button>
+        <div class="response-sent" id="${sentId}">Sent to Jesse 💜</div>
+      `;
+    }
+
+    function toggleCustomInput(containerId) {
+      const select = document.getElementById(containerId + '_select');
+      const custom = document.getElementById(containerId + '_custom');
+      custom.style.display = select.value === '__custom__' ? 'block' : 'none';
+    }
+
+    async function sendDadComment(targetType, targetId, containerId) {
+      const select = document.getElementById(containerId + '_select');
+      const custom = document.getElementById(containerId + '_custom');
+      let comment = select.value === '__custom__' ? custom.value.trim() : select.value;
+      if (!comment) return;
+      try {
+        await fetch(API_URL, {
+          method: "POST", headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify({ action: "dadComment", targetType, targetId, comment })
+        });
+      } catch(e) {}
+      select.value = "";
+      custom.value = "";
+      custom.style.display = "none";
+      const sent = document.getElementById(containerId + '_sent');
+      sent.style.display = "block";
+      setTimeout(() => sent.style.display = "none", 3000);
     }
 
     async function sendResponse(response) {
