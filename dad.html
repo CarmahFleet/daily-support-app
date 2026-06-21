@@ -626,7 +626,7 @@
         document.getElementById("lockScreen").style.display = "none";
         document.getElementById("appContent").style.display = "block";
         resetTimer();
-        loadDashboard();
+        renderDashboardData(data);
         setInterval(loadDashboard, 30000);
       } catch(e) {
         document.getElementById("pinError").innerText = "Couldn't connect. Try again.";
@@ -664,18 +664,23 @@
 
     // ─── DASHBOARD ───────────────────────────────────────────
 
+    function renderDashboardData(data) {
+      appData = data;
+      renderAlerts();
+      renderWeeklySummary();
+      renderCheckIn();
+      renderDailyLiving();
+      renderDifficultThing();
+      renderGoalsTasksActivity();
+      renderDadCorner();
+      renderDadArchive();
+    }
+
     async function loadDashboard() {
       try {
         const response = await fetch(apiUrlWithPassword());
-        appData = await response.json();
-        renderAlerts();
-        renderWeeklySummary();
-        renderCheckIn();
-        renderDailyLiving();
-        renderDifficultThing();
-        renderGoalsTasksActivity();
-        renderDadCorner();
-        renderDadArchive();
+        const data = await response.json();
+        renderDashboardData(data);
       } catch(e) {
         document.getElementById("latestAlert").innerHTML = "Unable to load";
       }
