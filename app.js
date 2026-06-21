@@ -1,5 +1,4 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbzlTd0HcORu-R78042GmDC5buO-69X9XRB6NjPh-Qmtj_5fnA-fSKBAkXCnuufS5LU5/exec";
-const PASSWORD = "Beckett";
 const TIMEOUT_MS = 60 * 60 * 1000;
 
 const ENCOURAGEMENT = [
@@ -46,23 +45,40 @@ let deleteTarget = null;
 let expandedGoals = {};
 let taskOrder = [];
 let goalOrder = [];
+let currentPassword = "";
 
 // ─── AUTH ────────────────────────────────────────────────
 
-function checkPin() {
+function apiUrlWithPassword() {
+  return API_URL + '?password=' + encodeURIComponent(currentPassword);
+}
+
+function withPassword(body) {
+  return Object.assign({}, body, { password: currentPassword });
+}
+
+async function checkPin() {
   const val = document.getElementById("pinInput").value;
-  if (val === PASSWORD) {
+  try {
+    const res = await fetch(API_URL + '?password=' + encodeURIComponent(val));
+    const data = await res.json();
+    if (!data || data.error === 'Unauthorized') {
+      document.getElementById("pinError").innerText = "Incorrect password. Try again.";
+      document.getElementById("pinInput").value = "";
+      return;
+    }
+    currentPassword = val;
     authed = true;
     sessionStorage.setItem("jessieAuth", Date.now().toString());
+    sessionStorage.setItem("jessieAuthPwd", val);
     document.getElementById("pinInput").value = "";
     document.getElementById("pinError").innerText = "";
     document.getElementById("lockScreen").style.display = "none";
     document.getElementById("appContent").style.display = "block";
     resetTimer();
     initApp();
-  } else {
-    document.getElementById("pinError").innerText = "Incorrect password. Try again.";
-    document.getElementById("pinInput").value = "";
+  } catch(e) {
+    document.getElementById("pinError").innerText = "Couldn't connect. Try again.";
   }
 }
 
@@ -81,7 +97,9 @@ function lockApp() {
 
 window.onload = function() {
   const savedAuth = sessionStorage.getItem("jessieAuth");
-  if (savedAuth && (Date.now() - parseInt(savedAuth)) < TIMEOUT_MS) {
+  const savedPwd = sessionStorage.getItem("jessieAuthPwd");
+  if (savedAuth && savedPwd && (Date.now() - parseInt(savedAuth)) < TIMEOUT_MS) {
+    currentPassword = savedPwd;
     authed = true;
     document.getElementById("lockScreen").style.display = "none";
     document.getElementById("appContent").style.display = "block";
@@ -111,7 +129,7 @@ function showPage(page) {
 
 async function initApp() {
   try {
-    const res = await fetch(API_URL);
+    const res = await fetch(apiUrlWithPassword());
     appData = await res.json();
     syncDailyLivingFromData();
     loadTaskOrder();
@@ -135,7 +153,7 @@ function syncDailyLivingFromData() {
 
 async function refreshData() {
   try {
-    const res = await fetch(API_URL);
+    const res = await fetch(apiUrlWithPassword());
     appData = await res.json();
     syncDailyLivingFromData();
     loadTaskOrder();
@@ -232,7 +250,7 @@ async function checkStreak() {
     const res = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "text/plain" },
-      body: JSON.stringify({ action: "updateStreak", userId: 2 })
+      body: JSON.stringify(withPassword({ action: "updateStreak", userId: 2 }))
     });
     const data = await res.json();
     if (!data.success || data.alreadyDone) {
@@ -295,7 +313,7 @@ async function showStreakCelebration(streak) {
     const res = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "text/plain" },
-      body: JSON.stringify({ action: "aiStreakCelebrate", streak })
+      body: JSON.stringify(withPassword({ action: "aiStreakCelebrate", streak }))
     });
     const data = await res.json();
     document.getElementById("streakMsg").innerText = data.success
@@ -812,7 +830,7 @@ async function getAISuggestions(goalId, goalName) {
     const res = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "text/plain" },
-      body: JSON.stringify({ action: "aiSuggest", goal: goalName })
+      body: JSON.stringify(withPassword({ action: "aiSuggest", goal: goalName }))
     });
     const data = await res.json();
     loadingEl.style.display = "none";
@@ -849,7 +867,7 @@ async function showCelebration(type, context) {
     const res = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "text/plain" },
-      body: JSON.stringify({ action: "aiCelebrate", type, context })
+      body: JSON.stringify(withPassword({ action: "aiCelebrate", type, context }))
     });
     const data = await res.json();
     document.getElementById("celebrationMsg").innerText = data.success
@@ -1003,7 +1021,7 @@ function post(body) {
   fetch(API_URL, {
     method:"POST",
     headers:{"Content-Type":"text/plain"},
-    body: JSON.stringify(body)
+    body: JSON.stringify(withPassword(body))
   }).catch(() => {});
 }
 
