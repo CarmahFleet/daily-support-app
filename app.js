@@ -76,7 +76,7 @@ async function checkPin() {
     document.getElementById("lockScreen").style.display = "none";
     document.getElementById("appContent").style.display = "block";
     resetTimer();
-    initApp();
+    await initAppWithData(data);
   } catch(e) {
     document.getElementById("pinError").innerText = "Couldn't connect. Try again.";
   }
@@ -127,18 +127,23 @@ function showPage(page) {
 
 // ─── INIT ────────────────────────────────────────────────
 
+async function initAppWithData(data) {
+  appData = data;
+  syncDailyLivingFromData();
+  loadTaskOrder();
+  loadGoalOrder();
+  showGreeting();
+  showDadResponse();
+  renderDailyLiving();
+  loadDadCorner();
+  await checkStreak();
+}
+
 async function initApp() {
   try {
     const res = await fetch(apiUrlWithPassword());
-    appData = await res.json();
-    syncDailyLivingFromData();
-    loadTaskOrder();
-    loadGoalOrder();
-    showGreeting();
-    showDadResponse();
-    renderDailyLiving();
-    loadDadCorner();
-    await checkStreak();
+    const data = await res.json();
+    await initAppWithData(data);
   } catch(e) { console.error(e); }
 }
 
