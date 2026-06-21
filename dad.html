@@ -551,7 +551,6 @@
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzlTd0HcORu-R78042GmDC5buO-69X9XRB6NjPh-Qmtj_5fnA-fSKBAkXCnuufS5LU5/exec";
-    const PASSWORD = "Beckett";
     const TIMEOUT_MS = 60 * 60 * 1000; // 1 hour
 
     const MOOD_RESPONSES = [
@@ -597,13 +596,31 @@
     let deleteTarget = null;
     let currentDadCorner = null;
     let activityTimer = null;
+    let currentPassword = "";
 
     // ─── AUTH ────────────────────────────────────────────────
 
-    function checkPin() {
+    function apiUrlWithPassword() {
+      return API_URL + '?password=' + encodeURIComponent(currentPassword);
+    }
+
+    function withPassword(body) {
+      return Object.assign({}, body, { password: currentPassword });
+    }
+
+    async function checkPin() {
       const val = document.getElementById("pinInput").value;
-      if (val === PASSWORD) {
+      try {
+        const res = await fetch(API_URL + '?password=' + encodeURIComponent(val));
+        const data = await res.json();
+        if (!data || data.error === 'Unauthorized') {
+          document.getElementById("pinError").innerText = "Incorrect password. Try again.";
+          document.getElementById("pinInput").value = "";
+          return;
+        }
+        currentPassword = val;
         sessionStorage.setItem("dadAuth", Date.now().toString());
+        sessionStorage.setItem("dadAuthPwd", val);
         document.getElementById("pinInput").value = "";
         document.getElementById("pinError").innerText = "";
         document.getElementById("lockScreen").style.display = "none";
@@ -611,9 +628,8 @@
         resetTimer();
         loadDashboard();
         setInterval(loadDashboard, 30000);
-      } else {
-        document.getElementById("pinError").innerText = "Incorrect password. Try again.";
-        document.getElementById("pinInput").value = "";
+      } catch(e) {
+        document.getElementById("pinError").innerText = "Couldn't connect. Try again.";
       }
     }
 
@@ -624,6 +640,7 @@
 
     function lockApp() {
       sessionStorage.removeItem("dadAuth");
+      sessionStorage.removeItem("dadAuthPwd");
       document.getElementById("appContent").style.display = "none";
       document.getElementById("lockScreen").style.display = "flex";
       document.getElementById("pinInput").value = "";
@@ -632,7 +649,9 @@
 
     window.onload = function() {
       const savedAuth = sessionStorage.getItem("dadAuth");
-      if (savedAuth && (Date.now() - parseInt(savedAuth)) < TIMEOUT_MS) {
+      const savedPwd = sessionStorage.getItem("dadAuthPwd");
+      if (savedAuth && savedPwd && (Date.now() - parseInt(savedAuth)) < TIMEOUT_MS) {
+        currentPassword = savedPwd;
         document.getElementById("lockScreen").style.display = "none";
         document.getElementById("appContent").style.display = "block";
         resetTimer();
@@ -647,7 +666,7 @@
 
     async function loadDashboard() {
       try {
-        const response = await fetch(API_URL);
+        const response = await fetch(apiUrlWithPassword());
         appData = await response.json();
         renderAlerts();
         renderWeeklySummary();
@@ -877,7 +896,7 @@
       try {
         await fetch(API_URL, {
           method: "POST", headers: { "Content-Type": "text/plain" },
-          body: JSON.stringify({ action: "dadComment", targetType, targetId, comment })
+          body: JSON.stringify(withPassword({ action: "dadComment", targetType, targetId, comment }))
         });
       } catch(e) {}
       const select = document.getElementById(containerId + '_select');
@@ -897,7 +916,7 @@
         await fetch(API_URL, {
           method: "POST",
           headers: { "Content-Type": "text/plain" },
-          body: JSON.stringify({ action:"dadResponse", alertId:latestAlertId, response })
+          body: JSON.stringify(withPassword({ action:"dadResponse", alertId:latestAlertId, response }))
         });
       } catch(e) {}
       document.getElementById("responseSent").style.display = "block";
@@ -968,7 +987,7 @@
         await fetch(API_URL, {
           method: "POST",
           headers: { "Content-Type": "text/plain" },
-          body: JSON.stringify({ action: "completeDadCorner", rowId: currentDadCorner[0] })
+          body: JSON.stringify(withPassword({ action: "completeDadCorner", rowId: currentDadCorner[0] }))
         });
       } catch(e) {}
       await showCelebration(currentDadCorner[3]);
@@ -998,7 +1017,7 @@
       if (editTarget.type === "focus") {
         await fetch(API_URL, {
           method: "POST", headers: { "Content-Type": "text/plain" },
-          body: JSON.stringify({ action: "editDadCornerFocus", rowId: currentDadCorner[0], newFocus: newValue })
+          body: JSON.stringify(withPassword({ action: "editDadCornerFocus", rowId: currentDadCorner[0], newFocus: newValue }))
         });
       } else {
         const oldStep = steps[editTarget.idx];
@@ -1007,7 +1026,7 @@
         if (ci > -1) completed[ci] = newValue;
         await fetch(API_URL, {
           method: "POST", headers: { "Content-Type": "text/plain" },
-          body: JSON.stringify({ action: "editDadCornerSteps", rowId: currentDadCorner[0], steps, completed })
+          body: JSON.stringify(withPassword({ action: "editDadCornerSteps", rowId: currentDadCorner[0], steps, completed }))
         });
       }
       closeOverlay("editOverlay");
@@ -1029,7 +1048,7 @@
       const newCompleted = completed.filter(s => s !== deleteTarget.step);
       await fetch(API_URL, {
         method: "POST", headers: { "Content-Type": "text/plain" },
-        body: JSON.stringify({ action: "editDadCornerSteps", rowId: currentDadCorner[0], steps, completed: newCompleted })
+        body: JSON.stringify(withPassword({ action: "editDadCornerSteps", rowId: currentDadCorner[0], steps, completed: newCompleted }))
       });
       closeOverlay("confirmDeleteOverlay");
       deleteTarget = null;
@@ -1041,7 +1060,7 @@
       try {
         await fetch(API_URL, {
           method: "POST", headers: { "Content-Type": "text/plain" },
-          body: JSON.stringify({ action:"updateDadCornerStep", userId:1, step })
+          body: JSON.stringify(withPassword({ action:"updateDadCornerStep", userId:1, step }))
         });
       } catch(e) {}
       setTimeout(loadDashboard, 1000);
@@ -1058,7 +1077,7 @@
       try {
         await fetch(API_URL, {
           method: "POST", headers: { "Content-Type": "text/plain" },
-          body: JSON.stringify({ action:"saveDadCorner", userId:1, week: getWeekString(), focus, steps, completedSteps:[] })
+          body: JSON.stringify(withPassword({ action:"saveDadCorner", userId:1, week: getWeekString(), focus, steps, completedSteps:[] }))
         });
       } catch(e) {}
       await loadDashboard();
@@ -1079,7 +1098,7 @@
       try {
         const res = await fetch(API_URL, {
           method: "POST", headers: { "Content-Type": "text/plain" },
-          body: JSON.stringify({ action: "aiDadSuggest", goal: focus })
+          body: JSON.stringify(withPassword({ action: "aiDadSuggest", goal: focus }))
         });
         const data = await res.json();
         document.getElementById("dadAiLoading").style.display = "none";
@@ -1103,7 +1122,7 @@
       try {
         const res = await fetch(API_URL, {
           method: "POST", headers: { "Content-Type": "text/plain" },
-          body: JSON.stringify({ action: "aiCelebrateDad", context: focus })
+          body: JSON.stringify(withPassword({ action: "aiCelebrateDad", context: focus }))
         });
         const data = await res.json();
         document.getElementById("celebrationMsg").innerText = data.success
