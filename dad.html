@@ -383,6 +383,16 @@
       font-weight: 800;
       cursor: pointer;
     }
+    .weekly-summary-section {
+      background: linear-gradient(135deg, #eef3ff, #fdf0ff);
+      border-radius: 22px;
+      padding: 18px;
+      margin-bottom: 14px;
+      border: 2px solid #d9d2f7;
+    }
+    .weekly-summary-title { font-size: 11px; font-weight: 800; color: #7c6fcd; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+    .weekly-summary-dates { font-size: 11px; color: #999; margin-bottom: 10px; }
+    .weekly-summary-text { font-size: 14px; color: #444; line-height: 1.6; }
   </style>
 </head>
 <body>
@@ -491,6 +501,12 @@
       <div class="card">
         <div class="card-title">Recent Alerts</div>
         <div id="recentAlerts"><span style="color:#ccc">No alerts yet</span></div>
+      </div>
+
+      <div class="weekly-summary-section" id="weeklySummarySection" style="display:none">
+        <div class="weekly-summary-title">📊 Jesse's Week</div>
+        <div class="weekly-summary-dates" id="weeklySummaryDates"></div>
+        <div class="weekly-summary-text" id="weeklySummaryText"></div>
       </div>
 
       <div class="dad-corner-section">
@@ -634,6 +650,7 @@
         const response = await fetch(API_URL);
         appData = await response.json();
         renderAlerts();
+        renderWeeklySummary();
         renderCheckIn();
         renderDailyLiving();
         renderDifficultThing();
@@ -695,6 +712,16 @@
           </div>`;
       }
       document.getElementById("recentAlerts").innerHTML = html;
+    }
+
+    function renderWeeklySummary() {
+      const ws = appData.weeklySummaries || [];
+      const section = document.getElementById('weeklySummarySection');
+      if (ws.length <= 1) { section.style.display = 'none'; return; }
+      const latest = ws[ws.length - 1];
+      section.style.display = 'block';
+      document.getElementById('weeklySummaryDates').innerText = latest[1] + ' – ' + latest[2];
+      document.getElementById('weeklySummaryText').innerText = latest[3];
     }
 
     function renderCheckIn() {
